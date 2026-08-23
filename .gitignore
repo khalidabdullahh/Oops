@@ -4,6 +4,16 @@ node_modules/
 *.log
 .vscode/
 .idea/
-android/.gradle
-android/build
-android/app/build
+
+# Android build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+
+# Root APK (keep only RELEASE/)
+/ChaosRealm.apk
+
+# Build script temp
+build_apk.sh
