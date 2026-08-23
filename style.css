@@ -1,0 +1,256 @@
+/* ============================================================
+   CHAOS REALM – Style Sheet
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --bg: #0a0a0f;
+  --accent: #ff4757;
+  --accent2: #ffd32a;
+  --accent3: #2ed573;
+  --text: #fff;
+  --shadow: rgba(255, 71, 87, 0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: 'Press Start 2P', monospace;
+}
+
+#game-wrapper {
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#gameCanvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ── UI Overlay ─────────────────────────────────────────── */
+#ui-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── HUD ────────────────────────────────────────────────── */
+#hud {
+  position: absolute;
+  top: 16px; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 10px;
+  color: var(--text);
+  text-shadow: 0 0 8px rgba(255,255,255,0.6);
+  pointer-events: none;
+}
+
+/* ── Screens ────────────────────────────────────────────── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  background: rgba(5,5,15,0.85);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.25s ease;
+}
+
+.screen.hidden { display: none; }
+
+.screen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+/* ── Start Screen ───────────────────────────────────────── */
+.game-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.title-chaos {
+  font-size: clamp(32px, 6vw, 72px);
+  color: var(--accent);
+  text-shadow: 0 0 30px var(--shadow), 0 4px 0 #7f0000;
+  letter-spacing: 4px;
+  animation: flicker 3s infinite;
+}
+
+.title-realm {
+  font-size: clamp(20px, 4vw, 48px);
+  color: var(--accent2);
+  text-shadow: 0 0 20px rgba(255,211,42,0.6), 0 3px 0 #7a6000;
+  letter-spacing: 8px;
+}
+
+.subtitle {
+  font-size: clamp(8px, 1.5vw, 14px);
+  color: #aaa;
+  letter-spacing: 2px;
+}
+
+.controls-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 16px 24px;
+}
+
+.ctrl {
+  font-size: clamp(7px, 1.2vw, 11px);
+  color: #ccc;
+  letter-spacing: 1px;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.game-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 1.8vw, 16px);
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 4px;
+  padding: 14px 32px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  box-shadow: 0 6px 0 #7f0000, 0 0 20px var(--shadow);
+  transition: transform 0.1s, box-shadow 0.1s;
+  pointer-events: all;
+}
+
+.game-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #7f0000, 0 0 30px var(--shadow);
+}
+
+.game-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #7f0000;
+}
+
+.game-btn.glow {
+  background: var(--accent3);
+  box-shadow: 0 6px 0 #0a5e30, 0 0 20px rgba(46,213,115,0.5);
+}
+
+.game-btn.glow:hover {
+  box-shadow: 0 8px 0 #0a5e30, 0 0 40px rgba(46,213,115,0.7);
+}
+
+.warning-text {
+  font-size: clamp(7px, 1.2vw, 10px);
+  color: var(--accent2);
+  animation: blink 1.2s infinite;
+}
+
+/* ── Death Screen ───────────────────────────────────────── */
+.death-title {
+  font-size: clamp(24px, 5vw, 60px);
+  color: var(--accent);
+  text-shadow: 0 0 40px var(--shadow);
+  animation: shakeTitle 0.4s ease;
+}
+
+.death-msg {
+  font-size: clamp(8px, 1.5vw, 13px);
+  color: #bbb;
+  letter-spacing: 1px;
+}
+
+.death-count-big {
+  font-size: clamp(11px, 2vw, 18px);
+  color: var(--accent2);
+}
+
+/* ── Level Complete ─────────────────────────────────────── */
+.win-title {
+  font-size: clamp(24px, 4.5vw, 55px);
+  color: var(--accent3);
+  text-shadow: 0 0 30px rgba(46,213,115,0.7);
+}
+
+.win-time, .win-rating {
+  font-size: clamp(9px, 1.5vw, 14px);
+  color: #ccc;
+}
+
+.win-rating { font-size: clamp(20px, 3vw, 32px); }
+
+/* ── Game Complete ──────────────────────────────────────── */
+.complete-title {
+  font-size: clamp(28px, 5.5vw, 68px);
+  background: linear-gradient(135deg, var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+.complete-sub {
+  font-size: clamp(8px, 1.4vw, 13px);
+  color: #aaa;
+}
+
+.final-deaths {
+  font-size: clamp(9px, 1.5vw, 14px);
+  color: var(--accent2);
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+  98% { opacity: 0.5; }
+  99% { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes shakeTitle {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-8px) rotate(-1deg); }
+  30%  { transform: translateX(8px) rotate(1deg); }
+  45%  { transform: translateX(-6px); }
+  60%  { transform: translateX(6px); }
+  75%  { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 6px 0 #7f0000, 0 0 20px var(--shadow); }
+  50% { transform: scale(1.04); box-shadow: 0 6px 0 #7f0000, 0 0 40px var(--shadow); }
+}
+
+.pulse { animation: pulse 1.8s infinite; }
+
+.hidden { display: none !important; }

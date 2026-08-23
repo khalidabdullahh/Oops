@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chaos Realm - NOT A Troll Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui-overlay">
+      <!-- HUD -->
+      <div id="hud" class="hidden">
+        <div id="level-display">LEVEL <span id="level-num">1</span></div>
+        <div id="deaths-display">💀 <span id="death-count">0</span></div>
+        <div id="timer-display">⏱ <span id="timer-val">0.0</span>s</div>
+      </div>
+
+      <!-- Start Screen -->
+      <div id="start-screen" class="screen">
+        <div class="screen-content">
+          <div class="game-title">
+            <span class="title-chaos">CHAOS</span>
+            <span class="title-realm">REALM</span>
+          </div>
+          <div class="subtitle">Definitely NOT a troll game 😇</div>
+          <div class="controls-hint">
+            <div class="ctrl">←→ / A D — Move</div>
+            <div class="ctrl">↑ / W / Space — Jump</div>
+            <div class="ctrl">R — Restart</div>
+          </div>
+          <button id="start-btn" class="game-btn pulse">PLAY NOW</button>
+          <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
+        </div>
+      </div>
+
+      <!-- Death Screen -->
+      <div id="death-screen" class="screen hidden">
+        <div class="screen-content">
+          <div class="death-title" id="death-title">YOU DIED</div>
+          <div class="death-msg" id="death-msg">Almost had it!</div>
+          <div class="death-count-big">💀 <span id="death-big">0</span> deaths</div>
+          <button id="retry-btn" class="game-btn">TRY AGAIN</button>
+        </div>
+      </div>
+
+      <!-- Level Complete -->
+      <div id="level-complete" class="screen hidden">
+        <div class="screen-content">
+          <div class="win-title">LEVEL CLEAR!</div>
+          <div class="win-time">Time: <span id="win-time">0.0</span>s</div>
+          <div class="win-rating" id="win-rating">⭐⭐⭐</div>
+          <button id="next-btn" class="game-btn glow">NEXT LEVEL →</button>
+        </div>
+      </div>
+
+      <!-- Game Complete -->
+      <div id="game-complete" class="screen hidden">
+        <div class="screen-content">
+          <div class="complete-title">YOU WIN!</div>
+          <div class="complete-sub">You survived the Chaos Realm</div>
+          <div class="final-deaths">Total Deaths: <span id="final-deaths">0</span></div>
+          <button id="play-again-btn" class="game-btn glow">PLAY AGAIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
