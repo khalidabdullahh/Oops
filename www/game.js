@@ -60,28 +60,76 @@ const keys = {};
 document.addEventListener("keydown", e => { keys[e.code] = true; e.preventDefault?.(); });
 document.addEventListener("keyup",   e => { keys[e.code] = false; });
 
-// Mobile touch controls
+// Mobile touch controls & gamepad
 function setupMobileControls() {
   const mc = document.getElementById("mobile-controls");
-  if (window.__isMobile) mc.classList.remove("hidden");
+  const toggleBtn = document.getElementById("btn-touch-toggle");
+  if (!mc) return;
+
+  function isTouchDevice() {
+    return ('ontouchstart' in window) || 
+           (navigator.maxTouchPoints > 0) || 
+           (window.innerWidth <= 1024);
+  }
+
+  // Set initial visibility
+  let controlsVisible = isTouchDevice();
+  if (controlsVisible) {
+    mc.classList.remove("hidden");
+  } else {
+    mc.classList.add("hidden");
+  }
+
+  // Toggle button in HUD
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      controlsVisible = !controlsVisible;
+      mc.classList.toggle("hidden", !controlsVisible);
+    });
+  }
 
   function bindBtn(id, code) {
     const btn = document.getElementById(id);
     if (!btn) return;
-    btn.addEventListener("touchstart", e => { e.preventDefault(); keys[code] = true; initAudio(); }, {passive:false});
-    btn.addEventListener("touchend",   e => { e.preventDefault(); keys[code] = false; }, {passive:false});
-    btn.addEventListener("mousedown",  () => { keys[code] = true; });
-    btn.addEventListener("mouseup",    () => { keys[code] = false; });
+
+    const press = (e) => {
+      if (e) e.preventDefault();
+      keys[code] = true;
+      btn.classList.add("active");
+      initAudio();
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+    };
+
+    const release = (e) => {
+      if (e) e.preventDefault();
+      keys[code] = false;
+      btn.classList.remove("active");
+    };
+
+    btn.addEventListener("touchstart", press, { passive: false });
+    btn.addEventListener("touchend", release, { passive: false });
+    btn.addEventListener("touchcancel", release, { passive: false });
+    btn.addEventListener("mousedown", press);
+    btn.addEventListener("mouseup", release);
+    btn.addEventListener("mouseleave", release);
   }
 
-  bindBtn("btn-left",  "ArrowLeft");
-  bindBtn("btn-right", "ArrowRight");
-  bindBtn("btn-jump",  "Space");
+  bindBtn("btn-left",    "ArrowLeft");
+  bindBtn("btn-right",   "ArrowRight");
+  bindBtn("btn-jump",    "Space");
+  bindBtn("btn-restart", "KeyR");
 }
 
-// Run after DOM ready
 document.addEventListener("DOMContentLoaded", setupMobileControls);
-setTimeout(setupMobileControls, 100);
+setTimeout(setupMobileControls, 50);
+setTimeout(setupMobileControls, 300);
+window.addEventListener("resize", () => {
+  const mc = document.getElementById("mobile-controls");
+  if (mc && (window.innerWidth <= 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+    mc.classList.remove("hidden");
+  }
+});
 
 function pressed(...codes) { return codes.some(c => keys[c]); }
 

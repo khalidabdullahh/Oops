@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -24,15 +24,19 @@
         <div id="level-display">LEVEL <span id="level-num">1</span></div>
         <div id="deaths-display">💀 <span id="death-count">0</span></div>
         <div id="timer-display">⏱ <span id="timer-val">0.0</span>s</div>
+        <button id="btn-touch-toggle" title="Toggle On-Screen Controls">🎮</button>
       </div>
 
-      <!-- Mobile controls -->
-      <div id="mobile-controls" class="hidden">
+      <!-- Mobile On-Screen Gamepad Controls -->
+      <div id="mobile-controls">
         <div id="dpad">
-          <button class="dpad-btn" id="btn-left">◀</button>
-          <button class="dpad-btn" id="btn-right">▶</button>
+          <button class="touch-btn dpad-btn" id="btn-left" aria-label="Left">◀</button>
+          <button class="touch-btn dpad-btn" id="btn-right" aria-label="Right">▶</button>
         </div>
-        <button class="jump-btn" id="btn-jump">JUMP</button>
+        <div id="action-buttons">
+          <button class="touch-btn restart-btn" id="btn-restart" aria-label="Restart">↺ R</button>
+          <button class="touch-btn jump-btn" id="btn-jump" aria-label="Jump">▲ JUMP</button>
+        </div>
       </div>
 
       <!-- Start Screen -->
@@ -44,9 +48,8 @@
           </div>
           <div class="subtitle">Definitely NOT a troll game 😇</div>
           <div class="controls-hint">
-            <div class="ctrl">←→ / A D — Move</div>
-            <div class="ctrl">↑ / W / Space — Jump</div>
-            <div class="ctrl">R — Restart</div>
+            <div class="ctrl">PC: ← → / A D — Move &nbsp;|&nbsp; Space / W — Jump &nbsp;|&nbsp; R — Restart</div>
+            <div class="ctrl">Mobile: Use On-Screen Gamepad Buttons Below</div>
           </div>
           <button id="start-btn" class="game-btn pulse">▶ PLAY NOW</button>
           <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
@@ -86,12 +89,10 @@
   </div>
 
   <script>
-    // Register service worker
+    // Register service worker for offline PWA
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').catch(()=>{});
     }
-    // Detect touch device
-    window.__isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
   </script>
   <script src="game.js"></script>
 </body>
