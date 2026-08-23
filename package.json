@@ -1,0 +1,16 @@
+{
+  "name": "chaos-realm",
+  "version": "1.0.0",
+  "description": "Chaos Realm - A deceptive platformer game",
+  "main": "game.js",
+  "scripts": {
+    "build-apk": "npm install && npx cap init 'Chaos Realm' com.chaosrealm.game --web-dir . && npx cap add android && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "cap-sync": "npx cap sync android",
+    "cap-open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.7.8",
+    "@capacitor/cli": "^5.7.8",
+    "@capacitor/core": "^5.7.8"
+  }
+}

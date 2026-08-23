@@ -1,0 +1,9 @@
+{
+  "appId": "com.chaosrealm.game",
+  "appName": "Chaos Realm",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#0a0a0f"
+  }
+}
