@@ -1881,9 +1881,12 @@ function showScreen(name) {
   if (name && screens[name]) screens[name].classList.remove("hidden");
   if (name === "playing") hud.classList.remove("hidden");
   
-  // Maintain background color blend across all screen transitions
+  // Maintain background gradient blend across all screen transitions
   if (name === "start" || name === "death" || name === "levelComplete") {
-    document.body.style.backgroundColor = activeTheme.bg2;
+    const bgGrad = `linear-gradient(to bottom, ${activeTheme.bg1}, ${activeTheme.bg2})`;
+    document.body.style.background = bgGrad;
+    const wrapper = document.getElementById("game-wrapper");
+    if (wrapper) wrapper.style.background = bgGrad;
   }
 }
 
@@ -1954,10 +1957,11 @@ function startLevel(idx) {
   const prevTheme = activeTheme;
   activeTheme = getTheme(idx);
 
-  // Set body and wrapper background to match theme
-  document.body.style.backgroundColor = activeTheme.bg2;
+  // Set body and wrapper background gradient to match theme
+  const bgGrad = `linear-gradient(to bottom, ${activeTheme.bg1}, ${activeTheme.bg2})`;
+  document.body.style.background = bgGrad;
   const wrapper = document.getElementById("game-wrapper");
-  if (wrapper) wrapper.style.backgroundColor = activeTheme.bg2;
+  if (wrapper) wrapper.style.background = bgGrad;
 
   // Show world title when entering a new world
   if (idx === 0 || idx === 3 || idx === 6) {
