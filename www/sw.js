@@ -1,4 +1,4 @@
-const CACHE = "oops-v1";
+const CACHE = "oops-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -23,8 +23,24 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
+// Network-First Strategy: always check network first to ensure updates deliver immediately
 self.addEventListener("fetch", e => {
+  // Only intercept HTTP/HTTPS requests (Chrome extensions and other schemes can break)
+  if (!e.request.url.startsWith('http')) return;
+
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request)
+      .then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE).then(cache => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(e.request);
+      })
   );
 });
