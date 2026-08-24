@@ -14,15 +14,15 @@ git branch -M main
 
 # 2. Stage all core files and commit
 git add .
-git commit -m "Initial commit: Chaos Realm game"
+git commit -m "Initial commit: Oops! game"
 
 # 3. Authenticate and push to remote repository
-git remote add origin https://github.com/khalidabdullahh/Chaos-Realm.git
+git remote add origin https://github.com/khalidabdullahh/Oops.git
 git push -u origin main
 ```
 
 ---
 
 ## 🌐 Live Repository Details
-- **GitHub Repo:** [https://github.com/khalidabdullahh/Chaos-Realm](https://github.com/khalidabdullahh/Chaos-Realm)
-- **Deployment URL (GitHub Pages):** `https://khalidabdullahh.github.io/Chaos-Realm/`
+- **GitHub Repo:** [https://github.com/khalidabdullahh/Oops](https://github.com/khalidabdullahh/Oops)
+- **Deployment URL (GitHub Pages):** `https://khalidabdullahh.github.io/Oops/`

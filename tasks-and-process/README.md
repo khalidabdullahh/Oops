@@ -1,4 +1,4 @@
-# 📁 Chaos Realm: Development Tasks, Process & Output Gallery
+# 📁 Oops! Development Tasks, Process & Output Gallery
 
 This directory contains complete step-by-step documentation of all development tasks completed from start to finish, along with actual code snippets, technical breakdowns, and rendered output screenshots.
 
