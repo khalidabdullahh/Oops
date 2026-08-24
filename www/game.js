@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-//  CHAOS REALM – Main Game Engine
-//  A deceptive platformer that's "totally not a troll game"
+//  Oops! – Main Game Engine
+//  A deceptive platformer. Nothing is what it seems.
 // ═══════════════════════════════════════════════════════════
 
 "use strict";
@@ -153,6 +153,35 @@ const PALETTE = {
   saw: "#ff6b35",
   fake: "#4a4a6a",
 };
+
+// ─── World Themes ────────────────────────────────────────────
+const WORLD_THEMES = [
+  { name:"DESERT", bg1:"#7a2000", bg2:"#b03800",
+    ground:"#c8601a", groundTop:"#e07820",
+    platform:"#c8601a", platformTop:"#d87020", fake:"#a04018",
+    danger:"#cc2200", spike:"#cc2200", saw:"#ff6600",
+    exit:"#e8c060", exitGlow:"rgba(232,192,96,0.5)",
+    portal1:"#ff8800", portal2:"#cc4400",
+    fog:"rgba(120,32,0,0.15)", crackColor:"rgba(0,0,0,0.18)" },
+  { name:"SHADOW", bg1:"#180c06", bg2:"#2a1508",
+    ground:"#58301e", groundTop:"#7a4028",
+    platform:"#58301e", platformTop:"#6a3820", fake:"#381808",
+    danger:"#882200", spike:"#aa3300", saw:"#cc4400",
+    exit:"#c8a030", exitGlow:"rgba(200,160,48,0.5)",
+    portal1:"#c04000", portal2:"#802000",
+    fog:"rgba(24,12,6,0.28)", crackColor:"rgba(0,0,0,0.3)" },
+  { name:"VOID", bg1:"#180540", bg2:"#2a0f60",
+    ground:"#5a3898", groundTop:"#6a48a8",
+    platform:"#5a3898", platformTop:"#6848a0", fake:"#3a1870",
+    danger:"#8820c0", spike:"#9030d0", saw:"#a040e0",
+    exit:"#e0a000", exitGlow:"rgba(224,160,0,0.5)",
+    portal1:"#a040e0", portal2:"#6020a0",
+    fog:"rgba(24,5,64,0.25)", crackColor:"rgba(80,40,160,0.12)" },
+];
+function getTheme(idx) {
+  return idx <= 2 ? WORLD_THEMES[0] : idx <= 5 ? WORLD_THEMES[1] : WORLD_THEMES[2];
+}
+let activeTheme = WORLD_THEMES[0];
 
 // ─── Particle System ────────────────────────────────────────
 class Particle {
@@ -1226,32 +1255,34 @@ class Background {
   }
 
   draw(ctx, time) {
-    // Sky gradient
+    // Sky gradient — use current world theme
+    const th = activeTheme;
     const grad = ctx.createLinearGradient(0,0,0,VH);
-    grad.addColorStop(0, this.col1);
-    grad.addColorStop(1, this.col2);
+    grad.addColorStop(0, th.bg1);
+    grad.addColorStop(1, th.bg2);
     ctx.fillStyle = grad;
     ctx.fillRect(0,0,VW,VH);
 
-    // Stars
-    this.stars.forEach(s => {
-      s.twinkle += 0.02;
-      const a = 0.5+Math.sin(s.twinkle)*0.5;
-      ctx.globalAlpha=a;
-      ctx.fillStyle="#fff";
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha=1;
-
-    // Parallax clouds
-    this.clouds.forEach(c => {
-      ctx.globalAlpha=0.06;
-      ctx.fillStyle="#ffffff";
+    // Background crack decorations (like Level Devil)
+    ctx.strokeStyle = th.crackColor;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 8; i++) {
+      const x = (VW * (i+1)) / 9;
+      const len = 30 + (i*37) % 60;
       ctx.beginPath();
-      ctx.ellipse(c.x, c.y, c.w, 30, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.globalAlpha=1;
-    });
+      ctx.moveTo(x, 60 + (i*47)%120);
+      ctx.lineTo(x + 8*(i%2?1:-1), 60 + (i*47)%120 + len);
+      ctx.stroke();
+    }
+
+    // Bottom fog
+    const fog = ctx.createLinearGradient(0, VH-80, 0, VH);
+    fog.addColorStop(0, "rgba(0,0,0,0)");
+    fog.addColorStop(1, th.fog);
+    ctx.fillStyle = fog;
+    ctx.fillRect(0, VH-80, VW, 80);
+
+    ctx.globalAlpha=1;
   }
 }
 
@@ -1594,9 +1625,38 @@ function updateHUD() {
 let runtime = null;
 let lastTime = 0;
 
+function showWorldTitle(name) {
+  const el = document.createElement("div");
+  el.style.cssText = [
+    "position:fixed","inset:0","display:flex","align-items:center",
+    "justify-content:center","z-index:9999","pointer-events:none",
+    `font-family:'Press Start 2P',monospace`,
+    "font-size:clamp(28px,6vw,56px)",
+    "color:rgba(255,180,80,0.95)",
+    "text-shadow:0 0 40px rgba(255,100,0,0.7),0 0 80px rgba(200,50,0,0.4)",
+    "animation:worldTitleAnim 2.2s ease forwards",
+    "letter-spacing:8px",
+  ].join(";");
+  el.textContent = name;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2300);
+}
+
 function startLevel(idx) {
   particles.length = 0;
   levelTimer = 0;
+
+  // Update world theme
+  const prevTheme = activeTheme;
+  activeTheme = getTheme(idx);
+
+  // Show world title when entering a new world
+  if (idx === 0 || idx === 3 || idx === 6) {
+    if (idx > 0 || prevTheme !== activeTheme) {
+      showWorldTitle(activeTheme.name);
+    }
+  }
+
   const data = buildLevel(idx);
   runtime = new LevelRuntime(data);
   gameState = "playing";

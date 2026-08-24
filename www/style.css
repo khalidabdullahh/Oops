@@ -1,16 +1,42 @@
 /* ============================================================
-   CHAOS REALM – Style Sheet
+   Oops! – Style Sheet
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
-  --bg: #0a0a0f;
-  --accent: #ff4757;
-  --accent2: #ffd32a;
+  --bg: #0a0000;
+  --accent: #cc3300;
+  --accent2: #e8a000;
   --accent3: #2ed573;
   --text: #fff;
-  --shadow: rgba(255, 71, 87, 0.5);
+  --shadow: rgba(204, 51, 0, 0.6);
+}
+
+/* ── Game Title on Start Screen ─────────────────────────── */
+.title-oops {
+  font-size: clamp(42px, 10vw, 90px);
+  color: #cc3300;
+  text-shadow:
+    0 0 20px rgba(204,51,0,0.8),
+    0 0 60px rgba(204,51,0,0.4),
+    4px 4px 0px #7a0000;
+  letter-spacing: 4px;
+  display: block;
+  animation: titlePop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes titlePop {
+  from { transform: scale(0.5) translateY(-30px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── World Title Transition ─────────────────────────────── */
+@keyframes worldTitleAnim {
+  0%   { opacity: 0; transform: scale(0.6) translateY(-20px); }
+  20%  { opacity: 1; transform: scale(1.05) translateY(0); }
+  70%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.15); }
 }
 
 *, *::before, *::after { 
