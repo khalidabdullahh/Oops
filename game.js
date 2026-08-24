@@ -321,6 +321,9 @@ class Player {
     this.runLegAng  = 0;
     this.armSwing   = 0;
     this.time       = 0;
+    // Portal exit animation properties
+    this.exitingPortal = false;
+    this.exitRotation = 0;
   }
 
   get left()   { return this.x; }
@@ -332,6 +335,7 @@ class Player {
 
   update(dt, level) {
     if (!this.alive) return;
+    if (this.exitingPortal) return;
 
     this.time += dt;
 
@@ -436,9 +440,15 @@ class Player {
     const t     = this.time;
 
     ctx.save();
-    ctx.translate(this.cx, this.y + this.h); // pivot at feet
-    if (!this.facingRight) ctx.scale(-1, 1);
-    ctx.scale(this.squishX, this.squishY);
+    if (this.exitingPortal) {
+      ctx.translate(this.cx, this.cy);
+      ctx.rotate(this.exitRotation);
+      ctx.scale(this.squishX, this.squishY);
+    } else {
+      ctx.translate(this.cx, this.y + this.h); // pivot at feet
+      if (!this.facingRight) ctx.scale(-1, 1);
+      ctx.scale(this.squishX, this.squishY);
+    }
 
     const bob = (state === "idle") ? this.idleBob : 0;
 
@@ -1551,6 +1561,9 @@ class LevelRuntime {
     // Death
     this.dead = false;
     this.deathTimer = 0;
+    // Exit suction properties
+    this.exitPhase = false;
+    this.exitTimer = 0;
     // Flash
     this.flashColor = null;
     this.flashTimer  = 0;
@@ -1629,6 +1642,39 @@ class LevelRuntime {
 
   update(dt) {
     if (this.complete || this.dead) return;
+
+    if (this.exitPhase) {
+      this.exitTimer -= dt;
+      
+      // Pull player smoothly toward portal center
+      const ex = this.exit;
+      const targetX = ex.x + ex.w/2 - this.player.w/2;
+      const targetY = ex.y + ex.h - this.player.h;
+      this.player.x = lerp(this.player.x, targetX, dt * 6);
+      this.player.y = lerp(this.player.y, targetY, dt * 6);
+      
+      // Spin and shrink player
+      this.player.exitRotation += dt * 8;
+      this.player.squishX = lerp(this.player.squishX, 0, dt * 6);
+      this.player.squishY = lerp(this.player.squishY, 0, dt * 6);
+      
+      // Spawn small sparkly trail particles
+      if (Math.random() < 0.3) {
+        spawnParticles(this.player.cx, this.player.cy, activeTheme.exit, 2, 70);
+      }
+      
+      if (this.exitTimer <= 0) {
+        this.complete = true;
+      }
+      
+      // Update particles during transition
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update(dt);
+        if (particles[i].life <= 0) particles.splice(i, 1);
+      }
+      return;
+    }
+
     this.time += dt;
     levelTimer += dt;
     if (this.portalCooldown>0) this.portalCooldown-=dt;
@@ -1702,9 +1748,12 @@ class LevelRuntime {
 
     // Exit collision
     const ex=this.exit;
-    if (this.player.right > ex.left && this.player.left < ex.right &&
+    if (!this.exitPhase && this.player.right > ex.left && this.player.left < ex.right &&
         this.player.bottom > ex.top && this.player.top < ex.bottom) {
-      this.complete = true;
+      this.exitPhase = true;
+      this.exitTimer = 0.85;
+      this.player.exitingPortal = true;
+      this.player.exitRotation = 0;
       spawnConfetti(ex.x+ex.w/2, ex.y+ex.h/2, 45);
       shake(6, 0.3);
       SFX.win();
