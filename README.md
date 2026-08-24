@@ -13,37 +13,40 @@ A deceptive, trap-filled 2D platformer where trust is your biggest weakness and 
 
 ---
 
-## 📸 Screenshots & Previews
+## 📸 In-Game Screenshots & Conceptual Previews
 
-### 🕹️ Title Screen
+### 🕹️ Title Screen ("Oops!")
 ![Oops! Title Screen](screenshots/01_title_screen.jpg)
 
 ---
 
-### 🏃 Gameplay, Worlds & Deadly Traps
-![Traps and Level Gameplay](screenshots/02_gameplay_traps.jpg)
+### 🏜️ Desert World (Level 1 & 2 — Sneaky Spikes & Vanishing Floors)
+![Desert World Traps](screenshots/02_gameplay_traps.jpg)
 
 ---
 
-### 🌀 Portals, Lasers & Dynamic Mechanics
-![Portal Mechanics and Lasers](screenshots/03_portal_mechanics.jpg)
+### 🌑 Shadow World (Level 3 & 4 — Moving Buzzsaw Gauntlet & Ice Physics)
+![Shadow World Buzzsaws](screenshots/03_portal_mechanics.jpg)
 
 ---
 
-### 💀 Humorous Troll Death Screens
-![Death Screen](screenshots/04_death_screen.jpg)
+### 🌌 Void World (Level 5+ — Teleport Portals & Trampolines)
+![Void World Portals](screenshots/04_death_screen.jpg)
 
 ---
 
-### 🎞️ Character Animations & Sprite Showcase
-![Character Animations](screenshots/05_character_animations.jpg)
+### 💀 The "Oops!" Death Screen & Troll Roasts
+![Oops! Death Screen](screenshots/05_character_animations.jpg)
 
 ---
 
 ## 🌟 Features
 
-- **Level Devil Inspired Troll Design:** Invisible traps, fake platforms, dynamic hazards, and sudden surprises.
-- **World Themes:** 3 distinct biomes including `DESERT`, `SHADOW`, and `VOID` with unique color palettes, atmospheric fog, and crack decorations.
+- **Level Devil Inspired Troll Mechanics:** Invisible traps, vanishing platforms, fake walls, and unexpected physics twists.
+- **3 Unique World Biomes:**
+  - 🏜️ **DESERT:** Warm volcanic terrain with collapsing floors and sneaky ground spikes.
+  - 🌑 **SHADOW:** Dark moody gauntlet with high-speed moving sawblades and slippery ice.
+  - 🌌 **VOID:** Deep purple abyss with dual-color teleport portals and trampoline springboards.
 - **Synthesized Web Audio SFX:** Pure Web Audio API retro sound effects with no external audio files required.
 - **Mobile Touch Gamepad:** Full on-screen touch controls with multi-touch support and haptic feedback.
 - **Responsive PWA:** Installable as a progressive web app on phones and tablets.
