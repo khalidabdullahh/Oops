@@ -15,7 +15,8 @@ let scaleX = 1, scaleY = 1, offsetX = 0, offsetY = 0;
 
 function resizeCanvas() {
   const ww = window.innerWidth, wh = window.innerHeight;
-  const ratio = Math.min(ww / VW, wh / VH);
+  // Slightly smaller (0.92) to make the gameplay look more minimal and centered
+  const ratio = Math.min(ww / VW, wh / VH) * 0.92;
   canvas.width  = VW;
   canvas.height = VH;
   canvas.style.width  = Math.floor(VW * ratio) + "px";
@@ -408,7 +409,7 @@ class Player {
     level.resolveX(this);
 
     this.y += this.vy * dt;
-    level.resolveY(this);
+    level.resolveY(this, dt);
 
     // Land squish
     if (!wasOnGround && this.onGround) {
@@ -1588,7 +1589,7 @@ class LevelRuntime {
     player.x = clamp(player.x, 0, VW - player.w);
   }
 
-  resolveY(player) {
+  resolveY(player, dt) {
     for (const p of this.platforms) {
       if (p.type===TILE.FAKE || p.vanished || !p.active) continue;
 
@@ -1629,7 +1630,7 @@ class LevelRuntime {
 
           // Moving platform carry
           if (p.moveRange>0 && p.moveX!==0) {
-            player.x += p.moveDir * p.moveSpeed * (1/60);
+            player.x += p.moveDir * p.moveSpeed * dt;
           }
         } else {
           // Hit from below
@@ -1689,6 +1690,12 @@ class LevelRuntime {
 
     // Flash
     if (this.flashTimer>0) this.flashTimer-=dt;
+
+    // Shake decay
+    if (shakeDur>0) {
+      shakeDur -= dt;
+      if (shakeDur<=0) { shakeAmt=0; }
+    }
 
     this.player.update(dt, this);
 
@@ -1772,8 +1779,6 @@ class LevelRuntime {
     if (shakeDur>0) {
       sx = rand(-shakeAmt,shakeAmt);
       sy = rand(-shakeAmt,shakeAmt);
-      shakeDur -= 1/60;
-      if (shakeDur<=0) { shakeAmt=0; sx=0; sy=0; }
     }
 
     ctx.save();
@@ -1875,6 +1880,11 @@ function showScreen(name) {
   hud.classList.add("hidden");
   if (name && screens[name]) screens[name].classList.remove("hidden");
   if (name === "playing") hud.classList.remove("hidden");
+  
+  // Maintain background color blend across all screen transitions
+  if (name === "start" || name === "death" || name === "levelComplete") {
+    document.body.style.backgroundColor = activeTheme.bg2;
+  }
 }
 
 // Update start screen — show Continue button if save exists
@@ -2079,12 +2089,6 @@ document.getElementById("new-game-link")?.addEventListener("click", () => {
   }
 });
 
-// RETRY after death
-document.getElementById("retry-btn").addEventListener("click", (e) => {
-  e.stopPropagation();
-  initAudio();
-  startLevel(currentLevel);
-});
 
 // Click anywhere on death screen to retry
 document.getElementById("death-screen").addEventListener("click", () => {
@@ -2203,10 +2207,7 @@ function runOpeningAnimation(onDone) {
       const titleSize = Math.round(90 * bounce);
       ctx.font = `bold ${titleSize}px 'Press Start 2P', monospace`;
       ctx.fillStyle = "#cc3300";
-      ctx.shadowColor = "#ff4400";
-      ctx.shadowBlur = 30;
       ctx.fillText("Oops!", VW/2, VH/2 - 20);
-      ctx.shadowBlur = 0;
 
       // Subtitle
       if (subT > 0) {
