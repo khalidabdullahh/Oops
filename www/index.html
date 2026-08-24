@@ -26,6 +26,7 @@
         <div id="deaths-display">💀 <span id="death-count">0</span></div>
         <div id="timer-display">⏱ <span id="timer-val">0.0</span>s</div>
         <div id="hud-buttons">
+          <button id="btn-home" title="Exit to Multiverse Select">🏡</button>
           <button id="btn-sound-toggle" title="Toggle Sound">🔊</button>
           <button id="btn-touch-toggle" title="Toggle On-Screen Controls">🎮</button>
         </div>
@@ -39,6 +40,7 @@
         </div>
         <div id="action-buttons">
           <button class="touch-btn restart-btn" id="btn-restart" aria-label="Restart">↺ R</button>
+          <button class="touch-btn flip-btn hidden" id="btn-flip" aria-label="Flip Gravity">⇄ FLIP</button>
           <button class="touch-btn jump-btn" id="btn-jump" aria-label="Jump">▲ JUMP</button>
         </div>
       </div>
@@ -62,6 +64,41 @@
           </div>
           <button id="start-btn" class="game-btn pulse">▶ NEW GAME</button>
           <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
+        </div>
+      </div>
+
+      <!-- Multiverse Selector Screen -->
+      <div id="multiverse-screen" class="screen hidden">
+        <div class="screen-content">
+          <div class="multiverse-title">SELECT UNIVERSE</div>
+          
+          <div class="multiverse-list">
+            <!-- Classic Realm -->
+            <div class="multiverse-card" id="card-classic">
+              <div class="mv-name">🌌 Classic Realm</div>
+              <div class="mv-gimmick">Standard platforming with hidden traps and deceptions.</div>
+              <div class="mv-stats" id="stats-classic">📁 Unlocked: Level 1 · 💀 0 deaths</div>
+              <button class="mv-btn game-btn" data-mv="classic">ENTER DIMENSION</button>
+            </div>
+            
+            <!-- Gravity Nexus -->
+            <div class="multiverse-card" id="card-gravity">
+              <div class="mv-name">🌀 Gravity Nexus</div>
+              <div class="mv-gimmick">Press SPACE or SHIFT to flip gravity! Walk on ceilings.</div>
+              <div class="mv-stats" id="stats-gravity">📁 Unlocked: Level 1 · 💀 0 deaths</div>
+              <button class="mv-btn game-btn" data-mv="gravity">ENTER DIMENSION</button>
+            </div>
+            
+            <!-- Glitch Realm -->
+            <div class="multiverse-card" id="card-glitch">
+              <div class="mv-name">⚡ Glitch Realm</div>
+              <div class="mv-gimmick">Double Jump pads and flickering glitch blocks.</div>
+              <div class="mv-stats" id="stats-glitch">📁 Unlocked: Level 1 · 💀 0 deaths</div>
+              <button class="mv-btn game-btn" data-mv="glitch">ENTER DIMENSION</button>
+            </div>
+          </div>
+          
+          <button id="mv-back-btn" class="game-btn text-btn" style="margin-top: 15px;">◀ Back to Menu</button>
         </div>
       </div>
 

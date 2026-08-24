@@ -173,6 +173,7 @@ function setupMobileControls() {
   bindBtn("btn-right",   "ArrowRight");
   bindBtn("btn-jump",    "Space");
   bindBtn("btn-restart", "KeyR");
+  bindBtn("btn-flip",    "ShiftLeft");
 }
 
 document.addEventListener("DOMContentLoaded", setupMobileControls);
@@ -209,33 +210,85 @@ const PALETTE = {
 };
 
 // ─── World Themes ────────────────────────────────────────────
-const WORLD_THEMES = [
-  { name:"DESERT", bg1:"#7a2000", bg2:"#b03800",
-    ground:"#c8601a", groundTop:"#e07820",
-    platform:"#c8601a", platformTop:"#d87020", fake:"#a04018",
-    danger:"#cc2200", spike:"#cc2200", saw:"#ff6600",
-    exit:"#e8c060", exitGlow:"rgba(232,192,96,0.5)",
-    portal1:"#ff8800", portal2:"#cc4400",
-    fog:"rgba(120,32,0,0.15)", crackColor:"rgba(0,0,0,0.18)" },
-  { name:"SHADOW", bg1:"#180c06", bg2:"#2a1508",
-    ground:"#58301e", groundTop:"#7a4028",
-    platform:"#58301e", platformTop:"#6a3820", fake:"#381808",
-    danger:"#882200", spike:"#aa3300", saw:"#cc4400",
-    exit:"#c8a030", exitGlow:"rgba(200,160,48,0.5)",
-    portal1:"#c04000", portal2:"#802000",
-    fog:"rgba(24,12,6,0.28)", crackColor:"rgba(0,0,0,0.3)" },
-  { name:"VOID", bg1:"#180540", bg2:"#2a0f60",
-    ground:"#5a3898", groundTop:"#6a48a8",
-    platform:"#5a3898", platformTop:"#6848a0", fake:"#3a1870",
-    danger:"#8820c0", spike:"#9030d0", saw:"#a040e0",
-    exit:"#e0a000", exitGlow:"rgba(224,160,0,0.5)",
-    portal1:"#a040e0", portal2:"#6020a0",
-    fog:"rgba(24,5,64,0.25)", crackColor:"rgba(80,40,160,0.12)" },
-];
+const WORLD_THEMES = {
+  classic: [
+    { name:"DESERT", bg1:"#7a2000", bg2:"#b03800",
+      ground:"#c8601a", groundTop:"#e07820",
+      platform:"#c8601a", platformTop:"#d87020", fake:"#a04018",
+      danger:"#cc2200", spike:"#cc2200", saw:"#ff6600",
+      exit:"#e8c060", exitGlow:"rgba(232,192,96,0.5)",
+      portal1:"#ff8800", portal2:"#cc4400",
+      fog:"rgba(120,32,0,0.15)", crackColor:"rgba(0,0,0,0.18)" },
+    { name:"SHADOW", bg1:"#180c06", bg2:"#2a1508",
+      ground:"#58301e", groundTop:"#7a4028",
+      platform:"#58301e", platformTop:"#6a3820", fake:"#381808",
+      danger:"#882200", spike:"#aa3300", saw:"#cc4400",
+      exit:"#c8a030", exitGlow:"rgba(200,160,48,0.5)",
+      portal1:"#c04000", portal2:"#802000",
+      fog:"rgba(24,12,6,0.28)", crackColor:"rgba(0,0,0,0.3)" },
+    { name:"VOID", bg1:"#180540", bg2:"#2a0f60",
+      ground:"#5a3898", groundTop:"#6a48a8",
+      platform:"#5a3898", platformTop:"#6848a0", fake:"#3a1870",
+      danger:"#8820c0", spike:"#9030d0", saw:"#a040e0",
+      exit:"#e0a000", exitGlow:"rgba(224,160,0,0.5)",
+      portal1:"#a040e0", portal2:"#6020a0",
+      fog:"rgba(24,5,64,0.25)", crackColor:"rgba(80,40,160,0.12)" },
+  ],
+  gravity: [
+    { name:"FROST", bg1:"#0b3040", bg2:"#144c66",
+      ground:"#237294", groundTop:"#358cb8",
+      platform:"#237294", platformTop:"#358cb8", fake:"#154c66",
+      danger:"#e74c3c", spike:"#e74c3c", saw:"#e67e22",
+      exit:"#f1c40f", exitGlow:"rgba(241,196,15,0.5)",
+      portal1:"#00d2d3", portal2:"#01a3a4",
+      fog:"rgba(11,48,64,0.22)", crackColor:"rgba(255,255,255,0.06)" },
+    { name:"MATRIX", bg1:"#050a05", bg2:"#0c150c",
+      ground:"#1b331b", groundTop:"#264d26",
+      platform:"#1b331b", platformTop:"#264d26", fake:"#0f1f0f",
+      danger:"#ff3333", spike:"#ff3333", saw:"#00ff00",
+      exit:"#00ff00", exitGlow:"rgba(0,255,0,0.5)",
+      portal1:"#2edd0d", portal2:"#198c06",
+      fog:"rgba(5,10,5,0.3)", crackColor:"rgba(0,255,0,0.07)" },
+    { name:"OBSIDIAN", bg1:"#101520", bg2:"#172030",
+      ground:"#283b52", groundTop:"#384e68",
+      platform:"#283b52", platformTop:"#384e68", fake:"#192434",
+      danger:"#ff3e3e", spike:"#ff3e3e", saw:"#00d2d3",
+      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
+      portal1:"#341f97", portal2:"#222f3e",
+      fog:"rgba(16,21,32,0.25)", crackColor:"rgba(0,210,211,0.06)" },
+  ],
+  glitch: [
+    { name:"SUNRISE", bg1:"#30122e", bg2:"#501c40",
+      ground:"#80325d", groundTop:"#9c4475",
+      platform:"#80325d", platformTop:"#9c4475", fake:"#5c2045",
+      danger:"#ff3838", spike:"#ff3838", saw:"#ffd32a",
+      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
+      portal1:"#ff9ff3", portal2:"#fec107",
+      fog:"rgba(48,18,46,0.2)", crackColor:"rgba(255,211,42,0.08)" },
+    { name:"LAVA", bg1:"#140606", bg2:"#240a0a",
+      ground:"#4d1515", groundTop:"#662020",
+      platform:"#4d1515", platformTop:"#662020", fake:"#330e0e",
+      danger:"#ff2200", spike:"#ff2200", saw:"#ff9f43",
+      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
+      portal1:"#ff5252", portal2:"#ff7675",
+      fog:"rgba(20,6,6,0.3)", crackColor:"rgba(255,0,0,0.1)" },
+    { name:"TWILIGHT", bg1:"#1d0e32", bg2:"#2d164d",
+      ground:"#61318a", groundTop:"#753fa6",
+      platform:"#61318a", platformTop:"#753fa6", fake:"#452263",
+      danger:"#ff3f34", spike:"#ff3f34", saw:"#ef5777",
+      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
+      portal1:"#f53b57", portal2:"#3c40c6",
+      fog:"rgba(29,14,50,0.22)", crackColor:"rgba(125,95,255,0.08)" },
+  ]
+};
+
+let activeMultiverse = localStorage.getItem("oops_last_multiverse") || "classic"; // 'classic', 'gravity', 'glitch'
+
 function getTheme(idx) {
-  return idx <= 2 ? WORLD_THEMES[0] : idx <= 5 ? WORLD_THEMES[1] : WORLD_THEMES[2];
+  const mvThemes = WORLD_THEMES[activeMultiverse] || WORLD_THEMES.classic;
+  return idx <= 2 ? mvThemes[0] : idx <= 5 ? mvThemes[1] : mvThemes[2];
 }
-let activeTheme = WORLD_THEMES[0];
+let activeTheme = WORLD_THEMES.classic[0];
 
 // ─── Particle System ────────────────────────────────────────
 class Particle {
@@ -325,6 +378,9 @@ class Player {
     // Portal exit animation properties
     this.exitingPortal = false;
     this.exitRotation = 0;
+    // Gravity flip properties
+    this.gravityDir = 1; // 1 = down, -1 = up
+    this.flipCooldown = 0;
   }
 
   get left()   { return this.x; }
@@ -384,22 +440,42 @@ class Player {
     if (pressed("ArrowUp","KeyW","Space")) this.jumpBuffer = JUMP_BUFFER;
     else if (this.jumpBuffer > 0) this.jumpBuffer -= dt;
 
-    // Jump
+    // Jump (adjust velocity direction based on gravity direction)
     if (this.jumpBuffer > 0 && this.coyoteTimer > 0) {
-      this.vy = JUMP_VEL;
+      this.vy = this.gravityDir * JUMP_VEL;
       this.coyoteTimer = 0;
       this.jumpBuffer  = 0;
       this.squishX = 0.62; this.squishY = 1.5;
       SFX.jump();
     }
 
-    // Variable jump height
-    if (this.vy < -200 && !pressed("ArrowUp","KeyW","Space")) {
-      this.vy += 1600 * dt;
+    // Variable jump height decay (adjust for normal vs inverted gravity)
+    if (this.gravityDir === 1) {
+      if (this.vy < -200 && !pressed("ArrowUp","KeyW","Space")) {
+        this.vy += 1600 * dt;
+      }
+    } else {
+      if (this.vy > 200 && !pressed("ArrowUp","KeyW","Space")) {
+        this.vy -= 1600 * dt;
+      }
     }
 
-    // Gravity
-    this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL);
+    // Gravity pull direction
+    if (this.gravityDir === 1) {
+      this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL);
+    } else {
+      this.vy = Math.max(this.vy - GRAVITY * dt, -MAX_FALL);
+    }
+
+    // Gravity flip triggers (Shift Left / mobile button)
+    if (this.flipCooldown > 0) this.flipCooldown -= dt;
+    if (activeMultiverse === "gravity" && this.flipCooldown <= 0 && pressed("ShiftLeft")) {
+      this.gravityDir *= -1;
+      this.flipCooldown = 0.28;
+      SFX.portal();
+      spawnParticles(this.cx, this.cy, activeTheme.portal1, 8, 120);
+      shake(3, 0.12);
+    }
 
     // Move & collide
     const wasOnGround = this.onGround;
@@ -420,8 +496,8 @@ class Player {
 
     this.blinkTimer += dt;
 
-    // Kill if fell off
-    if (this.y > VH + 100) this.die("fell off");
+    // Kill if fell off bottom OR flew off top in inverted gravity
+    if (this.y > VH + 100 || this.y < -100) this.die("fell off");
   }
 
   die(reason) {
@@ -446,9 +522,15 @@ class Player {
       ctx.rotate(this.exitRotation);
       ctx.scale(this.squishX, this.squishY);
     } else {
-      ctx.translate(this.cx, this.y + this.h); // pivot at feet
-      if (!this.facingRight) ctx.scale(-1, 1);
-      ctx.scale(this.squishX, this.squishY);
+      if (this.gravityDir === -1) {
+        ctx.translate(this.cx, this.y); // pivot at head/ceiling
+        if (!this.facingRight) ctx.scale(-1, 1);
+        ctx.scale(this.squishX, -this.squishY); // flip Y!
+      } else {
+        ctx.translate(this.cx, this.y + this.h); // pivot at feet
+        if (!this.facingRight) ctx.scale(-1, 1);
+        ctx.scale(this.squishX, this.squishY);
+      }
     }
 
     const bob = (state === "idle") ? this.idleBob : 0;
@@ -682,6 +764,9 @@ class Platform {
     this.label     = opts.label || null;
     // Lava
     this.lavaPhase = rand(0, Math.PI*2);
+    // Glitch
+    this.glitchInterval = opts.glitchInterval || 0;
+    this.glitchTimer    = this.glitchInterval;
     this.active    = true; // for timed traps
   }
 
@@ -691,6 +776,18 @@ class Platform {
   get bottom() { return this.y + this.h; }
 
   update(dt) {
+    // Glitch cycle logic (runs even when inactive)
+    if (this.glitchInterval > 0) {
+      this.glitchTimer -= dt;
+      if (this.glitchTimer <= 0) {
+        this.glitchTimer = this.glitchInterval;
+        this.active = !this.active;
+        if (Math.random() < 0.5) {
+          spawnParticles(this.x + this.w/2, this.y + this.h/2, activeTheme.portal1 || "#ff4757", 4, 70);
+        }
+      }
+    }
+
     if (!this.active) return;
     // Moving platform
     if (this.moveRange > 0) {
@@ -734,7 +831,19 @@ class Platform {
       ctx.globalAlpha = this.vanishTimer / 0.5;
     }
 
-    if (!this.active) return;
+    if (!this.active) {
+      if (this.glitchInterval > 0) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 71, 87, 0.45)";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 4]);
+        ctx.strokeRect(this.x - 2, this.y, this.w, this.h);
+        ctx.strokeStyle = "rgba(0, 210, 211, 0.45)";
+        ctx.strokeRect(this.x + 2, this.y, this.w, this.h);
+        ctx.restore();
+      }
+      return;
+    }
 
     switch(this.type) {
       case TILE.SOLID:
@@ -1138,22 +1247,48 @@ class Exit {
 // ─── Level Definitions ────────────────────────────────────────
 // Each level is a function that returns a fresh level object
 function buildLevel(index) {
-  switch(index) {
-    case 0: return level_tutorial();
-    case 1: return level_vanishing();
-    case 2: return level_saws();
-    case 3: return level_iceAge();
-    case 4: return level_portalMadness();
-    case 5: return level_trampolineTrap();
-    case 6: return level_fakePlatforms();
-    case 7: return level_movingMayhem();
-    case 8: return level_spikeGauntlet();
-    case 9: return level_chaosRealm();
-    default: return level_tutorial();
+  const mv = activeMultiverse;
+  if (mv === "gravity") {
+    switch(index) {
+      case 0: return gravity_lvl0(); // simple gravity flip Intro
+      case 1: return gravity_lvl1(); // inverted ceiling hops
+      case 2: return gravity_lvl2(); // flipping saws dodging
+      case 3: return gravity_lvl3(); // portal gravity loops
+      case 4: return gravity_lvl4(); // matrix spikes maze
+      default: return gravity_lvl0();
+    }
+  } else if (mv === "glitch") {
+    switch(index) {
+      case 0: return glitch_lvl0(); // double jump intro
+      case 1: return glitch_lvl1(); // glitching stepping stones
+      case 2: return glitch_lvl2(); // high speed saw speedruns
+      case 3: return glitch_lvl3(); // vanishing trampoline bounce
+      case 4: return glitch_lvl4(); // teleporting hazard run
+      default: return glitch_lvl0();
+    }
+  } else {
+    // Classic/Standard multiverse: our existing levels!
+    switch(index) {
+      case 0: return level_tutorial();
+      case 1: return level_vanishing();
+      case 2: return level_saws();
+      case 3: return level_iceAge();
+      case 4: return level_portalMadness();
+      case 5: return level_trampolineTrap();
+      case 6: return level_fakePlatforms();
+      case 7: return level_movingMayhem();
+      case 8: return level_spikeGauntlet();
+      case 9: return level_chaosRealm();
+      default: return level_tutorial();
+    }
   }
 }
 
-const TOTAL_LEVELS = 10;
+function getMaxLevels() {
+  if (activeMultiverse === "gravity") return 5;
+  if (activeMultiverse === "glitch") return 5;
+  return 10;
+}
 
 function mkSolid(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.SOLID,opts); }
 function mkVanish(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.VANISH,opts); }
@@ -1480,6 +1615,263 @@ function level_chaosRealm() {
   };
 }
 
+// ─── Gravity Nexus Level Definitions (Gravity inversion) ──────
+function gravity_lvl0() {
+  return {
+    name: "Ceiling Walker",
+    bg: ["#0b3040","#144c66"],
+    playerStart: [60, 420],
+    platforms: [
+      mkSolid(0, 470, 240, 70),
+      mkSolid(320, 470, 640, 70), // Spike gap in middle
+      mkSolid(400, 120, 200, 20), // Floating ceiling platform
+      mkSolid(800, 250, 160, 20), // Exit platform
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      new Spike(240, 470, "up"), new Spike(256, 470, "up"), new Spike(272, 470, "up"), new Spike(288, 470, "up"), new Spike(304, 470, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 200),
+    trapMessage: "PC: Shift | Mobile: Tap FLIP to walk on ceilings!",
+  };
+}
+
+function gravity_lvl1() {
+  return {
+    name: "Upside Down Hops",
+    bg: ["#0b3040","#144c66"],
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 460, 120, 80),
+      // Ceiling stepping stones
+      mkSolid(220, 160, 100, 20),
+      mkSolid(420, 120, 100, 20),
+      mkSolid(620, 160, 100, 20),
+      mkSolid(800, 420, 160, 120),
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      // Floor is entirely spikes!
+      new Spike(140, 520, "up"), new Spike(240, 520, "up"), new Spike(340, 520, "up"),
+      new Spike(440, 520, "up"), new Spike(540, 520, "up"), new Spike(640, 520, "up"),
+      new Spike(740, 520, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 370),
+    trapMessage: "Stand on the ceiling and jump DOWNWARD!",
+  };
+}
+
+function gravity_lvl2() {
+  return {
+    name: "Ceiling Saws",
+    bg: ["#050a05","#0c150c"],
+    playerStart: [50, 410],
+    platforms: [
+      mkSolid(0, 450, 200, 90),
+      mkSolid(250, 450, 400, 90),
+      mkSolid(700, 450, 260, 90),
+      // Ceiling safe zone
+      mkSolid(350, 100, 250, 20),
+    ],
+    hazards: [],
+    saws: [
+      // Saws sliding on floor
+      new Saw(350, 435, {speed:4, pathX:1, pathRange:120, pathSpeed:200}),
+      new Saw(550, 435, {speed:5, pathX:1, pathRange:100, pathSpeed:180}),
+    ],
+    spikes: [
+      new Spike(210, 450, "up"), new Spike(226, 450, "up"),
+      new Spike(660, 450, "up"), new Spike(676, 450, "up"),
+    ],
+    portals: [],
+    exit: new Exit(850, 400),
+    trapMessage: "Floor is a buzzsaw ballet. Use the ceiling!",
+  };
+}
+
+function gravity_lvl3() {
+  return {
+    name: "Gravity Portal Loop",
+    bg: ["#050a05","#0c150c"],
+    playerStart: [50, 410],
+    platforms: [
+      mkSolid(0, 450, 150, 90),
+      mkSolid(250, 200, 120, 20),
+      mkSolid(450, 320, 120, 20),
+      mkSolid(620, 150, 120, 20),
+      mkSolid(800, 450, 160, 90),
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      new Spike(160, 520, "up"), new Spike(300, 520, "up"), new Spike(500, 520, "up"),
+    ],
+    portals: [
+      // Floor portal launches you to ceiling
+      new Portal(300, 190, 680, 140, {color: "#2edd0d"}),
+    ],
+    exit: new Exit(860, 400),
+    trapMessage: "Teleport and flip gravity instantly mid-air!",
+  };
+}
+
+function gravity_lvl4() {
+  return {
+    name: "Obsidian Spikes Maze",
+    bg: ["#101520","#172030"],
+    playerStart: [50, 410],
+    platforms: [
+      mkSolid(0, 450, 180, 90),
+      mkSolid(220, 340, 140, 20), // Mid platform
+      mkSolid(420, 200, 140, 20), // High platform
+      mkSolid(620, 340, 140, 20), // Mid right platform
+      mkSolid(800, 450, 160, 90),
+      // Ceiling blocks
+      mkSolid(150, 120, 80, 20),
+      mkSolid(550, 120, 80, 20),
+    ],
+    hazards: [],
+    saws: [
+      new Saw(500, 185, {speed:4, pathY:1, pathRange:60, pathSpeed:120}),
+    ],
+    spikes: [
+      // Alternating spikes on floor/ceilings
+      new Spike(250, 340, "up"),
+      new Spike(450, 200, "down"),
+      new Spike(650, 340, "up"),
+      new Spike(170, 140, "down"),
+      new Spike(570, 140, "down"),
+    ],
+    portals: [],
+    exit: new Exit(860, 400),
+    trapMessage: "Flipping at the exact right millisecond is key.",
+  };
+}
+
+// ─── Glitch Realm Level Definitions (Double Jump & Flickers) ──
+function glitch_lvl0() {
+  return {
+    name: "Jump Pad Jumpstart",
+    bg: ["#30122e","#501c40"],
+    playerStart: [60, 430],
+    platforms: [
+      mkSolid(0, 470, 200, 70),
+      // Bouncer trampoline block
+      mkTrampo(280, 440, 80, 20, {bounceVel: -620}), // Launches super high!
+      mkSolid(480, 280, 160, 20),
+      mkSolid(760, 280, 200, 260),
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      new Spike(220, 520, "up"), new Spike(240, 520, "up"),
+      new Spike(400, 520, "up"), new Spike(420, 520, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 230),
+    trapMessage: "TRAMPOLINES are customized for high velocity in this realm!",
+  };
+}
+
+function glitch_lvl1() {
+  return {
+    name: "Glitchy Steps",
+    bg: ["#30122e","#501c40"],
+    playerStart: [50, 430],
+    platforms: [
+      mkSolid(0, 470, 120, 70),
+      // Glitch platforms cycle on/off every 1.5 seconds!
+      mkSolid(220, 380, 100, 18, {glitchInterval: 1.4}),
+      mkSolid(420, 300, 100, 18, {glitchInterval: 1.4}),
+      mkSolid(620, 380, 100, 18, {glitchInterval: 1.4}),
+      mkSolid(820, 470, 140, 70),
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      new Spike(150, 520, "up"), new Spike(350, 520, "up"), new Spike(550, 520, "up"),
+    ],
+    portals: [],
+    exit: new Exit(870, 420),
+    trapMessage: "Dashed chromatic outlines indicate GLITCH platforms!",
+  };
+}
+
+function glitch_lvl2() {
+  return {
+    name: "Glitch Speedrun",
+    bg: ["#140606","#240a0a"],
+    playerStart: [50, 430],
+    platforms: [
+      mkSolid(0, 470, 140, 70),
+      mkTrampo(200, 450, 60, 20, {bounceVel: -650}),
+      mkSolid(360, 280, 200, 20),
+      mkTrampo(640, 450, 60, 20, {bounceVel: -650}),
+      mkSolid(780, 470, 180, 70),
+    ],
+    hazards: [],
+    saws: [
+      // High speed saw sweeps
+      new Saw(460, 265, {speed:6, pathX:1, pathRange:70, pathSpeed:260}),
+    ],
+    spikes: [
+      new Spike(300, 520, "up"), new Spike(580, 520, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 420),
+    trapMessage: "Bounce high and slide fast under the buzzsaw!",
+  };
+}
+
+function glitch_lvl3() {
+  return {
+    name: "Flicker Trampoline",
+    bg: ["#140606","#240a0a"],
+    playerStart: [50, 430],
+    platforms: [
+      mkSolid(0, 470, 120, 70),
+      // Timed bouncer platform
+      mkTrampo(220, 360, 80, 18, {bounceVel: -620, glitchInterval: 1.3}),
+      mkSolid(420, 250, 100, 20),
+      mkSolid(620, 250, 100, 20, {glitchInterval: 1.3}),
+      mkSolid(800, 470, 160, 70),
+    ],
+    hazards: [], saws: [],
+    spikes: [
+      new Spike(150, 520, "up"), new Spike(350, 520, "up"), new Spike(550, 520, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 420),
+    trapMessage: "Both the trampolines and safety blocks are flickering!",
+  };
+}
+
+function glitch_lvl4() {
+  return {
+    name: "The Glitch Core",
+    bg: ["#1d0e32","#2d164d"],
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 150, 70),
+      mkSolid(220, 370, 100, 18, {glitchInterval: 1.2}),
+      mkTrampo(400, 450, 80, 20, {bounceVel: -680}),
+      mkSolid(550, 250, 120, 18, {glitchInterval: 1.2}),
+      mkSolid(760, 470, 200, 70),
+    ],
+    hazards: [],
+    saws: [
+      new Saw(350, 200, {speed:4, pathY:1, pathRange:80, pathSpeed:180}),
+      new Saw(680, 350, {speed:5, pathX:1, pathRange:60, pathSpeed:160}),
+    ],
+    spikes: [
+      new Spike(180, 470, "up"),
+      new Spike(720, 470, "up"),
+    ],
+    portals: [],
+    exit: new Exit(860, 420),
+    trapMessage: "You have conquered the glitch core. Legend status achieved.",
+  };
+}
+
 // ─── Color Utility ───────────────────────────────────────────
 function lighten(hex, amt) {
   const n = parseInt(hex.replace("#",""),16);
@@ -1590,26 +1982,38 @@ class LevelRuntime {
   }
 
   resolveY(player, dt) {
+    const isNormal = (player.gravityDir === 1);
+    
     for (const p of this.platforms) {
       if (p.type===TILE.FAKE || p.vanished || !p.active) continue;
 
-      // One-way platform
-      if (p.type===TILE.PLATFORM && player.vy < 0) continue;
+      // One-way platform bypass checks
+      if (p.type===TILE.PLATFORM) {
+        if (isNormal && player.vy < 0) continue;
+        if (!isNormal && player.vy > 0) continue;
+      }
 
       if (player.right > p.left+2 && player.left < p.right-2 &&
           player.bottom > p.top && player.top < p.bottom) {
 
-        if (player.vy >= 0) {
-          // Land on top
-          player.y = p.top - player.h;
+        const isLanding = isNormal ? (player.vy >= 0) : (player.vy <= 0);
+
+        if (isLanding) {
+          // Land on active surface
+          if (isNormal) {
+            player.y = p.top - player.h;
+            player.onGround = true;
+          } else {
+            player.y = p.bottom;
+            player.onGround = true;
+          }
           player.vy = 0;
-          player.onGround = true;
 
           // Trampoline
           if (p.type===TILE.TRAMPOLINE) {
-            player.vy = p.bounceVel;
+            player.vy = isNormal ? p.bounceVel : -p.bounceVel;
             player.onGround = false;
-            spawnParticles(player.cx, player.bottom, "#ff6b35", 8, 150);
+            spawnParticles(player.cx, isNormal ? player.bottom : player.top, "#ff6b35", 8, 150);
             shake(4, 0.15);
           }
 
@@ -1620,7 +2024,7 @@ class LevelRuntime {
 
           // Ice friction
           if (p.type===TILE.ICE) {
-            player.vx *= 0.98; // will be applied as low friction
+            player.vx *= 0.98;
           }
 
           // Lava kill
@@ -1633,8 +2037,12 @@ class LevelRuntime {
             player.x += p.moveDir * p.moveSpeed * dt;
           }
         } else {
-          // Hit from below
-          player.y = p.bottom;
+          // Head bump
+          if (isNormal) {
+            player.y = p.bottom;
+          } else {
+            player.y = p.top - player.h;
+          }
           player.vy = 0;
         }
       }
@@ -1830,23 +2238,31 @@ class LevelRuntime {
 }
 
 // ─── Save Manager (localStorage) ────────────────────────────
-const SAVE_KEY = "chaosRealm_save_v1";
+const SAVE_KEY = "oops_multiverse_save_v2";
 
 const SaveManager = {
-  // Save current progress
-  save(levelIndex, totalDeaths) {
-    const data = {
+  // Save current progress of a specific multiverse
+  save(mvId, levelIndex, totalDeaths) {
+    const allSaves = this.loadAll() || {};
+    allSaves[mvId] = {
       level: levelIndex,          // highest unlocked level index
       deaths: totalDeaths,
       savedAt: Date.now(),
     };
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      localStorage.setItem(SAVE_KEY, JSON.stringify(allSaves));
     } catch(e) { /* private/incognito mode may block */ }
   },
 
-  // Load saved progress — returns null if nothing saved
-  load() {
+  // Load progress for a specific multiverse
+  load(mvId) {
+    const allSaves = this.loadAll();
+    if (!allSaves || !allSaves[mvId]) return null;
+    return allSaves[mvId];
+  },
+
+  // Load all multiverse saves
+  loadAll() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return null;
@@ -1854,21 +2270,30 @@ const SaveManager = {
     } catch(e) { return null; }
   },
 
-  // Wipe progress (new game)
-  clear() {
-    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+  // Wipe progress for a multiverse (or all if none specified)
+  clear(mvId) {
+    if (mvId) {
+      const allSaves = this.loadAll() || {};
+      delete allSaves[mvId];
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(allSaves));
+      } catch(e) {}
+    } else {
+      try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+    }
   },
 
   // Check if saved data exists and is valid
-  hasSave() {
-    const d = this.load();
-    return d !== null && d.level >= 0 && d.level < TOTAL_LEVELS;
+  hasSave(mvId) {
+    const d = this.load(mvId);
+    return d !== null && d.level >= 0;
   },
 };
 
 // ─── UI Controller ───────────────────────────────────────────
 const screens = {
   start:         document.getElementById("start-screen"),
+  multiverse:    document.getElementById("multiverse-screen"),
   death:         document.getElementById("death-screen"),
   levelComplete: document.getElementById("level-complete"),
   gameComplete:  document.getElementById("game-complete"),
@@ -1882,7 +2307,7 @@ function showScreen(name) {
   if (name === "playing") hud.classList.remove("hidden");
   
   // Maintain background gradient blend across all screen transitions
-  if (name === "start" || name === "death" || name === "levelComplete") {
+  if (name === "start" || name === "multiverse" || name === "death" || name === "levelComplete") {
     const bgGrad = `linear-gradient(to bottom, ${activeTheme.bg1}, ${activeTheme.bg2})`;
     document.body.style.background = bgGrad;
     const wrapper = document.getElementById("game-wrapper");
@@ -1896,9 +2321,9 @@ function refreshStartScreen() {
   const savedLvlTxt  = document.getElementById("saved-level-text");
   const savedDthTxt  = document.getElementById("saved-deaths-text");
 
-  if (SaveManager.hasSave()) {
-    const d = SaveManager.load();
-    const lvl = Math.min(d.level, TOTAL_LEVELS - 1);
+  if (SaveManager.hasSave(activeMultiverse)) {
+    const d = SaveManager.load(activeMultiverse);
+    const lvl = Math.min(d.level, getMaxLevels() - 1);
     const levelData = buildLevel(lvl);
     savedLvlTxt.textContent = `Level ${lvl + 1} – ${levelData.name}`;
     savedDthTxt.textContent  = d.deaths;
@@ -1911,7 +2336,7 @@ function refreshStartScreen() {
 // Update HUD level progress bar
 function updateProgressBar(lvl) {
   const fill = document.getElementById("level-progress-fill");
-  if (fill) fill.style.width = ((lvl + 1) / TOTAL_LEVELS * 100) + "%";
+  if (fill) fill.style.width = ((lvl + 1) / getMaxLevels() * 100) + "%";
 }
 
 const DEATH_MSGS = [
@@ -1953,6 +2378,9 @@ function startLevel(idx) {
   particles.length = 0;
   levelTimer = 0;
 
+  // Save active multiverse as the last played universe
+  localStorage.setItem("oops_last_multiverse", activeMultiverse);
+
   // Update world theme
   const prevTheme = activeTheme;
   activeTheme = getTheme(idx);
@@ -1972,6 +2400,19 @@ function startLevel(idx) {
 
   const data = buildLevel(idx);
   runtime = new LevelRuntime(data);
+
+  // Reset player gravity settings
+  runtime.player.gravityDir = 1;
+  runtime.player.exitRotation = 0;
+  runtime.player.exitingPortal = false;
+
+  // Toggle on-screen touch FLIP button visibility for mobile
+  const flipBtn = document.getElementById("btn-flip");
+  if (flipBtn) {
+    if (activeMultiverse === "gravity") flipBtn.classList.remove("hidden");
+    else                                flipBtn.classList.add("hidden");
+  }
+
   gameState = "playing";
   showScreen("playing");
   updateProgressBar(idx);
@@ -2029,8 +2470,8 @@ function loop(ts) {
 
       // ✅ SAVE PROGRESS — next level unlocked
       const nextLevel = currentLevel + 1;
-      if (nextLevel < TOTAL_LEVELS) {
-        SaveManager.save(nextLevel, deaths);
+      if (nextLevel < getMaxLevels()) {
+        SaveManager.save(activeMultiverse, nextLevel, deaths);
       }
 
       setTimeout(() => showScreen("levelComplete"), 800);
@@ -2044,7 +2485,7 @@ function loop(ts) {
   // R to restart current level
   if (keys["KeyR"] && gameState !== "start") {
     deaths++;
-    SaveManager.save(currentLevel, deaths);
+    SaveManager.save(activeMultiverse, currentLevel, deaths);
     startLevel(currentLevel);
     showScreen("playing");
   }
@@ -2065,31 +2506,30 @@ if (logoSpan) {
   });
 }
 
-// NEW GAME — wipe save and start from level 1
+// NEW GAME — open Multiverse Select Screen
 document.getElementById("start-btn").addEventListener("click", () => {
   initAudio();
-  SaveManager.clear();
-  deaths = 0;
-  currentLevel = 0;
-  startLevel(0);
+  refreshMultiverseSelector();
+  showScreen("multiverse");
 });
 
-// CONTINUE — load saved level
+// CONTINUE — load saved level for last played multiverse
 document.getElementById("continue-btn")?.addEventListener("click", () => {
   initAudio();
-  const saved = SaveManager.load();
+  const saved = SaveManager.load(activeMultiverse);
   if (saved) {
     deaths       = saved.deaths || 0;
-    currentLevel = Math.min(saved.level, TOTAL_LEVELS - 1);
+    currentLevel = Math.min(saved.level, getMaxLevels() - 1);
   }
   startLevel(currentLevel);
 });
 
 // START OVER link inside continue section
 document.getElementById("new-game-link")?.addEventListener("click", () => {
-  if (confirm("Start over? Your saved progress will be deleted.")) {
-    SaveManager.clear();
+  if (confirm("Start over? Your saved progress will be deleted for this universe.")) {
+    SaveManager.clear(activeMultiverse);
     refreshStartScreen();
+    refreshMultiverseSelector();
   }
 });
 
@@ -2104,9 +2544,9 @@ document.getElementById("death-screen").addEventListener("click", () => {
 document.getElementById("next-btn").addEventListener("click", () => {
   initAudio();
   currentLevel++;
-  if (currentLevel >= TOTAL_LEVELS) {
-    // Game complete — clear save
-    SaveManager.clear();
+  if (currentLevel >= getMaxLevels()) {
+    // Game complete — clear save for this multiverse
+    SaveManager.clear(activeMultiverse);
     gameState = "gamecomplete";
     document.getElementById("final-deaths").textContent = deaths;
     showScreen("gameComplete");
@@ -2272,5 +2712,63 @@ runOpeningAnimation(() => {
   showScreen("start");
   lastTime = performance.now();
   requestAnimationFrame(loop);
+});
+
+// ─── Multiverse Selector Screen Logic ────────────────────────
+function refreshMultiverseSelector() {
+  const ids = ["classic", "gravity", "glitch"];
+  ids.forEach(mv => {
+    const statsEl = document.getElementById(`stats-${mv}`);
+    if (!statsEl) return;
+    if (SaveManager.hasSave(mv)) {
+      const d = SaveManager.load(mv);
+      statsEl.textContent = `📁 Unlocked: Level ${d.level + 1} · 💀 ${d.deaths} deaths`;
+    } else {
+      statsEl.textContent = `📁 Unlocked: Level 1 · 💀 0 deaths`;
+    }
+  });
+}
+
+// Bind clicks to enter dimensions
+document.querySelectorAll(".mv-btn").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    initAudio();
+    const mvId = e.currentTarget.getAttribute("data-mv");
+    activeMultiverse = mvId;
+    
+    let targetLevel = 0;
+    let targetDeaths = 0;
+    
+    if (SaveManager.hasSave(mvId)) {
+      const saved = SaveManager.load(mvId);
+      targetLevel = saved.level;
+      targetDeaths = saved.deaths;
+    }
+    
+    deaths = targetDeaths;
+    currentLevel = targetLevel;
+    
+    startLevel(currentLevel);
+  });
+});
+
+// Back to main menu
+document.getElementById("mv-back-btn").addEventListener("click", () => {
+  initAudio();
+  refreshStartScreen();
+  showScreen("start");
+});
+
+// HUD Home button (exit to multiverse select)
+document.getElementById("btn-home").addEventListener("click", () => {
+  initAudio();
+  // Stop background music arpeggios
+  if (musicInterval) {
+    clearInterval(musicInterval);
+    musicInterval = null;
+  }
+  gameState = "start";
+  refreshMultiverseSelector();
+  showScreen("multiverse");
 });
 
