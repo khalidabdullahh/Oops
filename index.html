@@ -21,6 +21,7 @@
     <div id="ui-overlay">
       <!-- HUD -->
       <div id="hud" class="hidden">
+        <div id="level-progress-bar"><div id="level-progress-fill" style="width:10%"></div></div>
         <div id="level-display">LEVEL <span id="level-num">1</span></div>
         <div id="deaths-display">💀 <span id="death-count">0</span></div>
         <div id="timer-display">⏱ <span id="timer-val">0.0</span>s</div>
@@ -51,7 +52,13 @@
             <div class="ctrl">PC: ← → / A D — Move &nbsp;|&nbsp; Space / W — Jump &nbsp;|&nbsp; R — Restart</div>
             <div class="ctrl">Mobile: Use On-Screen Gamepad Buttons Below</div>
           </div>
-          <button id="start-btn" class="game-btn pulse">▶ PLAY NOW</button>
+          <!-- Continue button — shown only if saved progress exists -->
+          <div id="continue-section" class="hidden">
+            <div class="saved-progress-info">📁 Saved: <span id="saved-level-text">Level 1</span> · 💀 <span id="saved-deaths-text">0</span> deaths</div>
+            <button id="continue-btn" class="game-btn glow">▶ CONTINUE</button>
+            <div class="new-game-link" id="new-game-link">↺ Start Over</div>
+          </div>
+          <button id="start-btn" class="game-btn pulse">▶ NEW GAME</button>
           <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
         </div>
       </div>

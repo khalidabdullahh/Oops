@@ -1472,20 +1472,81 @@ class LevelRuntime {
   }
 }
 
+// ─── Save Manager (localStorage) ────────────────────────────
+const SAVE_KEY = "chaosRealm_save_v1";
+
+const SaveManager = {
+  // Save current progress
+  save(levelIndex, totalDeaths) {
+    const data = {
+      level: levelIndex,          // highest unlocked level index
+      deaths: totalDeaths,
+      savedAt: Date.now(),
+    };
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) { /* private/incognito mode may block */ }
+  },
+
+  // Load saved progress — returns null if nothing saved
+  load() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch(e) { return null; }
+  },
+
+  // Wipe progress (new game)
+  clear() {
+    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+  },
+
+  // Check if saved data exists and is valid
+  hasSave() {
+    const d = this.load();
+    return d !== null && d.level >= 0 && d.level < TOTAL_LEVELS;
+  },
+};
+
 // ─── UI Controller ───────────────────────────────────────────
 const screens = {
-  start:    document.getElementById("start-screen"),
-  death:    document.getElementById("death-screen"),
+  start:         document.getElementById("start-screen"),
+  death:         document.getElementById("death-screen"),
   levelComplete: document.getElementById("level-complete"),
   gameComplete:  document.getElementById("game-complete"),
 };
 const hud = document.getElementById("hud");
 
 function showScreen(name) {
-  Object.values(screens).forEach(s=>s.classList.add("hidden"));
+  Object.values(screens).forEach(s => s.classList.add("hidden"));
   hud.classList.add("hidden");
   if (name && screens[name]) screens[name].classList.remove("hidden");
-  if (name==="playing") hud.classList.remove("hidden");
+  if (name === "playing") hud.classList.remove("hidden");
+}
+
+// Update start screen — show Continue button if save exists
+function refreshStartScreen() {
+  const saveSection  = document.getElementById("continue-section");
+  const savedLvlTxt  = document.getElementById("saved-level-text");
+  const savedDthTxt  = document.getElementById("saved-deaths-text");
+
+  if (SaveManager.hasSave()) {
+    const d = SaveManager.load();
+    const lvl = Math.min(d.level, TOTAL_LEVELS - 1);
+    const levelData = buildLevel(lvl);
+    savedLvlTxt.textContent = `Level ${lvl + 1} – ${levelData.name}`;
+    savedDthTxt.textContent  = d.deaths;
+    saveSection.classList.remove("hidden");
+  } else {
+    saveSection.classList.add("hidden");
+  }
+}
+
+// Update HUD level progress bar
+function updateProgressBar(lvl) {
+  const fill = document.getElementById("level-progress-fill");
+  if (fill) fill.style.width = ((lvl + 1) / TOTAL_LEVELS * 100) + "%";
 }
 
 const DEATH_MSGS = [
@@ -1496,15 +1557,15 @@ const DEATH_MSGS = [
 ];
 
 function updateHUD() {
-  document.getElementById("level-num").textContent = currentLevel+1;
+  document.getElementById("level-num").textContent  = currentLevel + 1;
   document.getElementById("death-count").textContent = deaths;
-  document.getElementById("timer-val").textContent = levelTimer.toFixed(1);
+  document.getElementById("timer-val").textContent   = levelTimer.toFixed(1);
+  updateProgressBar(currentLevel);
 }
 
 // ─── Main Game Loop ──────────────────────────────────────────
 let runtime = null;
 let lastTime = 0;
-let animId  = null;
 
 function startLevel(idx) {
   particles.length = 0;
@@ -1513,72 +1574,107 @@ function startLevel(idx) {
   runtime = new LevelRuntime(data);
   gameState = "playing";
   showScreen("playing");
+  updateProgressBar(idx);
 }
 
 function loop(ts) {
-  animId = requestAnimationFrame(loop);
-  const dt = Math.min((ts - lastTime)/1000, 0.05);
+  requestAnimationFrame(loop);
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
   lastTime = ts;
 
-  ctx.clearRect(0,0,VW,VH);
+  ctx.clearRect(0, 0, VW, VH);
 
-  if (gameState==="playing" && runtime) {
+  if (gameState === "playing" && runtime) {
     runtime.update(dt);
-    runtime.draw(ctx, ts/1000);
+    runtime.draw(ctx, ts / 1000);
     updateHUD();
 
     if (runtime.dead) {
       deaths++;
       gameState = "dead";
-      const msg = DEATH_MSGS[Math.floor(Math.random()*DEATH_MSGS.length)];
+      // Save progress even on death so death count is persisted
+      SaveManager.save(currentLevel, deaths);
+      const msg = DEATH_MSGS[Math.floor(Math.random() * DEATH_MSGS.length)];
       document.getElementById("death-title").textContent = "YOU DIED";
-      document.getElementById("death-msg").textContent = msg;
-      document.getElementById("death-big").textContent = deaths;
+      document.getElementById("death-msg").textContent   = msg;
+      document.getElementById("death-big").textContent   = deaths;
       document.getElementById("death-count").textContent = deaths;
-      setTimeout(()=> showScreen("death"), 600);
+      setTimeout(() => showScreen("death"), 600);
     }
 
     if (runtime.complete) {
       gameState = "levelcomplete";
       const t = levelTimer.toFixed(1);
-      document.getElementById("win-time").textContent = t+"s";
+      document.getElementById("win-time").textContent = t + "s";
       const stars = t < 5 ? "⭐⭐⭐" : t < 12 ? "⭐⭐" : "⭐";
       document.getElementById("win-rating").textContent = stars;
-      setTimeout(()=> showScreen("levelComplete"), 800);
+
+      // ✅ SAVE PROGRESS — next level unlocked
+      const nextLevel = currentLevel + 1;
+      if (nextLevel < TOTAL_LEVELS) {
+        SaveManager.save(nextLevel, deaths);
+      }
+
+      setTimeout(() => showScreen("levelComplete"), 800);
     }
   } else {
-    // Just draw the background during menus
-    if (runtime) runtime.draw(ctx, ts/1000);
-    else {
-      ctx.fillStyle="#0a0a0f";
-      ctx.fillRect(0,0,VW,VH);
-    }
+    // Draw background during menus
+    if (runtime) runtime.draw(ctx, ts / 1000);
+    else { ctx.fillStyle = "#0a0a0f"; ctx.fillRect(0, 0, VW, VH); }
   }
 
-  // R to restart
-  if (keys["KeyR"] && gameState!=="start") {
+  // R to restart current level
+  if (keys["KeyR"] && gameState !== "start") {
     deaths++;
+    SaveManager.save(currentLevel, deaths);
     startLevel(currentLevel);
     showScreen("playing");
   }
 }
 
 // ─── Button Handlers ─────────────────────────────────────────
-document.getElementById("start-btn").addEventListener("click", ()=>{
+
+// NEW GAME — wipe save and start from level 1
+document.getElementById("start-btn").addEventListener("click", () => {
   initAudio();
-  deaths = 0; currentLevel = 0;
+  SaveManager.clear();
+  deaths = 0;
+  currentLevel = 0;
   startLevel(0);
 });
 
-document.getElementById("retry-btn").addEventListener("click", ()=>{
+// CONTINUE — load saved level
+document.getElementById("continue-btn")?.addEventListener("click", () => {
+  initAudio();
+  const saved = SaveManager.load();
+  if (saved) {
+    deaths       = saved.deaths || 0;
+    currentLevel = Math.min(saved.level, TOTAL_LEVELS - 1);
+  }
+  startLevel(currentLevel);
+});
+
+// START OVER link inside continue section
+document.getElementById("new-game-link")?.addEventListener("click", () => {
+  if (confirm("Start over? Your saved progress will be deleted.")) {
+    SaveManager.clear();
+    refreshStartScreen();
+  }
+});
+
+// RETRY after death
+document.getElementById("retry-btn").addEventListener("click", () => {
   initAudio();
   startLevel(currentLevel);
 });
 
-document.getElementById("next-btn").addEventListener("click", ()=>{
+// NEXT LEVEL after completing a level
+document.getElementById("next-btn").addEventListener("click", () => {
   initAudio();
   currentLevel++;
   if (currentLevel >= TOTAL_LEVELS) {
+    // Game complete — clear save
+    SaveManager.clear();
     gameState = "gamecomplete";
     document.getElementById("final-deaths").textContent = deaths;
     showScreen("gameComplete");
@@ -1587,13 +1683,18 @@ document.getElementById("next-btn").addEventListener("click", ()=>{
   }
 });
 
-document.getElementById("play-again-btn").addEventListener("click", ()=>{
+// PLAY AGAIN after game complete — full reset
+document.getElementById("play-again-btn").addEventListener("click", () => {
   initAudio();
-  deaths = 0; currentLevel = 0;
+  SaveManager.clear();
+  deaths = 0;
+  currentLevel = 0;
   startLevel(0);
 });
 
 // ─── Start ───────────────────────────────────────────────────
+refreshStartScreen();   // show Continue button if save exists
 showScreen("start");
 lastTime = performance.now();
 requestAnimationFrame(loop);
+
