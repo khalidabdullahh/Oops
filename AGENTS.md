@@ -91,15 +91,18 @@ All terminal packaging triggers are defined inside `package.json`:
 ---
 
 ## 7. Current Project Features
+*   **Multiverse Selector Dashboard**: Screen selection enabling access to three parallel universes (`Classic Realm`, `Gravity Nexus`, `Glitch Realm`) with independent level unlocks and death logs.
+*   **Gravity Inversion Physics**: Responsive upside-down gravity flips (triggered via Shift or mobile FLIP button) including inverted jumping mechanics, ceiling platform landing states, and ceiling boundaries.
+*   **Glitch Cycle Blocks**: Time-flickering platforms with active collision switches and chromatic wireframe rendering during inactive phases.
 *   **Opening Cinematic/Intro Animation**: Custom sequential entry animation featuring evil eyes opening in darkness, title slam with bounce, and crossfading overlays.
-*   **10 Handcrafted Levels**: Featuring various traps, triggers, and deception hazards.
-*   **Visual Themes**: `DESERT` (Levels 1-3), `SHADOW` (Levels 4-6), and `VOID` (Levels 7-10) with custom background layers, themed platform decorations, themed hazards, and matching HUD watermarks.
+*   **20 Handcrafted Levels**: 10 Classic, 5 Gravity-inversion, and 5 Glitch-speed levels.
+*   **Visual Themes**: 9 distinct universe themes (`DESERT`, `SHADOW`, `VOID`, `FROST`, `MATRIX`, `OBSIDIAN`, `SUNRISE`, `LAVA`, `TWILIGHT`) dynamically shifting every 3 levels.
 *   **Procedural Chiptune Background Music**: Sequenced retro minor key arpeggios that automatically toggle matching start/dead/win transitions.
 *   **Sound Control Integration**: HUD utility buttons featuring a `🔇/🔊` mute button to instantly override sound nodes.
 *   **Narrator Humorous Death Commentaries**: Dynamic, custom-tuned comments in place of simple death alerts.
 *   **Victory Confetti Blasters**: Confetti sprays of multiple colors on exit reach actions.
 *   **Logo Interaction Sandbox**: Clicking the main menu logo triggers comical squashes and bounces alongside sound effect alerts.
-*   **Persistant Progress saving**: Loads cumulative deaths and highest unlocked level index on boot.
+*   **Persistant Progress saving**: Loads cumulative deaths and highest unlocked level index independently for each multiverse.
 *   **Responsive Joystick UI**: Multi-touch, circular joystick controls with haptic touch feedbacks.
 
 ---
