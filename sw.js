@@ -1,4 +1,4 @@
-const CACHE = "chaos-realm-v1";
+const CACHE = "oops-v1";
 const ASSETS = [
   "./",
   "./index.html",

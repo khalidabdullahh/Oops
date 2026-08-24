@@ -100,7 +100,13 @@ html, body {
   z-index: 50;
 }
 
-#btn-touch-toggle {
+#hud-buttons {
+  display: flex;
+  gap: 8px;
+  pointer-events: all;
+}
+
+#btn-touch-toggle, #btn-sound-toggle {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 6px;
@@ -109,12 +115,29 @@ html, body {
   font-size: 14px;
   cursor: pointer;
   pointer-events: all;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.1s;
 }
 
-#btn-touch-toggle:hover, #btn-touch-toggle:active {
-  background: rgba(255, 71, 87, 0.6);
+#btn-touch-toggle:hover, #btn-touch-toggle:active,
+#btn-sound-toggle:hover, #btn-sound-toggle:active {
+  background: rgba(204, 51, 0, 0.6);
+  transform: scale(1.08);
 }
+
+/* Click effect on title */
+.title-oops.bounce-click {
+  animation: titleBounceClick 0.45s ease;
+}
+
+@keyframes titleBounceClick {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3, 0.7); }
+  45% { transform: scale(0.75, 1.2); }
+  65% { transform: scale(1.15, 0.85); }
+  85% { transform: scale(0.95, 1.05); }
+  100% { transform: scale(1); }
+}
+
 
 /* ── Mobile On-Screen Gamepad Controls ──────────────────── */
 #mobile-controls {

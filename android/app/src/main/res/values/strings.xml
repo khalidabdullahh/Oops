@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Chaos Realm</string>
-    <string name="title_activity_main">Chaos Realm</string>
+    <string name="app_name">Oops!</string>
+    <string name="title_activity_main">Oops!</string>
     <string name="package_name">com.chaosrealm.game</string>
     <string name="custom_url_scheme">com.chaosrealm.game</string>
 </resources>

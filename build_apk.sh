@@ -12,7 +12,7 @@ WORK_DIR="/tmp/cr_build"
 NODE_DIR="$WORK_DIR/node"
 JAVA_HOME_DIR="$WORK_DIR/jdk/Contents/Home"
 ANDROID_SDK="$WORK_DIR/android-sdk"
-GAME_DIR="/Users/khalidabdullah/AntiGravity/chaos-realm"
+GAME_DIR="/Users/khalidabdullah/AntiGravity/Oops!"
 
 mkdir -p "$WORK_DIR" "$NODE_DIR" "$WORK_DIR/jdk" "$ANDROID_SDK/cmdline-tools"
 
@@ -87,12 +87,12 @@ chmod +x gradlew
 
 APK_PATH="$GAME_DIR/android/app/build/outputs/apk/debug/app-debug.apk"
 if [ -f "$APK_PATH" ]; then
-  cp "$APK_PATH" "$GAME_DIR/ChaosRealm.apk"
+  cp "$APK_PATH" "$GAME_DIR/Oops.apk"
   echo ""
   echo "=========================================="
   echo " ✅ APK BUILT SUCCESSFULLY!"
-  echo " 📦 $GAME_DIR/ChaosRealm.apk"
-  ls -lh "$GAME_DIR/ChaosRealm.apk"
+  echo " 📦 $GAME_DIR/Oops.apk"
+  ls -lh "$GAME_DIR/Oops.apk"
   echo "=========================================="
 else
   echo "❌ APK not found — build may have failed"

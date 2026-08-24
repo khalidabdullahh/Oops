@@ -1,10 +1,10 @@
 {
-  "name": "chaos-realm",
+  "name": "oops-game",
   "version": "1.0.0",
-  "description": "Chaos Realm - A deceptive platformer game",
+  "description": "Oops! - A deceptive platformer game",
   "main": "game.js",
   "scripts": {
-    "build-apk": "npm install && npx cap init 'Chaos Realm' com.chaosrealm.game --web-dir . && npx cap add android && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "build-apk": "npm install && npx cap init 'Oops!' com.chaosrealm.game --web-dir . && npx cap add android && npx cap sync android && cd android && ./gradlew assembleDebug",
     "cap-sync": "npx cap sync android",
     "cap-open": "npx cap open android"
   },
