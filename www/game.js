@@ -1944,6 +1944,11 @@ function startLevel(idx) {
   const prevTheme = activeTheme;
   activeTheme = getTheme(idx);
 
+  // Set body and wrapper background to match theme
+  document.body.style.backgroundColor = activeTheme.bg2;
+  const wrapper = document.getElementById("game-wrapper");
+  if (wrapper) wrapper.style.backgroundColor = activeTheme.bg2;
+
   // Show world title when entering a new world
   if (idx === 0 || idx === 3 || idx === 6) {
     if (idx > 0 || prevTheme !== activeTheme) {
