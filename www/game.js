@@ -429,7 +429,7 @@ class Player {
     SFX.die();
   }
 
-  // ── Cartoon Character Renderer ───────────────────────────────
+  // ── Silhouette Character Renderer (Level Devil Style) ────────
   draw(ctx) {
     if (!this.alive) return;
     const state = this.animState;
@@ -442,158 +442,49 @@ class Player {
 
     const bob = (state === "idle") ? this.idleBob : 0;
 
-    // Shadow
-    ctx.globalAlpha = 0.22;
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.ellipse(0, 2, 11 * this.squishX, 4, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    // Flat black silhouette color
+    ctx.fillStyle = "#15151c";
 
-    // Legs
-    const legSwing = Math.sin(this.runLegAng) * 0.45;
-    if (state === "jump") {
-      this._drawLeg(ctx, -5, bob, -0.55);
-      this._drawLeg(ctx,  5, bob,  0.50);
-    } else if (state === "fall") {
-      this._drawLeg(ctx, -5, bob, -0.2);
-      this._drawLeg(ctx,  5, bob,  0.2);
-    } else if (state === "land") {
-      this._drawLeg(ctx, -6, bob, -0.65);
-      this._drawLeg(ctx,  6, bob,  0.65);
-    } else if (state === "run") {
-      this._drawLeg(ctx, -4, bob,  legSwing);
-      this._drawLeg(ctx,  4, bob, -legSwing);
+    const W = this.w;
+    const H = this.h;
+
+    // Legs - Simple blocky legs swinging
+    const legSwing = Math.sin(this.runLegAng) * 6;
+    if (state === "run") {
+      ctx.fillRect(-6, -7 + legSwing, 4, 7);
+      ctx.fillRect(2, -7 - legSwing, 4, 7);
+    } else if (state === "jump" || state === "fall") {
+      ctx.fillRect(-5, -5, 3, 5);
+      ctx.fillRect(2, -4, 3, 4);
     } else {
-      const il = Math.sin(t*2.5)*0.05;
-      this._drawLeg(ctx, -4, bob,  il);
-      this._drawLeg(ctx,  4, bob, -il);
+      ctx.fillRect(-5, -7, 4, 7);
+      ctx.fillRect(1, -7, 4, 7);
     }
 
-    // Body (pink hoodie)
-    const bodyY = bob - 22;
-    ctx.fillStyle = "#e84393";
-    this._roundRect(ctx, -9, bodyY, 18, 14, 4); ctx.fill();
-    ctx.fillStyle = "#c73280";
-    this._roundRect(ctx, -5, bodyY+7, 10, 5, 2); ctx.fill();
-    ctx.strokeStyle = "#c73280"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, bodyY+1); ctx.lineTo(0, bodyY+13); ctx.stroke();
+    // Torso - Simple flat block
+    const bodyH = 17;
+    const bodyW = 16;
+    const bodyY = -7 - bodyH + bob;
+    ctx.fillRect(-bodyW/2, bodyY, bodyW, bodyH);
 
-    // Arms
-    const aSwing = Math.sin(this.armSwing) * 0.4;
-    if (state === "jump") {
-      this._drawArm(ctx, -9, bob-18, -0.9);
-      this._drawArm(ctx,  9, bob-18,  0.9);
-    } else if (state === "fall") {
-      this._drawArm(ctx, -9, bob-18, -0.5);
-      this._drawArm(ctx,  9, bob-18,  0.5);
-    } else if (state === "land") {
-      this._drawArm(ctx, -9, bob-18, -0.8);
-      this._drawArm(ctx,  9, bob-18,  0.8);
-    } else if (state === "run") {
-      this._drawArm(ctx, -9, bob-18, -aSwing-0.3);
-      this._drawArm(ctx,  9, bob-18,  aSwing+0.3);
-    } else {
-      const ia = Math.sin(t*2.5)*0.08;
-      this._drawArm(ctx, -9, bob-18, -0.15+ia);
-      this._drawArm(ctx,  9, bob-18,  0.15-ia);
-    }
+    // Head - Flat block
+    const headSize = 13;
+    const headY = bodyY - headSize + 2;
+    ctx.fillRect(-headSize/2, headY, headSize, headSize);
 
-    // Head
-    const headY = bob - 34;
-    const headR = 11;
-    ctx.fillStyle = "#ffd6a5";
-    ctx.beginPath(); ctx.arc(0, headY, headR, 0, Math.PI*2); ctx.fill();
-
-    // Cheeks
-    ctx.globalAlpha = 0.35; ctx.fillStyle = "#ff9999";
-    ctx.beginPath(); ctx.ellipse(-6, headY+4, 4, 3, 0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 6, headY+4, 4, 3, 0,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha = 1;
-
-    // Hair
-    ctx.fillStyle = "#2d1a00";
-    ctx.beginPath(); ctx.arc(0, headY-2, headR+1, Math.PI, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(-headR+1, headY-2, 5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc( headR-1, headY-2, 4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(3, headY-headR, 4.5, 0, Math.PI*2); ctx.fill();
-
-    // Hood collar
-    ctx.fillStyle = "#c73280";
-    ctx.beginPath(); ctx.arc(0, headY+9, 7, Math.PI*1.1, Math.PI*1.9); ctx.fill();
-
-    // Eyes
-    const blink = this.blinkTimer % 3.5 > 3.2;
-    if (blink) {
-      ctx.strokeStyle = "#1a1a2e"; ctx.lineWidth = 2; ctx.lineCap = "round";
-      ctx.beginPath(); ctx.moveTo(-5, headY-1); ctx.lineTo(-2, headY-1); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo( 2, headY-1); ctx.lineTo( 5, headY-1); ctx.stroke();
-    } else {
-      const lookY = state==="jump" ? -1 : (state==="fall" ? 1 : 0);
-      ctx.fillStyle = "#fff";
-      ctx.beginPath(); ctx.ellipse(-4, headY-1, 4, 4.5, 0,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse( 4, headY-1, 4, 4.5, 0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#2196f3";
-      ctx.beginPath(); ctx.ellipse(-4+0.8, headY-1+lookY, 2.8, 3, 0,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse( 4+0.8, headY-1+lookY, 2.8, 3, 0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#1a1a2e";
-      ctx.beginPath(); ctx.ellipse(-4+1.2, headY-0.5+lookY, 1.5, 1.8, 0,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse( 4+1.2, headY-0.5+lookY, 1.5, 1.8, 0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.beginPath(); ctx.arc(-3.5, headY-1.8+lookY, 0.9, 0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc( 4.5, headY-1.8+lookY, 0.9, 0,Math.PI*2); ctx.fill();
-    }
-
-    // Mouth
-    ctx.strokeStyle = "#8b4513"; ctx.lineWidth = 1.5; ctx.lineCap = "round";
-    if (state === "jump" || state === "fall") {
-      ctx.fillStyle = "#8b4513";
-      ctx.beginPath(); ctx.ellipse(0, headY+5, 2.5, 3, 0,0,Math.PI*2); ctx.fill();
-    } else if (state === "land") {
-      ctx.beginPath(); ctx.moveTo(-3, headY+5); ctx.lineTo(3, headY+5); ctx.stroke();
-    } else {
-      ctx.beginPath(); ctx.arc(0, headY+3, 4, 0.2, Math.PI-0.2); ctx.stroke();
+    // Eyes - Minimal white rectangles
+    const blink = this.blinkTimer % 3.5 > 3.25;
+    if (!blink) {
+      ctx.fillStyle = "#ffffff";
+      const lookX = 2; // look direction offset
+      const lookY = state === "jump" ? -1 : (state === "fall" ? 1 : 0);
+      
+      // Two simple vertical square eyes
+      ctx.fillRect(-headSize/2 + 4 + lookX, headY + 4 + lookY, 2.5, 3.5);
+      ctx.fillRect(-headSize/2 + 8 + lookX, headY + 4 + lookY, 2.5, 3.5);
     }
 
     ctx.restore();
-  }
-
-  _drawLeg(ctx, xOff, bob, angle) {
-    ctx.save();
-    ctx.translate(xOff, bob-10); ctx.rotate(angle);
-    ctx.fillStyle = "#3d5af1";
-    this._roundRect(ctx, -3.5, 0, 7, 9, 3); ctx.fill();
-    ctx.translate(0, 8); ctx.rotate(angle * 0.4);
-    ctx.fillStyle = "#2980b9";
-    this._roundRect(ctx, -3, 0, 6, 8, 2.5); ctx.fill();
-    ctx.translate(0, 7);
-    ctx.fillStyle = "#fff";
-    this._roundRect(ctx, -4, 0, 8.5, 5, 2); ctx.fill();
-    ctx.fillStyle = "#ff4757"; ctx.fillRect(-4, 0, 8.5, 2);
-    ctx.restore();
-  }
-
-  _drawArm(ctx, xOff, yOff, angle) {
-    ctx.save();
-    ctx.translate(xOff, yOff); ctx.rotate(angle);
-    ctx.fillStyle = "#e84393";
-    this._roundRect(ctx, -3, 0, 6, 8, 3); ctx.fill();
-    ctx.translate(0, 7); ctx.rotate(angle * 0.35);
-    ctx.fillStyle = "#ffd6a5";
-    this._roundRect(ctx, -2.5, 0, 5, 7, 2.5); ctx.fill();
-    ctx.translate(0, 6);
-    ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-  }
-
-  _roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x+r, y);
-    ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y,   x+w, y+r);
-    ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-    ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x,   y+h, x,   y+h-r);
-    ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x,   y,   x+r, y);
-    ctx.closePath();
   }
 }
 
@@ -1013,43 +904,35 @@ class Exit {
   update(dt) { this.phase+=dt*2; }
 
   draw(ctx) {
-    // Base
-    ctx.fillStyle = "#2c1f1f";
-    ctx.fillRect(this.x, this.y, this.w, this.h);
+    const theme = activeTheme;
+    ctx.save();
+    ctx.translate(this.x + this.w/2, this.y + this.h);
 
-    // Door frame
-    ctx.strokeStyle = activeTheme.exit;
+    // Arch outline
+    ctx.strokeStyle = theme.exit;
     ctx.lineWidth = 3;
-    ctx.shadowBlur = 20; ctx.shadowColor = activeTheme.exitGlow;
-    ctx.strokeRect(this.x+2, this.y+2, this.w-4, this.h-4);
-    ctx.shadowBlur = 0;
-
-    // Door shine
-    const grd = ctx.createLinearGradient(this.x, this.y, this.x+this.w, this.y);
-    grd.addColorStop(0, "rgba(255,211,42,0.05)");
-    grd.addColorStop(0.5, "rgba(255,211,42,0.2)");
-    grd.addColorStop(1, "rgba(255,211,42,0.05)");
-    ctx.fillStyle = grd;
-    ctx.fillRect(this.x+2, this.y+2, this.w-4, this.h-4);
-
-    // EXIT text
-    ctx.save();
-    ctx.fillStyle = activeTheme.exit;
-    ctx.font = "bold 8px monospace";
-    ctx.textAlign = "center";
-    ctx.shadowBlur=10; ctx.shadowColor=activeTheme.exitGlow;
-    ctx.fillText("EXIT", this.x+this.w/2, this.y+this.h/2+2);
-    ctx.restore();
-
-    // Pulse effect
-    ctx.save();
-    ctx.globalAlpha = 0.15 + Math.sin(this.phase)*0.1;
-    ctx.fillStyle = activeTheme.exit;
+    ctx.fillStyle = "#16161c"; // dark center silhouette
+    
     ctx.beginPath();
-    ctx.ellipse(this.x+this.w/2, this.y+this.h/2,
-      this.w*(0.8+Math.sin(this.phase)*0.1),
-      this.h*(0.8+Math.sin(this.phase)*0.1), 0,0,Math.PI*2);
+    ctx.moveTo(-this.w/2 + 1.5, 0);
+    ctx.lineTo(-this.w/2 + 1.5, -this.h + this.w/2);
+    ctx.arcTo(0, -this.h - this.w/2, this.w/2 - 1.5, -this.h + this.w/2, this.w/2 - 1.5);
+    ctx.lineTo(this.w/2 - 1.5, 0);
+    ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+
+    // Inner glowing fill
+    ctx.fillStyle = theme.exit;
+    ctx.globalAlpha = 0.5 + Math.sin(this.phase) * 0.15;
+    ctx.beginPath();
+    ctx.moveTo(-this.w/2 + 5, 0);
+    ctx.lineTo(-this.w/2 + 5, -this.h + this.w/2 + 3);
+    ctx.arcTo(0, -this.h + 5, this.w/2 - 5, -this.h + this.w/2 + 3, this.w/2 - 5);
+    ctx.lineTo(this.w/2 - 5, 0);
+    ctx.closePath();
+    ctx.fill();
+
     ctx.restore();
   }
 }
