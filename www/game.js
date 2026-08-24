@@ -429,7 +429,7 @@ class Player {
     SFX.die();
   }
 
-  // ── Silhouette Character Renderer (Level Devil Style) ────────
+  // ── Cartoon Character Renderer ───────────────────────────────
   draw(ctx) {
     if (!this.alive) return;
     const state = this.animState;
@@ -442,49 +442,191 @@ class Player {
 
     const bob = (state === "idle") ? this.idleBob : 0;
 
-    // Flat black silhouette color
-    ctx.fillStyle = "#15151c";
+    // Shadow
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.ellipse(0, 1, 12 * this.squishX, 3.5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
 
-    const W = this.w;
-    const H = this.h;
-
-    // Legs - Simple blocky legs swinging
-    const legSwing = Math.sin(this.runLegAng) * 6;
-    if (state === "run") {
-      ctx.fillRect(-6, -7 + legSwing, 4, 7);
-      ctx.fillRect(2, -7 - legSwing, 4, 7);
-    } else if (state === "jump" || state === "fall") {
-      ctx.fillRect(-5, -5, 3, 5);
-      ctx.fillRect(2, -4, 3, 4);
+    // 1. Legs & Shoes
+    const legSwing = Math.sin(this.runLegAng) * 0.45;
+    if (state === "jump") {
+      this._drawLeg(ctx, -5, bob, -0.55);
+      this._drawLeg(ctx,  5, bob,  0.50);
+    } else if (state === "fall") {
+      this._drawLeg(ctx, -5, bob, -0.2);
+      this._drawLeg(ctx,  5, bob,  0.2);
+    } else if (state === "land") {
+      this._drawLeg(ctx, -6, bob, -0.65);
+      this._drawLeg(ctx,  6, bob,  0.65);
+    } else if (state === "run") {
+      this._drawLeg(ctx, -4, bob,  legSwing);
+      this._drawLeg(ctx,  4, bob, -legSwing);
     } else {
-      ctx.fillRect(-5, -7, 4, 7);
-      ctx.fillRect(1, -7, 4, 7);
+      const il = Math.sin(t*2.5)*0.04;
+      this._drawLeg(ctx, -4, bob,  il);
+      this._drawLeg(ctx,  4, bob, -il);
     }
 
-    // Torso - Simple flat block
-    const bodyH = 17;
-    const bodyW = 16;
-    const bodyY = -7 - bodyH + bob;
-    ctx.fillRect(-bodyW/2, bodyY, bodyW, bodyH);
+    // 2. Torso (Pink hoodie with zipper and pocket)
+    const bodyY = bob - 22;
+    ctx.fillStyle = "#ff4757"; // cute red/pink hoodie
+    this._roundRect(ctx, -9, bodyY, 18, 14, 4); ctx.fill();
+    // Pocket
+    ctx.fillStyle = "#e84118";
+    this._roundRect(ctx, -5, bodyY+7, 10, 5, 2); ctx.fill();
+    // Zipper
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, bodyY+1); ctx.lineTo(0, bodyY+13); ctx.stroke();
+    // Hoodie strings
+    ctx.strokeStyle = "#f5f6fa"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(-3, bodyY+3); ctx.lineTo(-3, bodyY+10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(3, bodyY+3); ctx.lineTo(3, bodyY+9); ctx.stroke();
+    // Knots
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath(); ctx.arc(-3, bodyY+10, 1.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, bodyY+9, 1.2, 0, Math.PI*2); ctx.fill();
 
-    // Head - Flat block
-    const headSize = 13;
-    const headY = bodyY - headSize + 2;
-    ctx.fillRect(-headSize/2, headY, headSize, headSize);
+    // 3. Arms
+    const aSwing = Math.sin(this.armSwing) * 0.4;
+    if (state === "jump") {
+      this._drawArm(ctx, -9, bob-18, -0.9);
+      this._drawArm(ctx,  9, bob-18,  0.9);
+    } else if (state === "fall") {
+      this._drawArm(ctx, -9, bob-18, -0.5);
+      this._drawArm(ctx,  9, bob-18,  0.5);
+    } else if (state === "land") {
+      this._drawArm(ctx, -9, bob-18, -0.8);
+      this._drawArm(ctx,  9, bob-18,  0.8);
+    } else if (state === "run") {
+      this._drawArm(ctx, -9, bob-18, -aSwing-0.3);
+      this._drawArm(ctx,  9, bob-18,  aSwing+0.3);
+    } else {
+      const ia = Math.sin(t*2.5)*0.08;
+      this._drawArm(ctx, -9, bob-18, -0.15+ia);
+      this._drawArm(ctx,  9, bob-18,  0.15-ia);
+    }
 
-    // Eyes - Minimal white rectangles
-    const blink = this.blinkTimer % 3.5 > 3.25;
-    if (!blink) {
-      ctx.fillStyle = "#ffffff";
-      const lookX = 2; // look direction offset
-      const lookY = state === "jump" ? -1 : (state === "fall" ? 1 : 0);
+    // 4. Head, Face & Ears
+    const headY = bob - 34;
+    const headR = 10;
+    
+    // Ears
+    ctx.fillStyle = "#ffd6a5";
+    ctx.beginPath(); ctx.arc(-headR, headY, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( headR, headY, 2.5, 0, Math.PI*2); ctx.fill();
+    
+    // Face
+    ctx.beginPath(); ctx.arc(0, headY, headR, 0, Math.PI*2); ctx.fill();
+
+    // Blush Cheeks
+    ctx.globalAlpha = 0.45; ctx.fillStyle = "#ff7979";
+    ctx.beginPath(); ctx.ellipse(-5, headY+3, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 5, headY+3, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Hair (Detailed brown hair)
+    ctx.fillStyle = "#2d1a00";
+    ctx.beginPath(); ctx.arc(0, headY-2, headR+1.2, Math.PI, Math.PI*2); ctx.fill();
+    // Tufts / spikes
+    ctx.beginPath(); ctx.arc(-headR+1, headY-3, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( headR-1, headY-3, 3.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(2, headY-headR, 4, 0, Math.PI*2); ctx.fill();
+
+    // Hoodie Collar
+    ctx.fillStyle = "#e84118";
+    ctx.beginPath(); ctx.arc(0, headY+8, 6.5, Math.PI*1.1, Math.PI*1.9); ctx.fill();
+
+    // Eyebrows
+    ctx.strokeStyle = "#2d1a00"; ctx.lineWidth = 1.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(-6, headY-5); ctx.lineTo(-2, headY-4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( 2, headY-4); ctx.lineTo( 6, headY-5); ctx.stroke();
+
+    // Eyes (detailed blue eyes)
+    const blink = this.blinkTimer % 3.5 > 3.2;
+    if (blink) {
+      ctx.strokeStyle = "#2d1a00"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(-5, headY-1); ctx.lineTo(-2, headY-1); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo( 2, headY-1); ctx.lineTo( 5, headY-1); ctx.stroke();
+    } else {
+      const lookY = state === "jump" ? -0.8 : (state === "fall" ? 0.8 : 0);
       
-      // Two simple vertical square eyes
-      ctx.fillRect(-headSize/2 + 4 + lookX, headY + 4 + lookY, 2.5, 3.5);
-      ctx.fillRect(-headSize/2 + 8 + lookX, headY + 4 + lookY, 2.5, 3.5);
+      // Sclera (White)
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.ellipse(-4, headY-1, 3.5, 4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse( 4, headY-1, 3.5, 4, 0, 0, Math.PI*2); ctx.fill();
+      
+      // Iris (Blue)
+      ctx.fillStyle = "#3498db";
+      ctx.beginPath(); ctx.ellipse(-4+0.5, headY-1+lookY, 2.4, 2.6, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse( 4+0.5, headY-1+lookY, 2.4, 2.6, 0, 0, Math.PI*2); ctx.fill();
+      
+      // Pupil (Black)
+      ctx.fillStyle = "#2c3e50";
+      ctx.beginPath(); ctx.ellipse(-4+0.9, headY-1+lookY, 1.2, 1.4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse( 4+0.9, headY-1+lookY, 1.2, 1.4, 0, 0, Math.PI*2); ctx.fill();
+      
+      // Highlights (White glint)
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(-3.4, headY-1.8+lookY, 0.7, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc( 4.6, headY-1.8+lookY, 0.7, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Mouth
+    ctx.strokeStyle = "#2d1a00"; ctx.lineWidth = 1.2; ctx.lineCap = "round";
+    if (state === "jump" || state === "fall") {
+      ctx.fillStyle = "#2d1a00";
+      ctx.beginPath(); ctx.ellipse(0, headY+4.5, 2.2, 2.8, 0, 0, Math.PI*2); ctx.fill();
+    } else if (state === "land") {
+      ctx.beginPath(); ctx.moveTo(-2.5, headY+4.5); ctx.lineTo(2.5, headY+4.5); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(0, headY+2.5, 3.5, 0.25, Math.PI - 0.25); ctx.stroke();
     }
 
     ctx.restore();
+  }
+
+  _drawLeg(ctx, xOff, bob, angle) {
+    ctx.save();
+    ctx.translate(xOff, bob-10); ctx.rotate(angle);
+    // Pants
+    ctx.fillStyle = "#2e86de"; // Blue jeans
+    this._roundRect(ctx, -3.5, 0, 7, 8, 2.5); ctx.fill();
+    ctx.translate(0, 7); ctx.rotate(angle * 0.35);
+    this._roundRect(ctx, -3, 0, 6, 7, 2); ctx.fill();
+    // Shoe base
+    ctx.translate(0, 6);
+    ctx.fillStyle = "#ffffff";
+    this._roundRect(ctx, -3.8, 0, 8, 4.5, 1.5); ctx.fill();
+    // Sneaker detail
+    ctx.fillStyle = "#ff4757";
+    ctx.fillRect(-3.8, 0, 8, 1.8);
+    ctx.restore();
+  }
+
+  _drawArm(ctx, xOff, yOff, angle) {
+    ctx.save();
+    ctx.translate(xOff, yOff); ctx.rotate(angle);
+    ctx.fillStyle = "#ff4757"; // Hoodie sleeve
+    this._roundRect(ctx, -2.8, 0, 5.6, 8, 2.5); ctx.fill();
+    ctx.translate(0, 7); ctx.rotate(angle * 0.3);
+    ctx.fillStyle = "#ffd6a5"; // Hand skin
+    this._roundRect(ctx, -2.2, 0, 4.4, 6, 2); ctx.fill();
+    ctx.translate(0, 5);
+    ctx.beginPath(); ctx.arc(0, 0, 2.6, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y,   x+w, y+r);
+    ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x,   y+h, x,   y+h-r);
+    ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x,   y,   x+r, y);
+    ctx.closePath();
   }
 }
 
@@ -908,30 +1050,75 @@ class Exit {
     ctx.save();
     ctx.translate(this.x + this.w/2, this.y + this.h);
 
-    // Arch outline
-    ctx.strokeStyle = theme.exit;
-    ctx.lineWidth = 3;
-    ctx.fillStyle = "#16161c"; // dark center silhouette
+    // 1. Draw outer stone arch structure
+    ctx.fillStyle = "#4b4b53"; // dark stone gray
+    ctx.strokeStyle = "#718093"; // light stone grout
+    ctx.lineWidth = 1.5;
     
     ctx.beginPath();
-    ctx.moveTo(-this.w/2 + 1.5, 0);
-    ctx.lineTo(-this.w/2 + 1.5, -this.h + this.w/2);
-    ctx.arcTo(0, -this.h - this.w/2, this.w/2 - 1.5, -this.h + this.w/2, this.w/2 - 1.5);
-    ctx.lineTo(this.w/2 - 1.5, 0);
+    ctx.moveTo(-this.w/2 - 4, 0);
+    ctx.lineTo(-this.w/2 - 4, -this.h + this.w/2);
+    ctx.arcTo(0, -this.h - this.w/2 - 5, this.w/2 + 4, -this.h + this.w/2, this.w/2 + 4);
+    ctx.lineTo(this.w/2 + 4, 0);
+    ctx.lineTo(this.w/2, 0);
+    ctx.lineTo(this.w/2, -this.h + this.w/2);
+    ctx.arcTo(0, -this.h - this.w/2 + 3, -this.w/2, -this.h + this.w/2, this.w/2);
+    ctx.lineTo(-this.w/2, 0);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Inner glowing fill
+    // Keystone/gem at the top of the arch
     ctx.fillStyle = theme.exit;
-    ctx.globalAlpha = 0.5 + Math.sin(this.phase) * 0.15;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(-this.w/2 + 5, 0);
-    ctx.lineTo(-this.w/2 + 5, -this.h + this.w/2 + 3);
-    ctx.arcTo(0, -this.h + 5, this.w/2 - 5, -this.h + this.w/2 + 3, this.w/2 - 5);
-    ctx.lineTo(this.w/2 - 5, 0);
+    ctx.moveTo(0, -this.h - 6);
+    ctx.lineTo(-5, -this.h + 1);
+    ctx.lineTo(0, -this.h + 5);
+    ctx.lineTo(5, -this.h + 1);
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+
+    // 2. Swirling glowing portal interior
+    ctx.fillStyle = "#0c0a10";
+    ctx.beginPath();
+    ctx.moveTo(-this.w/2, 0);
+    ctx.lineTo(-this.w/2, -this.h + this.w/2);
+    ctx.arcTo(0, -this.h - this.w/2 + 3, this.w/2, -this.h + this.w/2, this.w/2);
+    ctx.lineTo(this.w/2, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Swirling nebula
+    ctx.save();
+    ctx.translate(0, -this.h/2 - 2);
+    ctx.rotate(-this.phase * 1.5);
+    ctx.globalAlpha = 0.25;
+    const portalGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, this.h/2);
+    portalGrad.addColorStop(0, theme.exit);
+    portalGrad.addColorStop(0.5, theme.portal1 || "#ff007f");
+    portalGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = portalGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, this.w/2 + 2, this.h/2 + 2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Portal ring star swirls
+    ctx.save();
+    ctx.translate(0, -this.h/2 - 2);
+    ctx.rotate(this.phase);
+    ctx.globalAlpha = 0.75 + Math.sin(this.phase * 2) * 0.15;
+    ctx.fillStyle = theme.exit;
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.beginPath();
+      ctx.arc(this.w/3, 0, 2.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
 
     ctx.restore();
   }
@@ -1839,7 +2026,14 @@ document.getElementById("new-game-link")?.addEventListener("click", () => {
 });
 
 // RETRY after death
-document.getElementById("retry-btn").addEventListener("click", () => {
+document.getElementById("retry-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  initAudio();
+  startLevel(currentLevel);
+});
+
+// Click anywhere on death screen to retry
+document.getElementById("death-screen").addEventListener("click", () => {
   initAudio();
   startLevel(currentLevel);
 });
