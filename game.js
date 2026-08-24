@@ -198,7 +198,7 @@ let deaths = 0;
 let levelTimer = 0;
 
 // ─── Player ─────────────────────────────────────────────────
-const PLAYER_W = 22, PLAYER_H = 30;
+const PLAYER_W = 24, PLAYER_H = 36;
 const GRAVITY  = 1400;
 const JUMP_VEL = -560;
 const WALK_SPD = 220;
@@ -220,6 +220,13 @@ class Player {
     this.walkTimer = 0;
     this.facingRight = true;
     this.squishX = 1; this.squishY = 1;
+    // Animation state
+    this.animState  = "idle";
+    this.landTimer  = 0;
+    this.idleBob    = 0;
+    this.runLegAng  = 0;
+    this.armSwing   = 0;
+    this.time       = 0;
   }
 
   get left()   { return this.x; }
@@ -232,9 +239,11 @@ class Player {
   update(dt, level) {
     if (!this.alive) return;
 
+    this.time += dt;
+
     // Squish recovery
-    this.squishX = lerp(this.squishX, 1, dt * 12);
-    this.squishY = lerp(this.squishY, 1, dt * 12);
+    this.squishX = lerp(this.squishX, 1, dt * 14);
+    this.squishY = lerp(this.squishY, 1, dt * 14);
 
     // Input
     let moveX = 0;
@@ -244,11 +253,29 @@ class Player {
     // Horizontal movement
     this.vx = moveX * WALK_SPD;
 
-    // Walk animation
-    if (this.onGround && moveX !== 0) {
-      this.walkTimer += dt;
-      if (this.walkTimer > 0.1) { this.walkFrame = (this.walkFrame+1)%4; this.walkTimer=0; }
+    // Animation state machine
+    if (!this.onGround) {
+      this.animState = this.vy < 0 ? "jump" : "fall";
+    } else if (this.landTimer > 0) {
+      this.animState = "land";
+      this.landTimer -= dt;
+    } else if (Math.abs(moveX) > 0) {
+      this.animState = "run";
+    } else {
+      this.animState = "idle";
     }
+
+    // Leg & arm swing for run
+    if (this.animState === "run") {
+      this.runLegAng += dt * 14;
+      this.armSwing  += dt * 14;
+    } else {
+      this.runLegAng = lerp(this.runLegAng, 0, dt * 8);
+      this.armSwing  = lerp(this.armSwing,  0, dt * 8);
+    }
+
+    this.idleBob = Math.sin(this.time * 2.5) * 1.2;
+    this.walkTimer += dt;
 
     // Coyote time
     if (this.onGround) this.coyoteTimer = COYOTE_TIME;
@@ -263,11 +290,11 @@ class Player {
       this.vy = JUMP_VEL;
       this.coyoteTimer = 0;
       this.jumpBuffer  = 0;
-      this.squishX = 0.65; this.squishY = 1.45;
+      this.squishX = 0.62; this.squishY = 1.5;
       SFX.jump();
     }
 
-    // Variable jump height (release early = lower jump)
+    // Variable jump height
     if (this.vy < -200 && !pressed("ArrowUp","KeyW","Space")) {
       this.vy += 1600 * dt;
     }
@@ -287,11 +314,11 @@ class Player {
 
     // Land squish
     if (!wasOnGround && this.onGround) {
-      this.squishX = 1.35; this.squishY = 0.7;
+      this.squishX = 1.4; this.squishY = 0.65;
+      this.landTimer = 0.12;
       if (Math.abs(this.vy) > 200) SFX.land();
     }
 
-    // Blink timer
     this.blinkTimer += dt;
 
     // Kill if fell off
