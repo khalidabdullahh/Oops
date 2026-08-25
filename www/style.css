@@ -697,38 +697,121 @@ canvas {
 /* ── In-Game Feedback & Bug Report Modal ──────────────────── */
 .feedback-trigger-btn {
   position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: max(14px, env(safe-area-inset-right));
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
   z-index: 99999 !important;
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(9px, 2vw, 11px);
+  font-size: clamp(7px, 1.4vw, 8.5px);
   color: #ffffff;
-  background: #ff4757;
-  border: 2px solid #ffffff;
-  border-radius: 20px;
-  padding: 8px 14px;
+  background: rgba(25, 25, 35, 0.88);
+  border: 1.5px solid rgba(255, 71, 87, 0.8);
+  border-radius: 12px;
+  padding: 5px 9px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6), 0 0 10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 71, 87, 0.3);
+  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
   pointer-events: auto !important;
   user-select: none;
   -webkit-user-select: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  animation: pulseBtn 2s infinite;
-}
-
-@keyframes pulseBtn {
-  0%   { transform: scale(1);    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6); }
-  50%  { transform: scale(1.05); box-shadow: 0 4px 22px rgba(255, 71, 87, 0.95); }
-  100% { transform: scale(1);    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6); }
+  gap: 5px;
 }
 
 .feedback-trigger-btn:hover, .feedback-trigger-btn:active {
-  transform: scale(1.08);
-  background: #ff6b81;
-  box-shadow: 0 6px 24px rgba(255, 71, 87, 1);
+  transform: scale(1.06);
+  background: rgba(255, 71, 87, 0.35);
+  border-color: #ff4757;
+  box-shadow: 0 4px 14px rgba(255, 71, 87, 0.5);
+}
+
+.fb-attach-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fb-hidden-file {
+  display: none !important;
+}
+
+.fb-attach-btn {
+  background: #252836;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: #ddd;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7.5px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.fb-attach-btn:hover {
+  background: #2f3447;
+  border-color: #70a1ff;
+  color: #fff;
+}
+
+.fb-snap-btn {
+  background: rgba(112, 161, 255, 0.15);
+  border-color: #70a1ff;
+  color: #70a1ff;
+}
+.fb-snap-btn:hover {
+  background: rgba(112, 161, 255, 0.3);
+  color: #fff;
+}
+
+.fb-preview-box {
+  margin-top: 8px;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid #2ed573;
+  background: #000;
+  max-width: 220px;
+}
+
+.fb-preview-box img {
+  display: block;
+  width: 100%;
+  max-height: 110px;
+  object-fit: cover;
+}
+
+.fb-preview-info {
+  position: absolute;
+  bottom: 0;
+  inset-x: 0;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fb-preview-text {
+  font-size: 8px;
+  color: #2ed573;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.fb-remove-btn {
+  background: #ff4757;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
 }
 
 .modal-overlay {

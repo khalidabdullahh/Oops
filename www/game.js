@@ -274,6 +274,7 @@ const MobileGamepad = {
 // ─── 4. In-Game Player Feedback & GitHub Report Manager ───────
 const FeedbackManager = {
   initialized: false,
+  attachedImage: null, // { name: string, dataUrl: string }
 
   init() {
     if (this.initialized) return;
@@ -284,6 +285,10 @@ const FeedbackManager = {
     const btnClose = document.getElementById("btn-close-feedback");
     const btnCancel = document.getElementById("btn-cancel-feedback");
     const form = document.getElementById("feedback-form");
+
+    const fileInput = document.getElementById("fb-image-input");
+    const btnSnap = document.getElementById("btn-snap-screen");
+    const btnRemove = document.getElementById("btn-remove-preview");
 
     if (btnOpen) {
       btnOpen.addEventListener("click", () => this.open());
@@ -301,12 +306,75 @@ const FeedbackManager = {
       });
     }
 
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            this.setImagePreview(re.target.result, file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (btnSnap) {
+      btnSnap.addEventListener("click", () => {
+        this.snapGameScreen();
+      });
+    }
+
+    if (btnRemove) {
+      btnRemove.addEventListener("click", () => {
+        this.clearImagePreview();
+      });
+    }
+
     if (form) {
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         this.submit();
       });
     }
+  },
+
+  snapGameScreen() {
+    try {
+      const canvas = (window.game && window.game.canvas) || document.querySelector("canvas");
+      if (canvas) {
+        const dataUrl = canvas.toDataURL("image/png");
+        this.setImagePreview(dataUrl, `oops_snap_${Date.now()}.png`);
+      } else if (window.game && window.game.renderer) {
+        window.game.renderer.snapshot((image) => {
+          if (image && image.src) {
+            this.setImagePreview(image.src, `oops_snap_${Date.now()}.png`);
+          }
+        });
+      }
+    } catch(e) {
+      console.warn("Could not snapshot canvas:", e);
+    }
+  },
+
+  setImagePreview(dataUrl, name) {
+    this.attachedImage = { name, dataUrl };
+    const container = document.getElementById("fb-preview-container");
+    const imgEl = document.getElementById("fb-preview-img");
+    const textEl = document.getElementById("fb-preview-name");
+    if (imgEl) imgEl.src = dataUrl;
+    if (textEl) textEl.textContent = name || "Attached Image";
+    if (container) container.classList.remove("hidden");
+  },
+
+  clearImagePreview() {
+    this.attachedImage = null;
+    const container = document.getElementById("fb-preview-container");
+    const imgEl = document.getElementById("fb-preview-img");
+    const fileInput = document.getElementById("fb-image-input");
+    if (imgEl) imgEl.src = "";
+    if (fileInput) fileInput.value = "";
+    if (container) container.classList.add("hidden");
   },
 
   open() {
@@ -363,6 +431,11 @@ const FeedbackManager = {
 
     if (!message) return;
 
+    let imageSection = "";
+    if (this.attachedImage) {
+      imageSection = `\n\n### 📸 Attached Screenshot\n> *Screenshot file: ${this.attachedImage.name}*\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*`;
+    }
+
     // 1. Format Markdown Issue for GitHub
     const issueTitle = encodeURIComponent(`[${category}] Feedback from ${name} on ${worldName} ${levelName}`);
     const issueBody = encodeURIComponent(`### 👤 Player Information
@@ -376,7 +449,7 @@ const FeedbackManager = {
 - **Submission Time:** ${new Date().toISOString()}
 
 ### 💡 Feedback & Improvement Suggestions
-${message}
+${message}${imageSection}
 
 ---
 *Submitted via Oops! In-Game Feedback System*`);
@@ -390,6 +463,8 @@ ${message}
         name,
         category,
         message,
+        hasImage: !!this.attachedImage,
+        imageName: this.attachedImage ? this.attachedImage.name : null,
         worldName,
         levelName,
         deaths,
@@ -410,6 +485,7 @@ ${message}
 
     const msgInput = document.getElementById("fb-message");
     if (msgInput) msgInput.value = "";
+    this.clearImagePreview();
   }
 };
 
@@ -812,25 +888,6 @@ class WorldSelectScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.islandContainer.add(titleText);
 
-    // In-Canvas Feedback Button
-    const fbBtn = this.add.container(width - 145, 34);
-    const fbGfx = this.add.graphics();
-    fbGfx.fillStyle(0x111111, 0.9);
-    fbGfx.fillRoundedRect(-55, -14, 110, 28, 6);
-    fbGfx.lineStyle(2, 0xff4757, 1);
-    fbGfx.strokeRoundedRect(-55, -14, 110, 28, 6);
-    const fbLabel = this.add.text(0, 0, "💬 REPORT", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8px",
-      color: "#ffd32a"
-    }).setOrigin(0.5);
-    const fbZone = this.add.zone(0, 0, 110, 28).setInteractive({ cursor: "pointer" });
-    fbZone.on("pointerdown", () => {
-      FeedbackManager.open();
-    });
-    fbBtn.add([fbGfx, fbLabel, fbZone]);
-    this.islandContainer.add(fbBtn);
-
     const sndText = this.add.text(width - 40, 34, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "22px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
@@ -1205,30 +1262,11 @@ class GameScene extends Phaser.Scene {
       color: "#ffffff"
     }).setDepth(200);
 
-    this.deathText = this.add.text(width - 190, 20, `💀 ${this.deaths}`, {
+    this.deathText = this.add.text(width - 90, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
-
-    // In-Canvas Feedback Button in HUD
-    const fbBtn = this.add.container(width - 100, 20);
-    const fbGfx = this.add.graphics();
-    fbGfx.fillStyle(0x111111, 0.88);
-    fbGfx.fillRoundedRect(-40, -11, 80, 22, 5);
-    fbGfx.lineStyle(1.5, 0xff4757, 1);
-    fbGfx.strokeRoundedRect(-40, -11, 80, 22, 5);
-    const fbText = this.add.text(0, 0, "💬 REPORT", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "6.5px",
-      color: "#ffd32a"
-    }).setOrigin(0.5);
-    const fbZone = this.add.zone(0, 0, 80, 22).setInteractive({ cursor: "pointer" });
-    fbZone.on("pointerdown", () => {
-      FeedbackManager.open();
-    });
-    fbBtn.add([fbGfx, fbText, fbZone]);
-    fbBtn.setDepth(200);
 
     const mapBtn = this.add.text(width - 32, 20, "🗺️", {
       fontSize: "20px"

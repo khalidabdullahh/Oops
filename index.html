@@ -29,7 +29,7 @@
 <body>
   <div id="game-container"></div>
 
-  <!-- Feedback & Report Trigger Button (Top-Right) -->
+  <!-- Feedback & Report Trigger Button (Compact, Top-Right) -->
   <button type="button" id="btn-open-feedback" class="feedback-trigger-btn" aria-label="Submit Feedback or Report">
     💬 Feedback
   </button>
@@ -62,7 +62,30 @@
 
         <div class="form-row">
           <label for="fb-message">Your Feedback / Improvement Idea</label>
-          <textarea id="fb-message" class="feedback-textarea" rows="4" placeholder="Tell us what you liked, what felt unfair, or how to make Oops! even better..." required></textarea>
+          <textarea id="fb-message" class="feedback-textarea" rows="3" placeholder="Tell us what you liked, what felt unfair, or how to make Oops! even better..." required></textarea>
+        </div>
+
+        <!-- Image / Screenshot Attachment Section -->
+        <div class="form-row">
+          <label>Attach Screenshot / Image (Optional)</label>
+          <div class="fb-attach-row">
+            <label for="fb-image-input" class="fb-attach-btn">
+              📁 Choose File
+            </label>
+            <input type="file" id="fb-image-input" accept="image/*" class="fb-hidden-file" />
+            
+            <button type="button" id="btn-snap-screen" class="fb-attach-btn fb-snap-btn">
+              📸 Snap Game
+            </button>
+          </div>
+
+          <div id="fb-preview-container" class="fb-preview-box hidden">
+            <img id="fb-preview-img" src="" alt="Screenshot preview" />
+            <div class="fb-preview-info">
+              <span id="fb-preview-name" class="fb-preview-text">screenshot.png</span>
+              <button type="button" id="btn-remove-preview" class="fb-remove-btn" title="Remove image">✕</button>
+            </div>
+          </div>
         </div>
 
         <div class="fb-meta-info" id="fb-meta-info">
