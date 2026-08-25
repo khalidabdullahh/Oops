@@ -1,4 +1,4 @@
-const CACHE = "oops-phaser-v1";
+const CACHE = "oops-phaser-v2";
 const ASSETS = [
   "./",
   "./index.html",

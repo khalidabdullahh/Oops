@@ -384,7 +384,7 @@ class MenuScene extends Phaser.Scene {
     // Continue button if save exists
     if (SaveManager.hasSave()) {
       const save = SaveManager.load();
-      createBtn(btnY, , 0x2ed573, 0x1e824c, () => {
+      createBtn(btnY, `▶ CONTINUE (Lv ${(save && save.level ? save.level : 0) + 1})`, 0x2ed573, 0x1e824c, () => {
         this.scene.start("GameScene", { level: save.level, deaths: save.deaths || 0 });
       });
       btnY += 56;
@@ -403,8 +403,7 @@ class MenuScene extends Phaser.Scene {
     btnY += 56;
 
     // Controls hint
-    this.add.text(width / 2, height * 0.93, "PC: Arrow Keys/WASD to Move/Jump | Space: Jump | R: Restart
-Mobile: On-Screen Touch Buttons", {
+    this.add.text(width / 2, height * 0.93, "PC: Arrow Keys/WASD to Move/Jump | Space: Jump | R: Restart\nMobile: On-Screen Touch Buttons", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "8px",
       color: "#888888",
@@ -462,13 +461,13 @@ class WorldSelectScene extends Phaser.Scene {
       wBg.lineStyle(1.5, unlocked ? w.platformTop : 0x444444, 1);
       wBg.strokeRoundedRect(wx - worldW/2, wy - 25, worldW, 50, 6);
 
-      this.add.text(wx, wy - 8, , {
+      this.add.text(wx, wy - 8, `W${i+1}: ${w.name.split(" ")[0]}`, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8.5px",
         color: unlocked ? "#ffffff" : "#666666"
       }).setOrigin(0.5);
 
-      this.add.text(wx, wy + 8, , {
+      this.add.text(wx, wy + 8, `Lv ${i*6 + 1} - ${i*6 + 6}`, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "7px",
         color: unlocked ? "#ffd32a" : "#444444"
@@ -509,7 +508,7 @@ class WorldSelectScene extends Phaser.Scene {
         nodeGfx.lineStyle(2, borderCol, 1);
         nodeGfx.strokeRoundedRect(nx - nodeSize/2, ny - nodeSize/2, nodeSize, nodeSize, 6);
 
-        const numText = this.add.text(nx, ny, , {
+        const numText = this.add.text(nx, ny, `${lvlIdx + 1}`, {
           fontFamily: "'Press Start 2P', monospace",
           fontSize: "11px",
           color: isLocked ? "#555555" : "#ffffff"
@@ -666,13 +665,13 @@ class GameScene extends Phaser.Scene {
     const { width } = this.scale;
     this.hudGroup = this.add.group();
 
-    this.levelText = this.add.text(25, 20, , {
+    this.levelText = this.add.text(25, 20, `LEVEL ${this.currentLevel + 1}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "11px",
       color: "#ffffff"
     }).setDepth(100);
 
-    this.deathText = this.add.text(width / 2, 20, , {
+    this.deathText = this.add.text(width / 2, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "11px",
       color: "#ff4757"
@@ -1112,6 +1111,11 @@ class GameScene extends Phaser.Scene {
   }
 }
 
+// Global error logger
+window.addEventListener('error', (e) => {
+  console.error('GLOBAL JS ERROR:', e.message, 'at', e.filename, 'line:', e.lineno);
+});
+
 // ─── Phaser Game Configuration ───────────────────────────────
 const config = {
   type: Phaser.AUTO,
@@ -1133,4 +1137,10 @@ const config = {
 };
 
 // Start the game instance
-window.game = new Phaser.Game(config);
+try {
+  console.log("Initializing Phaser Game with config...");
+  window.game = new Phaser.Game(config);
+  console.log("Phaser Game instance created successfully!");
+} catch (err) {
+  console.error("CRITICAL: Failed to create Phaser.Game instance:", err);
+}
