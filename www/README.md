@@ -1,8 +1,16 @@
-# Oops! 🎮
+<p align="center">
+  <img src="logo.png" alt="Oops! Game Official Logo" width="280" style="border-radius: 28px;" />
+</p>
 
-> *A totally fair game* 😇
+# <p align="center">Oops! 🎮</p>
 
-A deceptive, trap-filled 2D platformer where trust is your biggest weakness and questioning everything is the only way to survive.
+<p align="center">
+  <em>A totally fair multiverse platformer game 😇</em>
+</p>
+
+<p align="center">
+  A deceptive, trap-filled 2D platformer where trust is your biggest weakness and questioning everything is the only way to survive.
+</p>
 
 ---
 

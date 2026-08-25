@@ -283,6 +283,10 @@ class BootScene extends Phaser.Scene {
     super("BootScene");
   }
 
+  preload() {
+    this.load.image("game_logo", "icons/icon-192.png");
+  }
+
   create() {
     this.createCartoonHero();
     this.createWorldAssets();
