@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Generator script fixing Level 3 falling platform crash & adding Enter Door Animation
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
 //  Rock-Solid Falling Platforms & Signature "Enter Door" Animation
@@ -1691,3 +1692,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js generated with Level 3 fix & Enter Door Animation! Size:", len(code))

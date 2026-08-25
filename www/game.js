@@ -1,13 +1,13 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
-//  5 Completely Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Rock-Solid Clean Level Transitions (No Hangs / No Glitches)
+//  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
+//  Rock-Solid Falling Platforms & Signature "Enter Door" Animation
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
 // ─── 1. Save Manager ─────────────────────────────────────────
-const SAVE_KEY = "oops_multiverse_v7";
+const SAVE_KEY = "oops_multiverse_v8";
 
 const SaveManager = {
   getInitialState() {
@@ -816,7 +816,7 @@ class WorldSelectScene extends Phaser.Scene {
   }
 }
 
-// ─── 6. GameScene: 5 Distinct World Engines ──────────────────
+// ─── 6. GameScene: Core Platformer & 5 World Engines ─────────
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -1218,18 +1218,31 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    this.fallingPlatforms.forEach(p => {
+    // ── ROCK-SOLID FALLING PLATFORMS (Zero Physics Crashes) ──
+    for (let i = this.fallingPlatforms.length - 1; i >= 0; i--) {
+      const p = this.fallingPlatforms[i];
       if (p.stepped && !p.hasFallen) {
         p.shakeTimer -= dt;
-        p.x += (Math.random() - 0.5) * 4;
+        p.x += (Math.random() - 0.5) * 3;
         if (p.shakeTimer <= 0) {
           p.hasFallen = true;
-          this.physics.world.enable(p);
-          p.body.setGravityY(1200);
-          p.body.setImmovable(false);
+          // Cleanly disable collision in static group
+          if (p.body) p.body.enable = false;
+          // Smooth fall away tween
+          this.tweens.add({
+            targets: p,
+            y: p.y + 350,
+            alpha: 0,
+            duration: 450,
+            ease: "Quad.easeIn",
+            onComplete: () => {
+              this.platforms.remove(p, true, true);
+            }
+          });
+          this.fallingPlatforms.splice(i, 1);
         }
       }
-    });
+    }
 
     this.customTriggers.forEach(t => {
       if (!t.triggered && t.condition(this)) {
@@ -1307,35 +1320,64 @@ class GameScene extends Phaser.Scene {
     this.scene.restart({ world: this.currentWorld, level: this.currentLevel, deaths: this.deaths });
   }
 
+  // ── SIGNATURE "ENTER DOOR" ANIMATION & CLEAN COMPLETION ─────
   onReachExit() {
     if (this.isComplete || this.isDead) return;
     this.isComplete = true;
     AudioEngine.sfxWin();
+    AudioEngine.sfxPortal();
 
-    // Freeze player velocity during victory celebration so they don't slide off
-    if (this.player && this.player.body) {
-      this.player.setVelocity(0, 0);
+    // 1. Freeze player physics so they don't move or fall into pit
+    this.player.setVelocity(0, 0);
+    if (this.player.body) {
       this.player.body.setEnable(false);
+      this.player.body.moves = false;
     }
 
     SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
-    // Victory celebration particles
-    this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
-      speed: { min: 100, max: 320 },
-      scale: { start: 1.3, end: 0 },
-      lifespan: 800,
-      quantity: 36,
-      tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
+    // 2. Door Portal Aura Flare
+    const aura = this.add.graphics().setDepth(150);
+    aura.fillStyle(0xffffff, 0.7);
+    aura.fillCircle(this.exitGate.x, this.exitGate.y, 22);
+    this.tweens.add({
+      targets: aura,
+      scaleX: 1.8,
+      scaleY: 1.8,
+      alpha: 0,
+      duration: 400,
+      onComplete: () => aura.destroy()
     });
 
-    // Smooth, reliable level advancement using scene.restart()
-    this.time.delayedCall(600, () => {
-      const nextLvl = this.currentLevel + 1;
-      if (nextLvl >= 30) {
-        this.scene.start("WorldSelectScene", { world: this.currentWorld });
-      } else {
-        this.scene.restart({ world: this.currentWorld, level: nextLvl, deaths: this.deaths });
+    // 3. Signature Enter Door Tween: Hero moves to doorway and shrinks inside!
+    this.tweens.add({
+      targets: this.player,
+      x: this.exitGate.x,
+      y: this.exitGate.y + 6,
+      scaleX: 0.05,
+      scaleY: 0.05,
+      alpha: 0,
+      duration: 380,
+      ease: "Cubic.easeIn",
+      onComplete: () => {
+        // Victory burst particles erupt from doorway
+        this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
+          speed: { min: 80, max: 280 },
+          scale: { start: 1.2, end: 0 },
+          lifespan: 600,
+          quantity: 28,
+          tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
+        });
+
+        // 4. Smooth advance to next level
+        this.time.delayedCall(450, () => {
+          const nextLvl = this.currentLevel + 1;
+          if (nextLvl >= 30) {
+            this.scene.start("WorldSelectScene", { world: this.currentWorld });
+          } else {
+            this.scene.restart({ world: this.currentWorld, level: nextLvl, deaths: this.deaths });
+          }
+        });
       }
     });
   }
@@ -1427,13 +1469,13 @@ class GameScene extends Phaser.Scene {
         addCrusher(360, 60);
         addCrusher(640, 60);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 2) { // Level 3: Crumbling Sandstone Bridge
+      } else if (lvl === 2) { // Level 3: Crumbling Sandstone Bridge (Clean & Fun)
         addPlat(0, 460, 180, 80);
-        addFallingPlat(240, 460, 100, 25);
-        addFallingPlat(420, 460, 100, 25);
-        addFallingPlat(600, 460, 100, 25);
-        addPlat(780, 460, 180, 80);
-        for (let sx = 200; sx <= 760; sx += 40) addSpike(sx, 520);
+        addFallingPlat(220, 460, 100, 25);
+        addFallingPlat(400, 460, 100, 25);
+        addFallingPlat(580, 460, 100, 25);
+        addPlat(760, 460, 200, 80);
+        for (let sx = 190; sx <= 740; sx += 40) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 3) { // Level 4: Pop-Up Sand Spikes
         addPlat(0, 460, width, 80);
