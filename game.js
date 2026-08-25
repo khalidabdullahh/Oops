@@ -2993,7 +2993,13 @@ function loop(ts) {
   } else {
     // Draw background during menus
     if (runtime) runtime.draw(ctx, ts / 1000);
-    else { ctx.fillStyle = "#0a0a0f"; ctx.fillRect(0, 0, VW, VH); }
+    else {
+      const grad = ctx.createLinearGradient(0, 0, 0, VH);
+      grad.addColorStop(0, activeTheme ? activeTheme.bg1 : "#1a0800");
+      grad.addColorStop(1, activeTheme ? activeTheme.bg2 : "#2d0f00");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, VW, VH);
+    }
   }
 
   // R to restart current level
@@ -3082,144 +3088,12 @@ document.getElementById("play-again-btn").addEventListener("click", () => {
   startLevel(0);
 });
 
-// ─── Opening Cinematic Animation ────────────────────────────
-function runOpeningAnimation(onDone) {
-  const startTime = performance.now();
-  const TOTAL = 5200; // ms
-
-  function frame(now) {
-    const elapsed = now - startTime;
-    const t = elapsed / TOTAL;
-
-    ctx.clearRect(0, 0, VW, VH);
-
-    if (elapsed < TOTAL) {
-      requestAnimationFrame(frame);
-    }
-
-    // Phase 1: black (0 - 1400ms)
-    if (elapsed < 1400) {
-      ctx.fillStyle = "#0a0000";
-      ctx.fillRect(0, 0, VW, VH);
-      return;
-    }
-
-    // Phase 2: evil eyes open (1400 - 3000ms)
-    if (elapsed < 3000) {
-      const eyeT = Math.min((elapsed - 1400) / 1000, 1);
-      const ease = eyeT * eyeT * (3 - 2 * eyeT);
-
-      ctx.fillStyle = "#0a0000";
-      ctx.fillRect(0, 0, VW, VH);
-
-      const eyeY = VH * 0.42;
-      const eyeGap = 110;
-      const eyeW = 90;
-      const eyeH = 40 * ease;
-
-      ctx.save();
-      ctx.fillStyle = "#c84010";
-      ctx.beginPath();
-      ctx.ellipse(VW/2 - eyeGap, eyeY, eyeW/2, eyeH, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(VW/2 + eyeGap, eyeY, eyeW/2, eyeH, 0, 0, Math.PI*2);
-      ctx.fill();
-
-      if (ease > 0.3) {
-        const pupilA = (ease - 0.3) / 0.7;
-        ctx.globalAlpha = pupilA;
-        ctx.fillStyle = "#3a0800";
-        ctx.beginPath();
-        ctx.ellipse(VW/2 - eyeGap, eyeY + 5, eyeW*0.28, eyeH*0.55, 0, 0, Math.PI*2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(VW/2 + eyeGap, eyeY + 5, eyeW*0.28, eyeH*0.55, 0, 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-      ctx.restore();
-      return;
-    }
-
-    // Phase 3: title slam (3000 - 4500ms)
-    if (elapsed < 4500) {
-      const titleT = Math.min((elapsed - 3000) / 600, 1);
-      const bounce = titleT < 0.6
-        ? 1 - Math.pow(1 - titleT/0.6, 3)
-        : 1 + Math.sin((titleT - 0.6) * Math.PI / 0.4) * 0.04 * (1 - (titleT - 0.6) / 0.4);
-      const subT = Math.max(0, (elapsed - 3600) / 600);
-
-      const grad = ctx.createLinearGradient(0, 0, 0, VH);
-      grad.addColorStop(0, "#0a0000");
-      grad.addColorStop(1, "#1a0500");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, VW, VH);
-
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const titleSize = Math.round(90 * bounce);
-      ctx.font = `bold ${titleSize}px 'Press Start 2P', monospace`;
-      ctx.fillStyle = "#cc3300";
-      ctx.fillText("Oops!", VW/2, VH/2 - 20);
-
-      if (subT > 0) {
-        ctx.globalAlpha = Math.min(subT, 1);
-        ctx.font = `14px 'Press Start 2P', monospace`;
-        ctx.fillStyle = "#c84010";
-        ctx.fillText("a totally fair game", VW/2, VH/2 + 65);
-        ctx.globalAlpha = 1;
-      }
-      ctx.restore();
-      return;
-    }
-
-    // Phase 4: fade to start (4500 - 5200ms)
-    {
-      const fadeT = Math.min((elapsed - 4500) / 700, 1);
-
-      const grad = ctx.createLinearGradient(0, 0, 0, VH);
-      grad.addColorStop(0, "#0a0000");
-      grad.addColorStop(1, "#1a0500");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, VW, VH);
-
-      ctx.save();
-      ctx.globalAlpha = 1 - fadeT;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `bold 90px 'Press Start 2P', monospace`;
-      ctx.fillStyle = "#cc3300";
-      ctx.fillText("Oops!", VW/2, VH/2 - 20);
-      ctx.font = `14px 'Press Start 2P', monospace`;
-      ctx.fillStyle = "#c84010";
-      ctx.fillText("a totally fair game", VW/2, VH/2 + 65);
-      ctx.restore();
-
-      ctx.globalAlpha = fadeT;
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, VW, VH);
-      ctx.globalAlpha = 1;
-
-      if (elapsed >= TOTAL) {
-        onDone();
-      }
-    }
-  }
-
-  requestAnimationFrame(frame);
-}
-
-// ─── Start Game ───────────────────────────────────────────────
-gameState = "intro";
-runOpeningAnimation(() => {
-  gameState = "start";
-  refreshStartScreen();
-  showScreen("start");
-  lastTime = performance.now();
-  requestAnimationFrame(loop);
-});
+// ─── Instant Game Startup ────────────────────────────────────
+gameState = "start";
+refreshStartScreen();
+showScreen("start");
+lastTime = performance.now();
+requestAnimationFrame(loop);
 
 // ─── Multiverse & Level Select Map Screen Logic ───────────────
 function refreshMultiverseSelector() {

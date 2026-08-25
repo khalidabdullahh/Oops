@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css?v=2.5.0"/>
+  <link rel="stylesheet" href="style.css?v=3.0.0"/>
 </head>
 <body>
   <div id="game-wrapper">
@@ -45,8 +45,8 @@
         </div>
       </div>
 
-      <!-- Start Screen -->
-      <div id="start-screen" class="screen hidden">
+      <!-- Start Screen (Visible by default on load) -->
+      <div id="start-screen" class="screen">
         <div class="screen-content">
           <div class="game-title">
             <span class="title-oops">Oops!</span>
@@ -159,11 +159,11 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=2.5.0').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=3.0.0').then(reg => {
         reg.update();
       }).catch(()=>{});
     }
   </script>
-  <script src="game.js?v=2.5.0"></script>
+  <script src="game.js?v=3.0.0"></script>
 </body>
 </html>
