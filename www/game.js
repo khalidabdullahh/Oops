@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-//  Oops! – Phaser 3 Game Engine Edition
-//  A deceptive platformer inspired by Level Devil. Nothing is fair.
+//  Oops! – Ultra-Sharp Phaser 3 Edition
+//  World Exploration Hub & Deceptive Platformer
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
-// ─── Save Manager (localStorage) ────────────────────────────
-const SAVE_KEY = "oops_phaser_save_v1";
+// ─── 1. Save Manager ─────────────────────────────────────────
+const SAVE_KEY = "oops_phaser_save_v2";
 
 const SaveManager = {
   save(levelIndex, totalDeaths) {
@@ -42,7 +42,7 @@ const SaveManager = {
 
   hasSave() {
     const d = this.load();
-    return d !== null && typeof d.level === "number";
+    return d !== null && typeof d.level === "number" && d.level > 0;
   },
 
   getMaxUnlocked() {
@@ -51,17 +51,17 @@ const SaveManager = {
   }
 };
 
-// ─── Web Audio Synthesizer ───────────────────────────────────
+// ─── 2. Web Audio Synthesizer ────────────────────────────────
 const AudioEngine = {
   ctx: null,
   muted: false,
   musicTimer: null,
   musicStep: 0,
   melody: [
-    196, 233, 293, 392, 196, 233, 293, 392,
-    174, 220, 261, 349, 174, 220, 261, 349,
-    155, 196, 233, 311, 155, 196, 233, 311,
-    174, 220, 261, 349, 196, 233, 293, 392
+    261, 329, 392, 523, 261, 329, 392, 523,
+    220, 261, 329, 440, 220, 261, 329, 440,
+    196, 246, 293, 392, 196, 246, 293, 392,
+    174, 220, 261, 349, 196, 246, 293, 392
   ],
 
   init() {
@@ -94,32 +94,36 @@ const AudioEngine = {
   },
 
   sfxJump() {
-    this.playTone(320, "square", 0.09, 0.16);
-    this.playTone(450, "square", 0.06, 0.12, 0.03);
+    this.playTone(340, "square", 0.08, 0.16);
+    this.playTone(520, "square", 0.06, 0.14, 0.03);
   },
   sfxLand() {
-    this.playTone(130, "sawtooth", 0.05, 0.1);
+    this.playTone(140, "sawtooth", 0.04, 0.12);
   },
   sfxDie() {
     for (let i = 0; i < 5; i++) {
-      this.playTone(420 - i * 65, "sawtooth", 0.12, 0.18, i * 0.06);
+      this.playTone(480 - i * 80, "sawtooth", 0.1, 0.18, i * 0.05);
     }
   },
   sfxWin() {
-    [523, 659, 784, 1047].forEach((f, i) => this.playTone(f, "square", 0.16, 0.22, i * 0.1));
+    [523, 659, 784, 1047, 1318].forEach((f, i) => this.playTone(f, "square", 0.14, 0.2, i * 0.08));
   },
   sfxTrap() {
-    this.playTone(220, "sawtooth", 0.14, 0.2);
-    this.playTone(140, "sawtooth", 0.1, 0.16, 0.07);
+    this.playTone(260, "sawtooth", 0.12, 0.2);
+    this.playTone(160, "sawtooth", 0.1, 0.16, 0.06);
   },
   sfxPortal() {
     for (let i = 0; i < 6; i++) {
-      this.playTone(320 + i * 80, "sine", 0.07, 0.14, i * 0.04);
+      this.playTone(340 + i * 90, "sine", 0.06, 0.14, i * 0.03);
     }
   },
   sfxCrush() {
-    this.playTone(90, "sawtooth", 0.22, 0.35);
-    this.playTone(60, "square", 0.3, 0.4, 0.04);
+    this.playTone(95, "sawtooth", 0.25, 0.35);
+    this.playTone(65, "square", 0.3, 0.4, 0.03);
+  },
+  sfxBounce() {
+    this.playTone(280, "sine", 0.12, 0.2);
+    this.playTone(580, "sine", 0.15, 0.25, 0.04);
   },
 
   startMusic() {
@@ -128,9 +132,9 @@ const AudioEngine = {
     this.musicTimer = setInterval(() => {
       if (this.muted || !this.ctx) return;
       const freq = this.melody[this.musicStep % this.melody.length];
-      this.playTone(freq, "triangle", 0.18, 0.03);
+      this.playTone(freq, "triangle", 0.16, 0.025);
       this.musicStep++;
-    }, 240);
+    }, 220);
   },
 
   stopMusic() {
@@ -148,80 +152,235 @@ const AudioEngine = {
   }
 };
 
-// ─── Multiverse World Themes ─────────────────────────────────
+// ─── 3. Multiverse Worlds Configuration ──────────────────────
 const WORLD_THEMES = [
   {
+    id: 0,
     name: "DESERT RUINS",
-    subtitle: "Collapsing floors & fleeing gates",
-    bgTop: 0x7a2000, bgBottom: 0x2e0c00,
+    subtitle: "Ancient sandstone arches & falling crumbling tiles",
+    badge: "🏜️ WORLD 1",
+    levelRange: "LEVEL 1 - 6",
+    bgTop: 0x5a1800, bgBottom: 0x1e0800,
     platform: 0xc8601a, platformTop: 0xe07820,
-    spike: 0xcc2200, exit: 0xe8c060,
-    particle: 0xffa502
+    spike: 0xcc2200, exit: 0xf1c40f,
+    particle: 0xffa502,
+    cardBg: 0x7a2200
   },
   {
+    id: 1,
     name: "FROST SPIRE",
-    subtitle: "Slippery ice & icicle crushers",
-    bgTop: 0x0f2a4a, bgBottom: 0x05101f,
-    platform: 0x4a7a9e, platformTop: 0x7ab4e8,
-    spike: 0x00d2d3, exit: 0x54a0ff,
-    particle: 0xecf0f1
+    subtitle: "Slippery glacier floes & plummeting icicles",
+    badge: "❄️ WORLD 2",
+    levelRange: "LEVEL 7 - 12",
+    bgTop: 0x0a2638, bgBottom: 0x04101a,
+    platform: 0x227093, platformTop: 0x34ace0,
+    spike: 0x00d2d3, exit: 0x70a1ff,
+    particle: 0xffffff,
+    cardBg: 0x0e3f5c
   },
   {
+    id: 2,
     name: "SHADOW CRYPT",
-    subtitle: "Dark corridors & crossfire lasers",
-    bgTop: 0x1a0c06, bgBottom: 0x080302,
-    platform: 0x5c3422, platformTop: 0x824c32,
-    spike: 0x991b1b, exit: 0xf59e0b,
-    particle: 0x7c3aed
+    subtitle: "Dark obsidian corridors & phantom hazards",
+    badge: "🔮 WORLD 3",
+    levelRange: "LEVEL 13 - 18",
+    bgTop: 0x1f0d2b, bgBottom: 0x0c0414,
+    platform: 0x47206b, platformTop: 0x70389f,
+    spike: 0x8820c0, exit: 0xe056fd,
+    particle: 0xbe2edd,
+    cardBg: 0x3b1559
   },
   {
+    id: 3,
     name: "GRAVITY NEXUS",
-    subtitle: "Ceiling walking & inverted loops",
-    bgTop: 0x051f1a, bgBottom: 0x010a08,
-    platform: 0x106052, platformTop: 0x1ca38c,
-    spike: 0x059669, exit: 0x10b981,
-    particle: 0x00ffcc
+    subtitle: "Cyberpunk matrix & inverted ceiling walking",
+    badge: "⚡ WORLD 4",
+    levelRange: "LEVEL 19 - 24",
+    bgTop: 0x052b1e, bgBottom: 0x02120c,
+    platform: 0x10ac84, platformTop: 0x1dd1a1,
+    spike: 0x10ac84, exit: 0x2ed573,
+    particle: 0x1dd1a1,
+    cardBg: 0x0d4a36
   },
   {
+    id: 4,
     name: "GLITCH CORE",
-    subtitle: "Chromatic flickers & troll finale",
-    bgTop: 0x1c063b, bgBottom: 0x090114,
-    platform: 0x60269e, platformTop: 0x8b3fd9,
-    spike: 0xec4899, exit: 0xf43f5e,
-    particle: 0xf43f5e
+    subtitle: "Unstable reality & chaotic deceptive finale",
+    badge: "🌌 WORLD 5",
+    levelRange: "LEVEL 25 - 30",
+    bgTop: 0x30052b, bgBottom: 0x140212,
+    platform: 0x833471, platformTop: 0xb53471,
+    spike: 0xea2027, exit: 0xf368e0,
+    particle: 0xff3838,
+    cardBg: 0x541245
   }
 ];
 
 function getTheme(levelIndex) {
-  const w = Math.floor(Math.max(0, levelIndex) / 6);
-  return WORLD_THEMES[Math.min(w, WORLD_THEMES.length - 1)];
+  const worldIndex = Math.min(Math.floor(levelIndex / 6), WORLD_THEMES.length - 1);
+  return WORLD_THEMES[worldIndex];
 }
 
-// ─── 1. BootScene: Procedural Asset Generator ────────────────
+// ─── 4. BootScene: Procedural Cartoon Hero & World Sprites ───
 class BootScene extends Phaser.Scene {
   constructor() {
     super("BootScene");
   }
 
   create() {
-    // Generate Player Sprite Texture (24x34)
-    const pGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    pGfx.fillStyle(0xffffff, 1);
-    pGfx.fillRoundedRect(0, 0, 24, 34, 4);
-    // Face eyes
-    pGfx.fillStyle(0x111111, 1);
-    pGfx.fillRect(5, 10, 4, 7);
-    pGfx.fillRect(15, 10, 4, 7);
-    pGfx.fillStyle(0xffffff, 1);
-    pGfx.fillRect(5, 10, 2, 2);
-    pGfx.fillRect(15, 10, 2, 2);
-    // Cheek blush
-    pGfx.fillStyle(0xff7675, 0.7);
-    pGfx.fillRect(3, 19, 4, 3);
-    pGfx.fillRect(17, 19, 4, 3);
-    pGfx.generateTexture("player_tex", 24, 34);
+    this.createCartoonHero();
+    this.createWorldAssets();
+    this.createAnimations();
 
-    // Platform Tile (32x32)
+    // Proceed directly to the World Visit Hub!
+    this.scene.start("WorldSelectScene");
+  }
+
+  createCartoonHero() {
+    const drawHeroFrame = (key, options = {}) => {
+      const g = this.make.graphics({ x: 0, y: 0, add: false });
+      const {
+        blink = false,
+        legOffset = 0,
+        bobY = 0,
+        armsUp = false,
+        panicked = false,
+        dead = false,
+        eyeLookX = 1
+      } = options;
+
+      const yOff = bobY;
+
+      if (dead) {
+        // Comic dizzy shock death frame
+        g.fillStyle(0x0984e3, 1);
+        g.fillRoundedRect(6, 20 + yOff, 20, 10, 3);
+        g.fillStyle(0xffdbac, 1);
+        g.fillCircle(16, 12 + yOff, 10);
+        g.fillStyle(0xff3838, 1);
+        g.fillRect(6, 7 + yOff, 20, 4);
+        // X X eyes
+        g.lineStyle(2, 0x111111, 1);
+        g.lineBetween(10, 10 + yOff, 14, 14 + yOff);
+        g.lineBetween(14, 10 + yOff, 10, 14 + yOff);
+        g.lineBetween(18, 10 + yOff, 22, 14 + yOff);
+        g.lineBetween(22, 10 + yOff, 18, 14 + yOff);
+        g.fillStyle(0x111111, 1);
+        g.fillCircle(16, 18 + yOff, 3);
+        g.fillStyle(0xff7675, 1);
+        g.fillRect(16, 18 + yOff, 3, 3);
+        g.fillStyle(0xe17055, 1);
+        g.fillRect(8, 30 + yOff, 6, 6);
+        g.fillRect(18, 30 + yOff, 6, 6);
+        g.generateTexture(key, 32, 40);
+        return;
+      }
+
+      // Headband fluttering ribbons
+      g.fillStyle(0xd63031, 1);
+      g.fillRect(2, 8 + yOff, 5, 4);
+      g.fillStyle(0xff3838, 1);
+      g.fillRect(0, 10 + yOff, 4, 4);
+
+      // Cartoon Head (Skin Tone)
+      g.fillStyle(0xffdbac, 1);
+      g.fillCircle(16, 12 + yOff, 10);
+
+      // Red Ninja Headband across forehead
+      g.fillStyle(0xff3838, 1);
+      g.fillRect(6, 6 + yOff, 20, 4);
+      g.fillStyle(0xf1c40f, 1);
+      g.fillRect(15, 6 + yOff, 2, 4);
+
+      // Cheerful Pink Cheeks
+      g.fillStyle(0xff7675, 0.75);
+      g.fillCircle(10, 15 + yOff, 2);
+      g.fillCircle(22, 15 + yOff, 2);
+
+      // Expressive Eyes
+      if (blink) {
+        g.lineStyle(2, 0x111111, 1);
+        g.lineBetween(11, 12 + yOff, 14, 12 + yOff);
+        g.lineBetween(18, 12 + yOff, 21, 12 + yOff);
+      } else if (panicked) {
+        g.fillStyle(0xffffff, 1);
+        g.fillCircle(12, 11 + yOff, 4);
+        g.fillCircle(20, 11 + yOff, 4);
+        g.fillStyle(0x111111, 1);
+        g.fillCircle(12, 13 + yOff, 2);
+        g.fillCircle(20, 13 + yOff, 2);
+        g.fillStyle(0x111111, 1);
+        g.fillCircle(16, 18 + yOff, 2.5);
+      } else {
+        const px = eyeLookX;
+        g.fillStyle(0xffffff, 1);
+        g.fillRoundedRect(10, 9 + yOff, 5, 7, 2);
+        g.fillRoundedRect(17, 9 + yOff, 5, 7, 2);
+        g.fillStyle(0x111111, 1);
+        g.fillRect(11 + px, 10 + yOff, 3, 5);
+        g.fillRect(18 + px, 10 + yOff, 3, 5);
+        g.fillStyle(0xffffff, 1);
+        g.fillRect(11 + px, 10 + yOff, 1.5, 1.5);
+        g.fillRect(18 + px, 10 + yOff, 1.5, 1.5);
+
+        g.lineStyle(1.5, 0x111111, 1);
+        g.lineBetween(14, 18 + yOff, 18, 18 + yOff);
+      }
+
+      // Shirt / Tunic (Vibrant Blue)
+      g.fillStyle(0x0984e3, 1);
+      g.fillRoundedRect(8, 20 + yOff, 16, 10, 3);
+
+      // Gold Belt & Buckle
+      g.fillStyle(0xf1c40f, 1);
+      g.fillRect(8, 28 + yOff, 16, 3);
+      g.fillStyle(0xe67e22, 1);
+      g.fillRect(14, 27 + yOff, 4, 5);
+
+      // Arms & Hands
+      if (armsUp) {
+        g.fillStyle(0x0984e3, 1);
+        g.fillRect(5, 14 + yOff, 4, 8);
+        g.fillRect(23, 14 + yOff, 4, 8);
+        g.fillStyle(0xffdbac, 1);
+        g.fillCircle(7, 13 + yOff, 2.5);
+        g.fillCircle(25, 13 + yOff, 2.5);
+      } else {
+        g.fillStyle(0x0984e3, 1);
+        g.fillRect(5, 21 + yOff, 3, 6);
+        g.fillRect(24, 21 + yOff, 3, 6);
+        g.fillStyle(0xffdbac, 1);
+        g.fillCircle(6.5, 28 + yOff, 2);
+        g.fillCircle(25.5, 28 + yOff, 2);
+      }
+
+      // Animated Running Legs & Boots
+      g.fillStyle(0x2d3436, 1);
+      const leg1X = 10 + legOffset;
+      const leg2X = 18 - legOffset;
+      g.fillRect(leg1X, 31 + yOff, 4, 4);
+      g.fillRect(leg2X, 31 + yOff, 4, 4);
+
+      g.fillStyle(0xe17055, 1);
+      g.fillRoundedRect(leg1X - 1, 34 + yOff, 6, 5, 2);
+      g.fillRoundedRect(leg2X - 1, 34 + yOff, 6, 5, 2);
+
+      g.generateTexture(key, 32, 40);
+    };
+
+    drawHeroFrame("hero_idle_1", { blink: false, bobY: 0, legOffset: 0 });
+    drawHeroFrame("hero_idle_2", { blink: true,  bobY: 1, legOffset: 0 });
+    drawHeroFrame("hero_run_1",  { blink: false, bobY: -1, legOffset: 2 });
+    drawHeroFrame("hero_run_2",  { blink: false, bobY: 0,  legOffset: 0 });
+    drawHeroFrame("hero_run_3",  { blink: false, bobY: -1, legOffset: -2 });
+    drawHeroFrame("hero_run_4",  { blink: false, bobY: 0,  legOffset: 0 });
+    drawHeroFrame("hero_jump",   { blink: false, bobY: -2, armsUp: true, legOffset: 0 });
+    drawHeroFrame("hero_fall",   { panicked: true, bobY: 1, legOffset: 0 });
+    drawHeroFrame("hero_dead",   { dead: true });
+  }
+
+  createWorldAssets() {
+    // 1. World Platform Tile
     const platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0x333333, 1);
     platGfx.fillRect(0, 0, 32, 32);
@@ -229,7 +388,7 @@ class BootScene extends Phaser.Scene {
     platGfx.fillRect(0, 0, 32, 4);
     platGfx.generateTexture("plat_tex", 32, 32);
 
-    // Spike Textures (20x20)
+    // 2. Sharp Spikes
     const spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
     spkGfx.fillStyle(0xee2200, 1);
     spkGfx.beginPath();
@@ -240,179 +399,126 @@ class BootScene extends Phaser.Scene {
     spkGfx.fill();
     spkGfx.generateTexture("spike_up", 20, 20);
 
-    // Crusher Stone Block (60x60)
+    // 3. Menacing Crusher Block
     const crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    crushGfx.fillStyle(0x3a3a40, 1);
+    crushGfx.fillStyle(0x2d3436, 1);
     crushGfx.fillRoundedRect(0, 0, 60, 60, 4);
-    crushGfx.fillStyle(0x222226, 1);
+    crushGfx.fillStyle(0x1e272e, 1);
     crushGfx.fillRect(6, 6, 48, 48);
-    // Evil face eyes
-    crushGfx.fillStyle(0xff3300, 1);
+    crushGfx.fillStyle(0xff3838, 1);
     crushGfx.fillTriangle(14, 20, 26, 26, 14, 32);
     crushGfx.fillTriangle(46, 20, 34, 26, 46, 32);
-    // Spikes bottom
     crushGfx.fillStyle(0xcc2200, 1);
     crushGfx.fillTriangle(0, 60, 10, 72, 20, 60);
     crushGfx.fillTriangle(20, 60, 30, 72, 40, 60);
     crushGfx.fillTriangle(40, 60, 50, 72, 60, 60);
     crushGfx.generateTexture("crusher_tex", 60, 72);
 
-    // Exit Gateway Portal (32x50)
+    // 4. Exit Gateway Portal
     const doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0x111111, 1);
-    doorGfx.fillRoundedRect(0, 0, 32, 50, 10);
+    doorGfx.fillRoundedRect(0, 0, 34, 52, 10);
     doorGfx.lineStyle(3, 0xffd32a, 1);
-    doorGfx.strokeRoundedRect(1, 1, 30, 48, 8);
-    doorGfx.fillStyle(0xffaa00, 0.6);
-    doorGfx.fillCircle(16, 25, 10);
-    doorGfx.generateTexture("door_tex", 32, 50);
+    doorGfx.strokeRoundedRect(1, 1, 32, 50, 8);
+    doorGfx.fillStyle(0xffaa00, 0.75);
+    doorGfx.fillCircle(17, 26, 11);
+    doorGfx.fillStyle(0xffffff, 0.9);
+    doorGfx.fillCircle(17, 26, 4);
+    doorGfx.generateTexture("door_tex", 34, 52);
 
-    // Particle Dot (8x8)
-    const partGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    partGfx.fillStyle(0xffffff, 1);
-    partGfx.fillCircle(4, 4, 4);
-    partGfx.generateTexture("part_dot", 8, 8);
+    // 5. Bouncy Trampoline Pad
+    const trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    trampGfx.fillStyle(0x2ed573, 1);
+    trampGfx.fillRoundedRect(0, 8, 32, 8, 3);
+    trampGfx.fillStyle(0xff4757, 1);
+    trampGfx.fillRoundedRect(4, 2, 24, 6, 2);
+    trampGfx.generateTexture("tramp_tex", 32, 16);
 
-    // Transition immediately to MenuScene
-    this.scene.start("MenuScene");
+    // 6. Particle Dot
+    const dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    dotGfx.fillStyle(0xffffff, 1);
+    dotGfx.fillCircle(4, 4, 4);
+    dotGfx.generateTexture("part_dot", 8, 8);
+  }
+
+  createAnimations() {
+    this.anims.create({
+      key: "hero_anim_idle",
+      frames: [
+        { key: "hero_idle_1", duration: 1200 },
+        { key: "hero_idle_2", duration: 200 }
+      ],
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: "hero_anim_run",
+      frames: [
+        { key: "hero_run_1" },
+        { key: "hero_run_2" },
+        { key: "hero_run_3" },
+        { key: "hero_run_4" }
+      ],
+      frameRate: 11,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: "hero_anim_jump",
+      frames: [{ key: "hero_jump" }],
+      repeat: 0
+    });
+
+    this.anims.create({
+      key: "hero_anim_fall",
+      frames: [{ key: "hero_fall" }],
+      repeat: 0
+    });
   }
 }
 
-// ─── 2. MenuScene: Interactive Title & Navigation ─────────────
-class MenuScene extends Phaser.Scene {
+// ─── 5. WorldSelectScene: The Interactive Multiverse Hub ─────
+class WorldSelectScene extends Phaser.Scene {
   constructor() {
-    super("MenuScene");
+    super("WorldSelectScene");
+    this.selectedWorldIdx = 0;
   }
 
   create() {
     const { width, height } = this.scale;
+    const maxUnlocked = SaveManager.getMaxUnlocked();
 
-    // Background gradient
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x7a2000, 0x7a2000, 0x180500, 0x180500, 1);
-    bg.fillRect(0, 0, width, height);
+    AudioEngine.init();
 
-    // Floating particles
+    // Multiverse Deep Space Gradient Background
+    this.bgGfx = this.add.graphics();
+    this.bgGfx.fillGradientStyle(0x1a0528, 0x1a0528, 0x06010c, 0x06010c, 1);
+    this.bgGfx.fillRect(0, 0, width, height);
+
+    // Ambient Starlight Particles
     this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
-      y: height + 20,
+      y: { min: 0, max: height },
       lifespan: 4000,
-      speedY: { min: -40, max: -90 },
-      speedX: { min: -20, max: 20 },
-      scale: { start: 0.8, end: 0.1 },
+      speedY: { min: -15, max: 15 },
+      speedX: { min: -15, max: 15 },
+      scale: { start: 0.8, end: 0 },
       alpha: { start: 0.6, end: 0 },
-      tint: 0xffaa00,
-      quantity: 2,
-      frequency: 250
+      tint: [0xffd32a, 0x70a1ff, 0xbe2edd, 0x2ed573],
+      frequency: 150
     });
 
-    // Title text with shadow & bounce
-    const titleText = this.add.text(width / 2, height * 0.24, "Oops!", {
+    // Top Title & Hero Mascot
+    const titleText = this.add.text(width / 2, 34, "EXPLORE WORLDS & LEVELS", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "64px",
-      color: "#cc3300",
-      stroke: "#2a0800",
-      strokeThickness: 8,
-      shadow: { color: "#ff4400", blur: 30, fill: true }
+      fontSize: "18px",
+      color: "#ffd32a",
+      stroke: "#000000",
+      strokeThickness: 6
     }).setOrigin(0.5);
 
-    this.tweens.add({
-      targets: titleText,
-      scaleX: 1.06,
-      scaleY: 0.94,
-      yoyo: true,
-      repeat: -1,
-      duration: 1000,
-      ease: "Sine.easeInOut"
-    });
-
-    // Subtitle
-    this.add.text(width / 2, height * 0.36, "a totally fair game 😇", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "13px",
-      color: "#ff9f43"
-    }).setOrigin(0.5);
-
-    // Button Creator Helper
-    const createBtn = (y, text, color, bgCol, onClick) => {
-      const container = this.add.container(width / 2, y);
-      
-      const btnBg = this.add.graphics();
-      btnBg.fillStyle(bgCol, 1);
-      btnBg.fillRoundedRect(-170, -22, 340, 44, 8);
-      btnBg.lineStyle(2, color, 0.9);
-      btnBg.strokeRoundedRect(-170, -22, 340, 44, 8);
-
-      const label = this.add.text(0, 0, text, {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "12px",
-        color: "#ffffff"
-      }).setOrigin(0.5);
-
-      const hitZone = this.add.zone(0, 0, 340, 44).setInteractive({ cursor: "pointer" });
-
-      hitZone.on("pointerover", () => {
-        container.setScale(1.05);
-        btnBg.clear();
-        btnBg.fillStyle(color, 1);
-        btnBg.fillRoundedRect(-170, -22, 340, 44, 8);
-        AudioEngine.init();
-      });
-
-      hitZone.on("pointerout", () => {
-        container.setScale(1);
-        btnBg.clear();
-        btnBg.fillStyle(bgCol, 1);
-        btnBg.fillRoundedRect(-170, -22, 340, 44, 8);
-        btnBg.lineStyle(2, color, 0.9);
-        btnBg.strokeRoundedRect(-170, -22, 340, 44, 8);
-      });
-
-      hitZone.on("pointerdown", () => {
-        container.setScale(0.96);
-        AudioEngine.init();
-        AudioEngine.sfxJump();
-        onClick();
-      });
-
-      container.add([btnBg, label, hitZone]);
-      return container;
-    };
-
-    let btnY = height * 0.52;
-
-    // Continue button if save exists
-    if (SaveManager.hasSave()) {
-      const save = SaveManager.load();
-      createBtn(btnY, `▶ CONTINUE (Lv ${(save && save.level ? save.level : 0) + 1})`, 0x2ed573, 0x1e824c, () => {
-        this.scene.start("GameScene", { level: save.level, deaths: save.deaths || 0 });
-      });
-      btnY += 56;
-    }
-
-    // Play Game (Level 0)
-    createBtn(btnY, "▶ PLAY GAME", 0xff4757, 0x8b0000, () => {
-      this.scene.start("GameScene", { level: 0, deaths: 0 });
-    });
-    btnY += 56;
-
-    // Select World & Level Map
-    createBtn(btnY, "🗺️ SELECT WORLD & LEVEL", 0xffa502, 0x805000, () => {
-      this.scene.start("WorldSelectScene");
-    });
-    btnY += 56;
-
-    // Controls hint
-    this.add.text(width / 2, height * 0.93, "PC: Arrow Keys/WASD to Move/Jump | Space: Jump | R: Restart\nMobile: On-Screen Touch Buttons", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8px",
-      color: "#888888",
-      align: "center",
-      lineSpacing: 6
-    }).setOrigin(0.5);
-
-    // Audio Toggle Button (Top-Right)
-    const sndText = this.add.text(width - 30, 25, AudioEngine.muted ? "🔇" : "🔊", {
+    // Sound Toggle (Top-Right)
+    const sndText = this.add.text(width - 32, 32, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "22px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
 
@@ -421,135 +527,234 @@ class MenuScene extends Phaser.Scene {
       const muted = AudioEngine.toggleMute();
       sndText.setText(muted ? "🔇" : "🔊");
     });
-  }
-}
 
-// ─── 3. WorldSelectScene: 5 Worlds & 30 Levels Map ───────────
-class WorldSelectScene extends Phaser.Scene {
-  constructor() {
-    super("WorldSelectScene");
-  }
-
-  create() {
-    const { width, height } = this.scale;
-    const maxUnlocked = SaveManager.getMaxUnlocked();
-
-    // Background
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x180533, 0x180533, 0x050110, 0x050110, 1);
-    bg.fillRect(0, 0, width, height);
-
-    // Title
-    this.add.text(width / 2, 35, "SELECT WORLD & LEVEL", {
+    // Subtitle
+    this.add.text(width / 2, 58, "Visit any world below and select a level to enter!", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "18px",
-      color: "#ffd32a"
+      fontSize: "8px",
+      color: "#a4b0be"
     }).setOrigin(0.5);
 
-    // 5 World Quick Jump Buttons
-    const worldW = 160, worldGap = 16;
-    const startX = (width - (5 * worldW + 4 * worldGap)) / 2 + worldW / 2;
+    // ── 5 Realistic Thematic World Portal Cards ─────────────
+    const cardW = 168, cardH = 145, cardGap = 16;
+    const startX = (width - (5 * cardW + 4 * cardGap)) / 2 + cardW / 2;
+    const cardY = 150;
+
+    this.worldCards = [];
 
     WORLD_THEMES.forEach((w, i) => {
-      const wx = startX + i * (worldW + worldGap);
-      const wy = 85;
-      const unlocked = maxUnlocked >= (i * 6);
+      const cx = startX + i * (cardW + cardGap);
+      const isUnlocked = (i === 0) || (maxUnlocked >= i * 6);
 
-      const wBg = this.add.graphics();
-      wBg.fillStyle(unlocked ? w.platform : 0x222222, 0.9);
-      wBg.fillRoundedRect(wx - worldW/2, wy - 25, worldW, 50, 6);
-      wBg.lineStyle(1.5, unlocked ? w.platformTop : 0x444444, 1);
-      wBg.strokeRoundedRect(wx - worldW/2, wy - 25, worldW, 50, 6);
+      const cardContainer = this.add.container(cx, cardY);
 
-      this.add.text(wx, wy - 8, `W${i+1}: ${w.name.split(" ")[0]}`, {
+      // Card Background with Realistic Gradient
+      const cardGfx = this.add.graphics();
+      cardGfx.fillStyle(isUnlocked ? w.cardBg : 0x18181f, 0.95);
+      cardGfx.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+      cardGfx.lineStyle(2, isUnlocked ? w.platformTop : 0x333333, 1);
+      cardGfx.strokeRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+
+      // Badge (Top)
+      const badgeText = this.add.text(0, -cardH / 2 + 18, w.badge, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8.5px",
-        color: unlocked ? "#ffffff" : "#666666"
+        color: isUnlocked ? "#ffd32a" : "#666666"
       }).setOrigin(0.5);
 
-      this.add.text(wx, wy + 8, `Lv ${i*6 + 1} - ${i*6 + 6}`, {
+      // World Name
+      const nameText = this.add.text(0, -cardH / 2 + 38, w.name, {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "9px",
+        color: isUnlocked ? "#ffffff" : "#555555",
+        stroke: "#000000",
+        strokeThickness: 3
+      }).setOrigin(0.5);
+
+      // Level Range
+      const rangeText = this.add.text(0, -cardH / 2 + 56, w.levelRange, {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "7.5px",
+        color: isUnlocked ? "#2ed573" : "#444444"
+      }).setOrigin(0.5);
+
+      // World Gimmick / Subtitle
+      const subText = this.add.text(0, -cardH / 2 + 82, w.subtitle, {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "6.5px",
+        color: isUnlocked ? "#dcdde1" : "#444444",
+        wordWrap: { width: cardW - 16 },
+        align: "center",
+        lineSpacing: 3
+      }).setOrigin(0.5);
+
+      // Action Button inside Card
+      const btnBg = this.add.graphics();
+      const btnY = cardH / 2 - 20;
+      btnBg.fillStyle(isUnlocked ? w.platformTop : 0x222222, 1);
+      btnBg.fillRoundedRect(-cardW / 2 + 12, btnY - 12, cardW - 24, 24, 6);
+
+      const btnLabel = this.add.text(0, btnY, isUnlocked ? "VISIT WORLD" : "🔒 LOCKED", {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "7px",
-        color: unlocked ? "#ffd32a" : "#444444"
+        color: isUnlocked ? "#000000" : "#777777"
       }).setOrigin(0.5);
 
-      const wZone = this.add.zone(wx, wy, worldW, 50).setInteractive({ cursor: unlocked ? "pointer" : "default" });
-      wZone.on("pointerdown", () => {
+      cardContainer.add([cardGfx, badgeText, nameText, rangeText, subText, btnBg, btnLabel]);
+
+      // Interactive Hit Zone
+      const hitZone = this.add.zone(0, 0, cardW, cardH).setInteractive({ cursor: isUnlocked ? "pointer" : "default" });
+
+      hitZone.on("pointerover", () => {
+        if (!isUnlocked) return;
+        cardContainer.setScale(1.04);
+        cardGfx.clear();
+        cardGfx.fillStyle(w.cardBg, 1);
+        cardGfx.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+        cardGfx.lineStyle(3, 0xffffff, 1);
+        cardGfx.strokeRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+      });
+
+      hitZone.on("pointerout", () => {
+        if (!isUnlocked) return;
+        cardContainer.setScale(1);
+        cardGfx.clear();
+        cardGfx.fillStyle(w.cardBg, 0.95);
+        cardGfx.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+        cardGfx.lineStyle(2, w.platformTop, 1);
+        cardGfx.strokeRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
+      });
+
+      hitZone.on("pointerdown", () => {
+        if (!isUnlocked) return;
         AudioEngine.init();
         AudioEngine.sfxJump();
-        this.scene.start("GameScene", { level: i * 6, deaths: 0 });
+        this.selectWorld(i);
       });
+
+      this.worldCards.push(cardContainer);
     });
 
-    // 30 Level Nodes Grid (6 columns x 5 rows)
-    const cols = 6, rows = 5;
-    const nodeSize = 42, gapX = 18, gapY = 16;
-    const gridW = cols * nodeSize + (cols - 1) * gapX;
-    const gridH = rows * nodeSize + (rows - 1) * gapY;
-    const gridLeft = (width - gridW) / 2 + nodeSize / 2;
-    const gridTop = 160 + nodeSize / 2;
+    // ── Lower Section: Active World's Level Grid ────────────
+    this.levelGridContainer = this.add.container(0, 0);
+    this.renderLevelGrid(0);
+  }
 
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const lvlIdx = r * cols + c;
-        const nx = gridLeft + c * (nodeSize + gapX);
-        const ny = gridTop + r * (nodeSize + gapY);
+  selectWorld(worldIdx) {
+    this.selectedWorldIdx = worldIdx;
+    this.renderLevelGrid(worldIdx);
+  }
 
-        const isCleared = lvlIdx < maxUnlocked;
-        const isCurrent = lvlIdx === maxUnlocked;
-        const isLocked  = lvlIdx > maxUnlocked;
+  renderLevelGrid(worldIdx) {
+    this.levelGridContainer.removeAll(true);
+    const { width, height } = this.scale;
+    const theme = WORLD_THEMES[worldIdx];
+    const maxUnlocked = SaveManager.getMaxUnlocked();
 
-        const nodeGfx = this.add.graphics();
-        const fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffa502 : 0x1f1f2e;
-        const borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffd32a : 0x333344;
+    // Section Container Background
+    const sectionW = 760, sectionH = 220;
+    const sectionX = width / 2, sectionY = height - sectionH / 2 - 20;
 
-        nodeGfx.fillStyle(fillCol, isLocked ? 0.3 : 0.85);
-        nodeGfx.fillRoundedRect(nx - nodeSize/2, ny - nodeSize/2, nodeSize, nodeSize, 6);
-        nodeGfx.lineStyle(2, borderCol, 1);
-        nodeGfx.strokeRoundedRect(nx - nodeSize/2, ny - nodeSize/2, nodeSize, nodeSize, 6);
+    const sBg = this.add.graphics();
+    sBg.fillStyle(0x0a0a14, 0.9);
+    sBg.fillRoundedRect(sectionX - sectionW / 2, sectionY - sectionH / 2, sectionW, sectionH, 12);
+    sBg.lineStyle(2, theme.platformTop, 0.8);
+    sBg.strokeRoundedRect(sectionX - sectionW / 2, sectionY - sectionH / 2, sectionW, sectionH, 12);
+    this.levelGridContainer.add(sBg);
 
-        const numText = this.add.text(nx, ny, `${lvlIdx + 1}`, {
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: "11px",
-          color: isLocked ? "#555555" : "#ffffff"
-        }).setOrigin(0.5);
+    // Header inside Level Grid
+    const headerText = this.add.text(sectionX, sectionY - sectionH / 2 + 25, `VISITING: ${theme.badge} — ${theme.name}`, {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "12px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+    this.levelGridContainer.add(headerText);
 
-        if (!isLocked) {
-          const nodeZone = this.add.zone(nx, ny, nodeSize, nodeSize).setInteractive({ cursor: "pointer" });
-          nodeZone.on("pointerover", () => {
-            nodeGfx.setScale(1.1);
-            numText.setScale(1.1);
-          });
-          nodeZone.on("pointerout", () => {
-            nodeGfx.setScale(1);
-            numText.setScale(1);
-          });
-          nodeZone.on("pointerdown", () => {
-            AudioEngine.init();
-            AudioEngine.sfxJump();
-            this.scene.start("GameScene", { level: lvlIdx, deaths: 0 });
-          });
-        }
+    // 6 Level Nodes for this World (1 Row of 6 large nodes)
+    const nodeSize = 64, nodeGap = 28;
+    const totalNodesW = 6 * nodeSize + 5 * nodeGap;
+    const nodesStartX = sectionX - totalNodesW / 2 + nodeSize / 2;
+    const nodesY = sectionY + 12;
+
+    for (let c = 0; c < 6; c++) {
+      const lvlIdx = worldIdx * 6 + c;
+      const nx = nodesStartX + c * (nodeSize + nodeGap);
+
+      const isCleared = lvlIdx < maxUnlocked;
+      const isCurrent = lvlIdx === maxUnlocked;
+      const isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
+
+      const nodeGfx = this.add.graphics();
+      const fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffa502 : 0x1f1f2e;
+      const borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffd32a : 0x444455;
+
+      nodeGfx.fillStyle(fillCol, isLocked ? 0.35 : 0.95);
+      nodeGfx.fillRoundedRect(nx - nodeSize / 2, nodesY - nodeSize / 2, nodeSize, nodeSize, 10);
+      nodeGfx.lineStyle(3, borderCol, 1);
+      nodeGfx.strokeRoundedRect(nx - nodeSize / 2, nodesY - nodeSize / 2, nodeSize, nodeSize, 10);
+
+      const numText = this.add.text(nx, nodesY - 4, `${lvlIdx + 1}`, {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "16px",
+        color: isLocked ? "#555555" : "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 4
+      }).setOrigin(0.5);
+
+      const statusLabel = this.add.text(nx, nodesY + 18, isCleared ? "✓ CLEAR" : isCurrent ? "★ PLAY" : "🔒", {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "6.5px",
+        color: isCleared ? "#ffffff" : isCurrent ? "#ffd32a" : "#666666"
+      }).setOrigin(0.5);
+
+      this.levelGridContainer.add([nodeGfx, numText, statusLabel]);
+
+      if (!isLocked) {
+        const nodeZone = this.add.zone(nx, nodesY, nodeSize, nodeSize).setInteractive({ cursor: "pointer" });
+        nodeZone.on("pointerover", () => {
+          nodeGfx.setScale(1.08);
+          numText.setScale(1.08);
+          statusLabel.setScale(1.08);
+        });
+        nodeZone.on("pointerout", () => {
+          nodeGfx.setScale(1);
+          numText.setScale(1);
+          statusLabel.setScale(1);
+        });
+        nodeZone.on("pointerdown", () => {
+          AudioEngine.init();
+          AudioEngine.sfxJump();
+          this.scene.start("GameScene", { level: lvlIdx, deaths: 0 });
+        });
+        this.levelGridContainer.add(nodeZone);
       }
     }
 
-    // Back to Menu Button
-    const backBtn = this.add.text(width / 2, height - 35, "◀ BACK TO MENU", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "11px",
-      color: "#888888"
-    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
+    // Quick Play First Level of this World Button
+    const playWorldBtn = this.add.graphics();
+    const pwY = sectionY + sectionH / 2 - 24;
+    playWorldBtn.fillStyle(0xff4757, 1);
+    playWorldBtn.fillRoundedRect(sectionX - 160, pwY - 14, 320, 28, 6);
 
-    backBtn.on("pointerover", () => backBtn.setColor("#ffffff"));
-    backBtn.on("pointerout",  () => backBtn.setColor("#888888"));
-    backBtn.on("pointerdown", () => {
+    const playLabel = this.add.text(sectionX, pwY, `▶ PLAY ${theme.name} (LV ${worldIdx * 6 + 1})`, {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
+
+    const pwZone = this.add.zone(sectionX, pwY, 320, 28).setInteractive({ cursor: "pointer" });
+    pwZone.on("pointerdown", () => {
       AudioEngine.init();
-      this.scene.start("MenuScene");
+      AudioEngine.sfxJump();
+      const startLvl = worldIdx * 6;
+      this.scene.start("GameScene", { level: startLvl, deaths: 0 });
     });
+
+    this.levelGridContainer.add([playWorldBtn, playLabel, pwZone]);
   }
 }
 
-// ─── 4. GameScene: Core Platformer & 30 Troll Levels ──────────
+// ─── 6. GameScene: Core Platformer & 30 Deceptive Levels ──────
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -561,9 +766,12 @@ class GameScene extends Phaser.Scene {
     this.levelTime = 0;
     this.isDead = false;
     this.isComplete = false;
-    this.gravityDir = 1; // 1 = normal, -1 = ceiling (World 4)
+    this.gravityDir = 1;
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
+    this.touchLeft = false;
+    this.touchRight = false;
+    this.touchJump = false;
   }
 
   create() {
@@ -573,45 +781,47 @@ class GameScene extends Phaser.Scene {
     AudioEngine.init();
     AudioEngine.startMusic();
 
-    // 1. Background Parallax & Atmosphere
+    // 1. Realistic Thematic Background
     this.bgGfx = this.add.graphics();
     this.bgGfx.fillGradientStyle(theme.bgTop, theme.bgTop, theme.bgBottom, theme.bgBottom, 1);
     this.bgGfx.fillRect(0, 0, width, height);
 
-    // Ambient particle emitter
+    // Atmospheric Particle Emitter
     this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
       lifespan: 3000,
-      speedY: { min: -20, max: 20 },
-      speedX: { min: -30, max: 30 },
-      scale: { start: 0.6, end: 0 },
-      alpha: { start: 0.4, end: 0 },
+      speedY: { min: -25, max: 25 },
+      speedX: { min: -20, max: 20 },
+      scale: { start: 0.7, end: 0 },
+      alpha: { start: 0.45, end: 0 },
       tint: theme.particle,
-      quantity: 1,
-      frequency: 200
+      frequency: 180
     });
 
     // 2. Physics Groups
     this.platforms = this.physics.add.staticGroup();
     this.spikes = this.physics.add.staticGroup();
     this.crushers = this.physics.add.group();
+    this.trampolines = this.physics.add.staticGroup();
     this.fallingPlatforms = [];
     this.popSpikes = [];
-    this.lasers = [];
     this.customTriggers = [];
 
     // 3. Build Level Layout
     this.buildLevelData(this.currentLevel);
 
-    // 4. Create Player
-    this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "player_tex");
+    // 4. Create Animated Cartoon Hero
+    this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "hero_idle_1");
     this.player.setCollideWorldBounds(true);
     this.player.body.setSize(22, 34);
+    this.player.body.setOffset(5, 4);
     this.player.body.setGravityY(1400);
+    this.player.anims.play("hero_anim_idle");
 
     // Collisions
     this.physics.add.collider(this.player, this.platforms, this.onPlatformCollide, null, this);
+    this.physics.add.collider(this.player, this.trampolines, this.onTrampolineCollide, null, this);
     this.physics.add.overlap(this.player, this.spikes, this.onPlayerDie, null, this);
     this.physics.add.overlap(this.player, this.crushers, this.onPlayerDie, null, this);
 
@@ -619,7 +829,7 @@ class GameScene extends Phaser.Scene {
       this.physics.add.overlap(this.player, this.exitGate, this.onReachExit, null, this);
     }
 
-    // 5. Input Setup (Keyboard)
+    // 5. Input Controls
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -634,30 +844,52 @@ class GameScene extends Phaser.Scene {
     // 7. On-Screen Mobile Touch Gamepad
     this.createMobileGamepad();
 
-    // 8. World Title Flash Animation
-    if (this.currentLevel % 6 === 0) {
-      this.showWorldBanner(theme.name);
-    }
+    // 8. Sliding World & Level Intro Banner
+    this.showLevelBanner();
   }
 
-  showWorldBanner(title) {
+  showLevelBanner() {
     const { width, height } = this.scale;
-    const banner = this.add.text(width / 2, height / 2, title, {
+    const theme = getTheme(this.currentLevel);
+
+    const bannerContainer = this.add.container(width / 2, -60).setDepth(200);
+
+    const bgGfx = this.add.graphics();
+    bgGfx.fillStyle(0x000000, 0.85);
+    bgGfx.fillRoundedRect(-240, -25, 480, 50, 8);
+    bgGfx.lineStyle(2, theme.platformTop, 1);
+    bgGfx.strokeRoundedRect(-240, -25, 480, 50, 8);
+
+    const wText = this.add.text(0, -7, `${theme.badge}: ${theme.name} · LEVEL ${this.currentLevel + 1}`, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "28px",
-      color: "#ffd32a",
-      stroke: "#000000",
-      strokeThickness: 8
-    }).setOrigin(0.5).setDepth(200);
+      fontSize: "11px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+
+    const subText = this.add.text(0, 10, theme.subtitle, {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "7px",
+      color: "#cccccc"
+    }).setOrigin(0.5);
+
+    bannerContainer.add([bgGfx, wText, subText]);
 
     this.tweens.add({
-      targets: banner,
-      alpha: 0,
-      scaleX: 1.3,
-      scaleY: 1.3,
-      duration: 1800,
-      ease: "Power2",
-      onComplete: () => banner.destroy()
+      targets: bannerContainer,
+      y: 50,
+      duration: 400,
+      ease: "Back.easeOut",
+      onComplete: () => {
+        this.time.delayedCall(1600, () => {
+          this.tweens.add({
+            targets: bannerContainer,
+            y: -70,
+            duration: 350,
+            ease: "Back.easeIn",
+            onComplete: () => bannerContainer.destroy()
+          });
+        });
+      }
     });
   }
 
@@ -677,12 +909,12 @@ class GameScene extends Phaser.Scene {
       color: "#ff4757"
     }).setOrigin(0.5, 0).setDepth(100);
 
-    // Home button
-    const homeBtn = this.add.text(width - 35, 20, "🏡", {
-      fontSize: "18px"
+    // World Hub return button (Top-Right)
+    const mapBtn = this.add.text(width - 35, 20, "🗺️", {
+      fontSize: "20px"
     }).setOrigin(0.5).setDepth(100).setInteractive({ cursor: "pointer" });
 
-    homeBtn.on("pointerdown", () => {
+    mapBtn.on("pointerdown", () => {
       AudioEngine.stopMusic();
       this.scene.start("WorldSelectScene");
     });
@@ -695,15 +927,14 @@ class GameScene extends Phaser.Scene {
 
     const padY = height - 55;
 
-    // Helper for circular touch buttons
     const makeTouchBtn = (x, y, radius, label, onPress, onRelease) => {
       const g = this.add.graphics().setDepth(150);
-      g.fillStyle(0xffffff, 0.2);
+      g.fillStyle(0xffffff, 0.22);
       g.fillCircle(x, y, radius);
-      g.lineStyle(2, 0xffffff, 0.4);
+      g.lineStyle(2, 0xffffff, 0.45);
       g.strokeCircle(x, y, radius);
 
-      const txt = this.add.text(x, y, label, {
+      this.add.text(x, y, label, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: radius > 30 ? "14px" : "10px",
         color: "#ffffff"
@@ -713,16 +944,16 @@ class GameScene extends Phaser.Scene {
 
       zone.on("pointerdown", () => {
         g.clear();
-        g.fillStyle(0xff4757, 0.6);
+        g.fillStyle(0xff4757, 0.65);
         g.fillCircle(x, y, radius);
         if (onPress) onPress();
       });
 
       const release = () => {
         g.clear();
-        g.fillStyle(0xffffff, 0.2);
+        g.fillStyle(0xffffff, 0.22);
         g.fillCircle(x, y, radius);
-        g.lineStyle(2, 0xffffff, 0.4);
+        g.lineStyle(2, 0xffffff, 0.45);
         g.strokeCircle(x, y, radius);
         if (onRelease) onRelease();
       };
@@ -750,17 +981,17 @@ class GameScene extends Phaser.Scene {
     const dt = delta / 1000;
     this.levelTime += dt;
 
-    // 1. Horizontal Movement
+    // 1. Horizontal Movement & Direction Facing
     const left = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
     const right = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
     const walkSpeed = 220;
 
     if (left) {
       this.player.setVelocityX(-walkSpeed);
-      this.player.setFlipX(true);
+      this.player.setFlipX(true); // Face LEFT
     } else if (right) {
       this.player.setVelocityX(walkSpeed);
-      this.player.setFlipX(false);
+      this.player.setFlipX(false); // Face RIGHT
     } else {
       this.player.setVelocityX(0);
     }
@@ -773,38 +1004,62 @@ class GameScene extends Phaser.Scene {
       this.coyoteTimer -= dt;
     }
 
-    const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
-                        Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+    const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+                        Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
                         Phaser.Input.Keyboard.JustDown(this.keyW) ||
                         this.touchJump;
 
     if (jumpPressed) {
       this.jumpBufferTimer = 0.12;
+      this.touchJump = false;
     } else {
       this.jumpBufferTimer -= dt;
     }
 
     if (this.jumpBufferTimer > 0 && this.coyoteTimer > 0) {
+      this.player.setVelocityY(-560 * this.gravityDir);
       this.jumpBufferTimer = 0;
       this.coyoteTimer = 0;
-      const jumpVel = (this.gravityDir === 1) ? -560 : 560;
-      this.player.setVelocityY(jumpVel);
       AudioEngine.sfxJump();
+
+      this.tweens.add({
+        targets: this.player,
+        scaleX: 0.8,
+        scaleY: 1.25,
+        duration: 120,
+        yoyo: true,
+        ease: "Quad.easeOut"
+      });
     }
 
-    // 3. World 4 Gravity Inversion (Shift / F)
+    // 3. Cartoon Animation State Machine
+    if (!onFloor) {
+      if (this.player.body.velocity.y * this.gravityDir < 0) {
+        this.player.anims.play("hero_anim_jump", true);
+      } else {
+        this.player.anims.play("hero_anim_fall", true);
+      }
+    } else {
+      if (Math.abs(this.player.body.velocity.x) > 10) {
+        this.player.anims.play("hero_anim_run", true);
+      } else {
+        this.player.anims.play("hero_anim_idle", true);
+      }
+    }
+
+    // 4. Gravity Flip (World 4)
     if (this.currentLevel >= 18 && this.currentLevel <= 23) {
       if (Phaser.Input.Keyboard.JustDown(this.keyShift) || Phaser.Input.Keyboard.JustDown(this.keyF)) {
         this.flipGravity();
       }
     }
 
-    // 4. R key restart
+    // 5. R key restart
     if (Phaser.Input.Keyboard.JustDown(this.keyR)) {
       this.restartLevel();
     }
 
-    // 5. Update Interactive Hazards
+    // 6. Interactive Hazards
     this.updateHazards(dt);
   }
 
@@ -817,21 +1072,21 @@ class GameScene extends Phaser.Scene {
   }
 
   updateHazards(dt) {
-    // A. Crushers logic
+    // A. Ceiling Crushers
     this.crushers.getChildren().forEach(crusher => {
       const dist = Math.abs(this.player.x - crusher.x);
-      if (!crusher.isDropping && !crusher.isRetracting && dist < 70 && this.player.y > crusher.y) {
+      if (!crusher.isDropping && !crusher.isRetracting && dist < 75 && this.player.y > crusher.y) {
         crusher.isDropping = true;
-        crusher.setVelocityY(800);
+        crusher.setVelocityY(850);
         AudioEngine.sfxCrush();
       }
       if (crusher.isDropping && crusher.body.blocked.down) {
         crusher.isDropping = false;
         crusher.isRetracting = true;
         crusher.setVelocityY(0);
-        this.cameras.main.shake(150, 0.02);
+        this.cameras.main.shake(160, 0.022);
         this.time.delayedCall(400, () => {
-          if (crusher && crusher.body) crusher.setVelocityY(-120);
+          if (crusher && crusher.body) crusher.setVelocityY(-140);
         });
       }
       if (crusher.isRetracting && crusher.y <= crusher.startY) {
@@ -841,10 +1096,10 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // B. Fleeing Exit Door (Level Devil signature mechanic)
+    // B. Fleeing Exit Door (Level Devil mechanic)
     if (this.exitGate && this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
-      if (dist < 100) {
+      if (dist < 110) {
         this.exitGate.hasFled = true;
         AudioEngine.sfxTrap();
         this.tweens.add({
@@ -872,7 +1127,7 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // D. Custom triggers
+    // D. Custom Triggers
     this.customTriggers.forEach(t => {
       if (!t.triggered && t.condition(this)) {
         t.triggered = true;
@@ -893,10 +1148,10 @@ class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: toast,
-      y: 50,
+      y: 48,
       alpha: 0,
       delay: 1500,
-      duration: 500,
+      duration: 450,
       onComplete: () => toast.destroy()
     });
   }
@@ -908,25 +1163,39 @@ class GameScene extends Phaser.Scene {
     }
   }
 
+  onTrampolineCollide(player, tramp) {
+    player.setVelocityY(-720 * this.gravityDir);
+    AudioEngine.sfxBounce();
+    this.tweens.add({
+      targets: tramp,
+      scaleY: 0.5,
+      duration: 80,
+      yoyo: true
+    });
+  }
+
   onPlayerDie() {
     if (this.isDead || this.isComplete) return;
     this.isDead = true;
     this.deaths++;
     AudioEngine.sfxDie();
-    this.cameras.main.shake(250, 0.035);
+    this.cameras.main.shake(260, 0.035);
 
     SaveManager.save(this.currentLevel, this.deaths);
 
-    this.player.setVisible(false);
+    this.player.anims.stop();
+    this.player.setTexture("hero_dead");
+    this.player.setVelocity(0, -300);
+
     this.add.particles(this.player.x, this.player.y, "part_dot", {
-      speed: { min: 80, max: 240 },
-      scale: { start: 1, end: 0 },
+      speed: { min: 80, max: 260 },
+      scale: { start: 1.1, end: 0 },
       lifespan: 600,
       quantity: 24,
       tint: 0xff4757
     });
 
-    this.time.delayedCall(450, () => {
+    this.time.delayedCall(500, () => {
       this.restartLevel();
     });
   }
@@ -940,22 +1209,20 @@ class GameScene extends Phaser.Scene {
     this.isComplete = true;
     AudioEngine.sfxWin();
 
-    // Save progression
     const nextLvl = this.currentLevel + 1;
     SaveManager.save(nextLvl, this.deaths);
 
-    // Confetti explosion
     this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
-      speed: { min: 100, max: 300 },
-      scale: { start: 1.2, end: 0 },
+      speed: { min: 100, max: 320 },
+      scale: { start: 1.3, end: 0 },
       lifespan: 800,
       quantity: 36,
-      tint: [0xff4757, 0x2ed573, 0xffa502, 0x1e90ff, 0xffd32a]
+      tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
     });
 
     this.time.delayedCall(700, () => {
-      if (nextLvl >= 30) {
-        AudioEngine.stopMusic();
+      if (nextLvl >= 30 || nextLvl % 6 === 0) {
+        // World cleared! Return to World Hub with next world unlocked
         this.scene.start("WorldSelectScene");
       } else {
         this.scene.start("GameScene", { level: nextLvl, deaths: this.deaths });
@@ -963,165 +1230,195 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // ─── 30 Handcrafted Level Builder ──────────────────────────
-  buildLevelData(idx) {
+  // ─── 7. 30 Handcrafted Deceptive Levels ─────────────────────
+  buildLevelData(lvl) {
+    const { width, height } = this.scale;
+    const theme = getTheme(lvl);
+
     const addPlat = (x, y, w, h) => {
       const p = this.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
+      p.setTint(theme.platform);
       this.platforms.add(p);
-      p.body.setSize(w, h);
+      return p;
+    };
+
+    const addFallingPlat = (x, y, w, h) => {
+      const p = this.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
+      p.setTint(theme.platform);
+      p.isFallingPlat = true;
+      p.stepped = false;
+      p.hasFallen = false;
+      this.platforms.add(p);
+      this.fallingPlatforms.push(p);
       return p;
     };
 
     const addSpike = (x, y) => {
-      const s = this.spikes.create(x + 10, y + 10, "spike_up");
-      s.body.setSize(16, 16);
+      const s = this.spikes.create(x, y, "spike_up");
+      s.setTint(theme.spike);
+      s.body.setSize(18, 14).setOffset(1, 6);
       return s;
     };
 
-    const addCrusher = (x, y) => {
-      const c = this.crushers.create(x + 30, y + 36, "crusher_tex");
-      c.body.setSize(54, 66);
+    const addCrusher = (x, startY) => {
+      const c = this.crushers.create(x, startY, "crusher_tex");
+      c.startY = startY;
+      c.isDropping = false;
+      c.isRetracting = false;
       c.body.setImmovable(true);
-      c.startY = y + 36;
+      c.body.setSize(52, 60);
       return c;
     };
 
-    const addFallingPlat = (x, y, w, h) => {
-      const fp = addPlat(x, y, w, h);
-      fp.isFallingPlat = true;
-      this.fallingPlatforms.push(fp);
-      return fp;
+    const addTrampoline = (x, y) => {
+      const tr = this.trampolines.create(x, y, "tramp_tex");
+      tr.body.setSize(32, 12).setOffset(0, 4);
+      return tr;
     };
 
-    // Default Spawn
     this.spawnX = 60;
-    this.spawnY = 420;
+    this.spawnY = 440;
 
-    // Build levels dynamically
-    if (idx === 0) { // Lv 1: First Steps (Fleeing Exit)
-      addPlat(0, 470, 320, 70);
-      addPlat(400, 470, 560, 70);
-      addPlat(220, 370, 120, 20);
-      addPlat(460, 320, 120, 20);
-      for (let sx = 320; sx < 400; sx += 20) addSpike(sx, 520);
-      this.exitGate = this.physics.add.sprite(860, 435, "door_tex");
+    // ── LEVEL 1: First Steps (World 1 - Desert Ruins) ────────
+    if (lvl === 0) {
+      addPlat(0, 480, 260, 60);
+      addPlat(340, 480, 260, 60);
+      addPlat(680, 480, 280, 60);
+      addSpike(300, 470);
+      addSpike(640, 470);
+      addPlat(820, 320, 140, 20);
+
+      this.exitGate = this.physics.add.sprite(890, 445, "door_tex");
       this.exitGate.fleeOnProximity = true;
-      this.exitGate.targetX = 860;
-      this.exitGate.targetY = 275;
-      this.exitGate.fleeMessage = "Not so fast! 😇";
+      this.exitGate.targetX = 890;
+      this.exitGate.targetY = 285;
+      this.exitGate.fleeMessage = "Too slow! Jump up! 😜";
+    }
+
+    // ── LEVEL 2: Watch Your Head (Desert Crushers) ───────────
+    else if (lvl === 1) {
+      addPlat(0, 480, width, 60);
+      addCrusher(300, 70);
+      addCrusher(600, 70);
+      this.exitGate = this.physics.add.sprite(900, 445, "door_tex");
+    }
+
+    // ── LEVEL 3: Crumbling Trust (Falling Bridges) ───────────
+    else if (lvl === 2) {
+      addPlat(0, 480, 160, 60);
+      addFallingPlat(220, 480, 120, 20);
+      addFallingPlat(420, 480, 120, 20);
+      addFallingPlat(620, 480, 120, 20);
+      addPlat(800, 480, 160, 60);
+
+      for (let sx = 200; sx <= 780; sx += 40) addSpike(sx, 530);
+      this.exitGate = this.physics.add.sprite(900, 445, "door_tex");
+    }
+
+    // ── LEVEL 4: Pop-Up Floor Spikes ─────────────────────────
+    else if (lvl === 3) {
+      addPlat(0, 480, width, 60);
       this.customTriggers.push({
-        condition: (s) => s.exitGate.hasFled,
-        action: (s) => addPlat(780, 320, 160, 20)
-      });
-    }
-    else if (idx === 1) { // Lv 2: Crushing Welcome
-      addPlat(0, 470, 240, 70);
-      addPlat(240, 470, 480, 70);
-      addPlat(720, 470, 240, 70);
-      addCrusher(300, 100);
-      addCrusher(450, 100);
-      addCrusher(600, 100);
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
-    }
-    else if (idx === 2) { // Lv 3: Crumbling Bridge
-      addPlat(0, 470, 180, 70);
-      addFallingPlat(200, 470, 100, 20);
-      addFallingPlat(340, 470, 100, 20);
-      addFallingPlat(480, 470, 100, 20);
-      addFallingPlat(620, 470, 100, 20);
-      addPlat(760, 470, 200, 70);
-      for (let sx = 180; sx < 760; sx += 20) addSpike(sx, 520);
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
-    }
-    else if (idx === 3) { // Lv 4: Spike Ambush
-      addPlat(0, 470, 960, 70);
-      addPlat(300, 360, 160, 20);
-      addPlat(550, 300, 160, 20);
-      addCrusher(360, 80);
-      this.customTriggers.push({
-        condition: (s) => s.player.x > 350,
-        action: () => {
-          for (let sx = 400; sx < 520; sx += 20) addSpike(sx, 450);
+        triggered: false,
+        condition: (scene) => scene.player.x > 380,
+        action: (scene) => {
+          for (let i = 0; i < 4; i++) {
+            const sp = scene.spikes.create(480 + i * 22, 470, "spike_up").setTint(theme.spike);
+            scene.tweens.add({ targets: sp, y: 460, duration: 100, yoyo: true });
+          }
+          AudioEngine.sfxTrap();
+          scene.showTrollToast("Surprise! 😈");
         }
       });
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
+      this.exitGate = this.physics.add.sprite(900, 445, "door_tex");
     }
-    else if (idx === 4) { // Lv 5: The High Jump
-      addPlat(0, 470, 200, 70);
-      addPlat(260, 400, 100, 20);
-      addPlat(420, 320, 100, 20);
-      addPlat(580, 240, 100, 20);
-      addPlat(740, 160, 220, 380);
-      addCrusher(420, 60);
-      this.exitGate = this.physics.add.sprite(880, 125, "door_tex");
+
+    // ── LEVEL 5: Super Trampoline Leap ───────────────────────
+    else if (lvl === 4) {
+      addPlat(0, 480, 180, 60);
+      addTrampoline(130, 472);
+      addPlat(760, 320, 200, 220);
+      for (let sx = 200; sx < 740; sx += 30) addSpike(sx, 530);
+      this.exitGate = this.physics.add.sprite(880, 285, "door_tex");
     }
-    else if (idx === 5) { // Lv 6: World 1 Finale
-      addPlat(0, 470, 180, 70);
-      addFallingPlat(220, 450, 120, 20);
-      addCrusher(240, 80);
-      addFallingPlat(400, 390, 120, 20);
-      addCrusher(420, 80);
-      addFallingPlat(580, 330, 120, 20);
-      addPlat(760, 270, 200, 270);
-      this.exitGate = this.physics.add.sprite(880, 235, "door_tex");
+
+    // ── LEVEL 6: Desert Gauntlet (World 1 Climax) ────────────
+    else if (lvl === 5) {
+      addPlat(0, 480, 140, 60);
+      addFallingPlat(200, 480, 100, 20);
+      addCrusher(360, 70);
+      addFallingPlat(480, 480, 100, 20);
+      addCrusher(640, 70);
+      addPlat(780, 360, 180, 180);
+      this.exitGate = this.physics.add.sprite(880, 325, "door_tex");
+      this.exitGate.fleeOnProximity = true;
+      this.exitGate.targetX = 880;
+      this.exitGate.targetY = 160;
+      addPlat(820, 195, 140, 20);
     }
-    else if (idx >= 6 && idx <= 11) { // World 2: Frost Spire (Levels 7 - 12)
-      addPlat(0, 470, 200, 70);
-      addPlat(220 + (idx - 6) * 40, 450 - (idx - 6) * 30, 140, 20);
-      addCrusher(320 + (idx - 6) * 40, 80);
-      addFallingPlat(450 + (idx - 6) * 30, 400, 120, 20);
-      addPlat(740, 470, 220, 70);
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
+
+    // ── LEVELS 7 to 12 (World 2: Frost Spire) ────────────────
+    else if (lvl >= 6 && lvl <= 11) {
+      const sub = lvl - 6;
+      addPlat(0, 480, 160, 60);
+      addPlat(220 + sub * 10, 440 - sub * 20, 120, 20);
+      addFallingPlat(420, 380 - sub * 10, 100, 20);
+      addCrusher(580, 60);
+      addPlat(740, 320 - sub * 15, 220, 240);
+      for (let sx = 180; sx < 720; sx += 40) addSpike(sx, 530);
+      this.exitGate = this.physics.add.sprite(880, 280 - sub * 15, "door_tex");
     }
-    else if (idx >= 12 && idx <= 17) { // World 3: Shadow Crypt (Levels 13 - 18)
-      addPlat(0, 470, 180, 70);
-      addCrusher(240, 80);
-      addCrusher(400, 80);
-      addCrusher(560, 80);
-      addPlat(180, 470, 600, 70);
-      addPlat(780, 470, 180, 70);
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
-      if (idx === 17) {
-        this.exitGate.fleeOnProximity = true;
-        this.exitGate.targetX = 100;
-        this.exitGate.targetY = 435;
-        this.exitGate.fleeMessage = "Back to start! 😈";
-      }
+
+    // ── LEVELS 13 to 18 (World 3: Shadow Crypt) ──────────────
+    else if (lvl >= 12 && lvl <= 17) {
+      const sub = lvl - 12;
+      addPlat(0, 480, 180, 60);
+      addPlat(260, 420 - sub * 10, 90, 20);
+      addPlat(440, 360 - sub * 10, 90, 20);
+      addFallingPlat(600, 300 - sub * 10, 90, 20);
+      addCrusher(300 + sub * 30, 60);
+      addPlat(760, 240, 200, 300);
+      this.exitGate = this.physics.add.sprite(880, 200, "door_tex");
     }
-    else if (idx >= 18 && idx <= 23) { // World 4: Gravity Nexus (Levels 19 - 24)
-      addPlat(0, 470, 960, 70);
-      addPlat(0, 0, 960, 70);
-      // Floor spikes & ceiling spikes requiring mid-air flips
-      for (let sx = 200; sx < 400; sx += 20) addSpike(sx, 450);
-      addCrusher(500, 80);
-      this.exitGate = this.physics.add.sprite(880, 435, "door_tex");
+
+    // ── LEVELS 19 to 24 (World 4: Gravity Nexus) ─────────────
+    else if (lvl >= 18 && lvl <= 23) {
+      addPlat(0, 480, 200, 60);
+      addPlat(0, 0, width, 50);
+      addPlat(300, 480, 120, 60);
+      addPlat(500, 120, 140, 20);
+      addPlat(740, 480, 220, 60);
+
+      for (let sx = 220; sx < 720; sx += 40) addSpike(sx, 530);
+      this.exitGate = this.physics.add.sprite(880, 445, "door_tex");
     }
-    else { // World 5: Glitch Core (Levels 25 - 30)
-      addPlat(0, 470, 160, 70);
-      addFallingPlat(200, 430, 100, 20);
-      addCrusher(220, 70);
-      addFallingPlat(360, 360, 100, 20);
-      addCrusher(380, 70);
-      addFallingPlat(520, 290, 100, 20);
-      addCrusher(540, 70);
-      addFallingPlat(680, 220, 100, 20);
-      addPlat(820, 160, 140, 380);
-      this.exitGate = this.physics.add.sprite(890, 125, "door_tex");
+
+    // ── LEVELS 25 to 30 (World 5: Glitch Core & Finale) ──────
+    else {
+      const sub = lvl - 24;
+      addPlat(0, 480, 160, 60);
+      addFallingPlat(220, 420 - sub * 8, 100, 20);
+      addCrusher(360, 60);
+      addFallingPlat(500, 340 - sub * 8, 100, 20);
+      addCrusher(640, 60);
+      addPlat(780, 240, 180, 300);
+      this.exitGate = this.physics.add.sprite(880, 200, "door_tex");
     }
   }
 }
 
-// Global error logger
-window.addEventListener('error', (e) => {
-  console.error('GLOBAL JS ERROR:', e.message, 'at', e.filename, 'line:', e.lineno);
-});
-
-// ─── Phaser Game Configuration ───────────────────────────────
+// ─── 8. Phaser Game Configuration ────────────────────────────
 const config = {
   type: Phaser.AUTO,
   parent: "game-container",
   width: 960,
   height: 540,
+  render: {
+    pixelArt: true,
+    antialias: false,
+    roundPixels: true,
+    powerPreference: "high-performance"
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
@@ -1133,14 +1430,12 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, WorldSelectScene, GameScene]
+  scene: [BootScene, WorldSelectScene, GameScene]
 };
 
 // Start the game instance
 try {
-  console.log("Initializing Phaser Game with config...");
   window.game = new Phaser.Game(config);
-  console.log("Phaser Game instance created successfully!");
 } catch (err) {
-  console.error("CRITICAL: Failed to create Phaser.Game instance:", err);
+  console.error("Critical: Failed to launch Phaser Game:", err);
 }

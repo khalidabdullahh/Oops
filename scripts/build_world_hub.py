@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Generator script for Oops! with World Visit Hub on launch
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Ultra-Sharp Phaser 3 Edition
 //  World Exploration Hub & Deceptive Platformer
 // ═══════════════════════════════════════════════════════════════
@@ -1439,3 +1440,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js with World Visit Hub generated! Size:", len(code))
