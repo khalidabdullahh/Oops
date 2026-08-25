@@ -1,4 +1,4 @@
-const CACHE = "oops-phaser-v4.6.0";
+const CACHE = "oops-phaser-v4.7.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -26,7 +26,6 @@ self.addEventListener("activate", e => {
 
 // Network-First Strategy: always check network first to ensure updates deliver immediately
 self.addEventListener("fetch", e => {
-  // Only intercept HTTP/HTTPS requests (Chrome extensions and other schemes can break)
   if (!e.request.url.startsWith('http')) return;
 
   e.respondWith(
@@ -41,7 +40,7 @@ self.addEventListener("fetch", e => {
         return networkResponse;
       })
       .catch(() => {
-        return caches.match(e.request);
+        return caches.match(e.request, { ignoreSearch: true });
       })
   );
 });

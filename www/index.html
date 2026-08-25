@@ -24,13 +24,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css?v=4.6.0"/>
+  <link rel="stylesheet" href="style.css?v=4.7.0"/>
 </head>
 <body>
   <div id="game-container"></div>
 
   <!-- In-Game Player Feedback & Bug Report Modal -->
-  <div id="feedback-modal" class="modal-overlay hidden">
+  <div id="feedback-modal" class="modal-overlay hidden" style="display: none !important;">
     <div class="feedback-modal-card">
       <div class="modal-header">
         <div class="modal-title">💬 PLAYER REPORT &amp; FEEDBACK</div>
@@ -96,7 +96,7 @@
   </div>
 
   <!-- Responsive On-Screen Mobile Gamepad -->
-  <div id="mobile-gamepad" class="hidden">
+  <div id="mobile-gamepad" class="hidden" style="display: none !important;">
     <div class="touch-cluster-left">
       <button type="button" id="btn-left" class="gamepad-btn gamepad-btn-dir" aria-label="Move Left">◀</button>
       <button type="button" id="btn-right" class="gamepad-btn gamepad-btn-dir" aria-label="Move Right">▶</button>
@@ -114,7 +114,7 @@
   <!-- Offline Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=4.6.0').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=4.7.0').then(reg => {
         reg.update();
       }).catch(()=>{});
     }
@@ -126,6 +126,6 @@
       document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\\/script>');
     }
   </script>
-  <script src="game.js?v=4.6.0"></script>
+  <script src="game.js?v=4.7.0"></script>
 </body>
 </html>

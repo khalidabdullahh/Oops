@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Magnetic Exit Gate Attraction & Wall Boundary Protection
+//  Rock-Solid Modal Hiding & Dynamic Scaled Phaser Engine
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -291,8 +291,10 @@ const MobileGamepad = {
 
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
     if (isTouch) {
+      gamepad.style.display = "flex";
       gamepad.classList.remove("hidden");
     } else {
+      gamepad.style.display = "none";
       gamepad.classList.add("hidden");
     }
 
@@ -300,8 +302,10 @@ const MobileGamepad = {
     if (btnFlip) {
       if (scene && scene.currentWorld === 3) {
         btnFlip.classList.remove("hidden");
+        btnFlip.style.display = "flex";
       } else {
         btnFlip.classList.add("hidden");
+        btnFlip.style.display = "none";
       }
     }
   },
@@ -309,7 +313,10 @@ const MobileGamepad = {
   hide() {
     this.activeScene = null;
     const gamepad = document.getElementById("mobile-gamepad");
-    if (gamepad) gamepad.classList.add("hidden");
+    if (gamepad) {
+      gamepad.style.display = "none";
+      gamepad.classList.add("hidden");
+    }
   }
 };
 
@@ -330,6 +337,12 @@ const FeedbackManager = {
     const fileInput = document.getElementById("fb-image-input");
     const btnSnap = document.getElementById("btn-snap-screen");
     const btnRemove = document.getElementById("btn-remove-preview");
+
+    // Ensure hidden on init
+    if (modal) {
+      modal.style.display = "none";
+      modal.classList.add("hidden");
+    }
 
     if (btnClose) {
       btnClose.addEventListener("click", () => this.close());
@@ -402,7 +415,10 @@ const FeedbackManager = {
     const textEl = document.getElementById("fb-preview-name");
     if (imgEl) imgEl.src = dataUrl;
     if (textEl) textEl.textContent = name || "Attached Image";
-    if (container) container.classList.remove("hidden");
+    if (container) {
+      container.classList.remove("hidden");
+      container.style.display = "flex";
+    }
   },
 
   clearImagePreview() {
@@ -412,7 +428,10 @@ const FeedbackManager = {
     const fileInput = document.getElementById("fb-image-input");
     if (imgEl) imgEl.src = "";
     if (fileInput) fileInput.value = "";
-    if (container) container.classList.add("hidden");
+    if (container) {
+      container.classList.add("hidden");
+      container.style.display = "none";
+    }
   },
 
   open() {
@@ -448,6 +467,7 @@ const FeedbackManager = {
     if (currLevelEl) currLevelEl.textContent = `Level ${levelNum}`;
     if (currDeathsEl) currDeathsEl.textContent = `${deathsCount}`;
 
+    modal.style.display = "flex";
     modal.classList.remove("hidden");
     const msgInput = document.getElementById("fb-message");
     if (msgInput) msgInput.focus();
@@ -455,7 +475,10 @@ const FeedbackManager = {
 
   close() {
     const modal = document.getElementById("feedback-modal");
-    if (modal) modal.classList.add("hidden");
+    if (modal) {
+      modal.style.display = "none";
+      modal.classList.add("hidden");
+    }
   },
 
   submit() {
@@ -2095,8 +2118,13 @@ window.addEventListener("resize", () => {
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
   const gamepad = document.getElementById("mobile-gamepad");
   if (gamepad && window.game && window.game.scene.isActive("GameScene")) {
-    if (isTouch) gamepad.classList.remove("hidden");
-    else gamepad.classList.add("hidden");
+    if (isTouch) {
+      gamepad.style.display = "flex";
+      gamepad.classList.remove("hidden");
+    } else {
+      gamepad.style.display = "none";
+      gamepad.classList.add("hidden");
+    }
   }
 });
 
@@ -2109,9 +2137,19 @@ window.addEventListener("orientationchange", () => {
   }, 200);
 });
 
-// Launch Game Instance
-try {
-  window.game = new Phaser.Game(config);
-} catch (err) {
-  console.error("Critical: Failed to launch Phaser Game:", err);
+// Launch Game Instance on DOM Ready
+function launchOopsGame() {
+  if (!window.game) {
+    try {
+      window.game = new Phaser.Game(config);
+    } catch (err) {
+      console.error("Critical: Failed to launch Phaser Game:", err);
+    }
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", launchOopsGame);
+} else {
+  launchOopsGame();
 }
