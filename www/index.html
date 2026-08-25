@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css?v=2.5.0"/>
 </head>
 <body>
   <div id="game-wrapper">
@@ -62,7 +62,8 @@
             <button id="continue-btn" class="game-btn glow">▶ CONTINUE</button>
             <div class="new-game-link" id="new-game-link">↺ Start Over</div>
           </div>
-          <button id="start-btn" class="game-btn pulse">▶ NEW GAME</button>
+          <button id="start-btn" class="game-btn pulse">▶ PLAY GAME</button>
+          <button id="select-world-btn" class="game-btn text-btn" style="color:var(--accent2)!important;font-size:11px!important;padding:6px 12px!important;margin-top:-6px;">🗺️ SELECT WORLD & LEVEL</button>
           <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
         </div>
       </div>
@@ -157,11 +158,12 @@
   </div>
 
   <script>
-    // Register service worker for offline PWA
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+      navigator.serviceWorker.register('./sw.js?v=2.5.0').then(reg => {
+        reg.update();
+      }).catch(()=>{});
     }
   </script>
-  <script src="game.js"></script>
+  <script src="game.js?v=2.5.0"></script>
 </body>
 </html>

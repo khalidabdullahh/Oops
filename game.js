@@ -451,9 +451,9 @@ class Player {
       this.vy = Math.max(this.vy - GRAVITY * dt, -MAX_FALL);
     }
 
-    // Gravity flip triggers (Shift Left / mobile button)
+    // Gravity flip triggers (Shift / F / mobile button)
     if (this.flipCooldown > 0) this.flipCooldown -= dt;
-    if (activeMultiverse === "gravity" && this.flipCooldown <= 0 && pressed("ShiftLeft")) {
+    if ((currentLevel >= 18 && currentLevel <= 23) && this.flipCooldown <= 0 && (pressed("ShiftLeft", "ShiftRight", "KeyF") || keys["ShiftLeft"] || keys["ShiftRight"])) {
       this.gravityDir *= -1;
       this.flipCooldown = 0.28;
       SFX.portal();
@@ -3020,8 +3020,14 @@ if (logoSpan) {
   });
 }
 
-// NEW GAME — open Multiverse & Level Select Map Screen
+// PLAY GAME — start from level 0 (or first unlocked)
 document.getElementById("start-btn").addEventListener("click", () => {
+  initAudio();
+  startLevel(0);
+});
+
+// SELECT WORLD & LEVEL — open Multiverse & Level Select Map Screen
+document.getElementById("select-world-btn")?.addEventListener("click", () => {
   initAudio();
   refreshMultiverseSelector();
   showScreen("multiverse");

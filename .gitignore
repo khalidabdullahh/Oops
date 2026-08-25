@@ -15,5 +15,5 @@ android/capacitor-cordova-android-plugins/
 # Root APK (keep only RELEASE/)
 /ChaosRealm.apk
 
-# Build script temp
-build_apk.sh
+# Media references
+*.mp4
