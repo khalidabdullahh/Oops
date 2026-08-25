@@ -1,13 +1,13 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Completely Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Crystal-Clear Visuals & Tailored Physics per World
+//  Rock-Solid Clean Level Transitions (No Hangs / No Glitches)
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
 // ─── 1. Save Manager ─────────────────────────────────────────
-const SAVE_KEY = "oops_multiverse_v6";
+const SAVE_KEY = "oops_multiverse_v7";
 
 const SaveManager = {
   getInitialState() {
@@ -903,7 +903,6 @@ class GameScene extends Phaser.Scene {
 
   createShadowAmbiance() {
     const { width, height } = this.scale;
-    // Ambient mystic purple glowing dust particles
     this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
@@ -1313,8 +1312,15 @@ class GameScene extends Phaser.Scene {
     this.isComplete = true;
     AudioEngine.sfxWin();
 
+    // Freeze player velocity during victory celebration so they don't slide off
+    if (this.player && this.player.body) {
+      this.player.setVelocity(0, 0);
+      this.player.body.setEnable(false);
+    }
+
     SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
+    // Victory celebration particles
     this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
       speed: { min: 100, max: 320 },
       scale: { start: 1.3, end: 0 },
@@ -1323,12 +1329,13 @@ class GameScene extends Phaser.Scene {
       tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
     });
 
-    this.time.delayedCall(700, () => {
+    // Smooth, reliable level advancement using scene.restart()
+    this.time.delayedCall(600, () => {
       const nextLvl = this.currentLevel + 1;
       if (nextLvl >= 30) {
         this.scene.start("WorldSelectScene", { world: this.currentWorld });
       } else {
-        this.scene.start("GameScene", { world: this.currentWorld, level: nextLvl, deaths: this.deaths });
+        this.scene.restart({ world: this.currentWorld, level: nextLvl, deaths: this.deaths });
       }
     });
   }
@@ -1508,12 +1515,12 @@ class GameScene extends Phaser.Scene {
     // 🔮 WORLD 3: SHADOW CRYPT (Mystic Obsidian & Laser Tripwires)
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 2) {
-      if (lvl === 0) { // Level 1 (Obsidian Crypt Intro - Jump over crypt pit)
+      if (lvl === 0) { // Level 1 (Obsidian Crypt Intro)
         addPlat(0, 460, 380, 80);
         addPlat(460, 460, 500, 80);
         addSpike(420, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Laser Tripwire Beam (Jump over laser!)
+      } else if (lvl === 1) { // Level 2: Laser Tripwire Beam
         addPlat(0, 460, width, 80);
         addLaser(480, 430, false);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
@@ -1544,8 +1551,8 @@ class GameScene extends Phaser.Scene {
     else if (wIdx === 3) {
       if (lvl === 0) { // Level 1 (Gravity Intro - Flip onto ceiling to pass wall!)
         addPlat(0, 460, 320, 80);
-        addPlat(0, 0, width, 50); // Ceiling floor
-        addPlat(320, 240, 80, 300); // Big blocking wall on floor!
+        addPlat(0, 0, width, 50);
+        addPlat(320, 240, 80, 300);
         addPlat(400, 460, 560, 80);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Inverted Spikes on Floor & Ceiling

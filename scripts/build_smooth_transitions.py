@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Generator script for Oops! with clean level completions and no lingering state
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Completely Unique Worlds x 30 Handcrafted Stages (150 Total)
 //  Rock-Solid Clean Level Transitions (No Hangs / No Glitches)
@@ -1649,3 +1650,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js updated with rock-solid clean level completion transitions! Size:", len(code))
