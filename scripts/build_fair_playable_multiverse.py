@@ -1,8 +1,8 @@
-# Generator script guaranteeing 100% physically beatable levels + Seamless Edge-to-Edge Theme Backgrounds + Left Boundary Protection
+# Generator script with Magnetic Exit Gate Pull + Boundary Wall Protection
 code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Seamless Edge-to-Edge Backgrounds & Left Spawn Wall Protection
+//  Magnetic Exit Gate Attraction & Wall Boundary Protection
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -1381,6 +1381,45 @@ class GameScene extends Phaser.Scene {
       }
     }
 
+    // ── 🧲 EXIT GATE MAGNETIC ATTRACTION & RIGHT BOUNDARY PROTECTION ──
+    if (this.exitGate) {
+      // Prevent player from walking past the exit gate into the right void
+      const maxGateX = this.exitGate.x + 20;
+      if (this.player.x > maxGateX) {
+        this.player.x = maxGateX;
+        if (this.player.body.velocity.x > 0) {
+          this.player.setVelocityX(0);
+          this.iceVelocityX = 0;
+        }
+      }
+
+      // Check proximity for Flee trap vs Magnetic Win Attraction
+      if (this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
+        if (dist < 100) {
+          this.exitGate.hasFled = true;
+          AudioEngine.sfxTrap();
+          this.tweens.add({
+            targets: this.exitGate,
+            x: this.exitGate.targetX || this.exitGate.x,
+            y: this.exitGate.targetY || (this.exitGate.y - 70),
+            duration: 350,
+            ease: "Back.easeOut"
+          });
+          this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
+        }
+      } else {
+        // Magnetic Suction Zone: whenever player gets near or tries to jump over gate, suck into exit!
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
+        const dx = Math.abs(this.player.x - this.exitGate.x);
+        const dy = Math.abs(this.player.y - this.exitGate.y);
+        if (dist < 72 || (dx < 48 && dy < 72) || (this.player.x >= this.exitGate.x - 25 && dy < 85)) {
+          this.onReachExit();
+          return;
+        }
+      }
+    }
+
     // Death bounds check
     if (this.player.y > height + 40 || (this.gravityDir === -1 && this.player.y < -40) || this.player.x > width + 70) {
       this.onPlayerDie();
@@ -1547,22 +1586,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    if (this.exitGate && this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
-      const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
-      if (dist < 100) {
-        this.exitGate.hasFled = true;
-        AudioEngine.sfxTrap();
-        this.tweens.add({
-          targets: this.exitGate,
-          x: this.exitGate.targetX || this.exitGate.x,
-          y: this.exitGate.targetY || (this.exitGate.y - 70),
-          duration: 350,
-          ease: "Back.easeOut"
-        });
-        this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
-      }
-    }
-
     // ── ROCK-SOLID FALLING PLATFORMS ──
     for (let i = this.fallingPlatforms.length - 1; i >= 0; i--) {
       const p = this.fallingPlatforms[i];
@@ -1663,7 +1686,7 @@ class GameScene extends Phaser.Scene {
     this.scene.restart({ world: this.currentWorld, level: this.currentLevel, deaths: this.deaths });
   }
 
-  // ── SIGNATURE "ENTER DOOR" ANIMATION & ADVANCEMENT ──────────
+  // ── 🧲 SIGNATURE MAGNETIC "SUCK INTO DOOR" ANIMATION ────────
   onReachExit() {
     if (this.isComplete || this.isDead) return;
     this.isComplete = true;
@@ -1680,37 +1703,47 @@ class GameScene extends Phaser.Scene {
 
     // Door Portal Aura Flare
     const aura = this.add.graphics().setDepth(150);
-    aura.fillStyle(0xffffff, 0.7);
-    aura.fillCircle(this.exitGate.x, this.exitGate.y, 22);
+    aura.fillStyle(0xffffff, 0.8);
+    aura.fillCircle(this.exitGate.x, this.exitGate.y, 24);
     this.tweens.add({
       targets: aura,
-      scaleX: 1.8,
-      scaleY: 1.8,
+      scaleX: 2.2,
+      scaleY: 2.2,
       alpha: 0,
-      duration: 400,
+      duration: 450,
       onComplete: () => aura.destroy()
     });
 
-    // Enter Door Tween: Hero moves to doorway and shrinks inside
+    // Magnetic Suction Particles converging onto the door
+    this.add.particles(this.player.x, this.player.y, "part_dot", {
+      speed: { min: 100, max: 250 },
+      scale: { start: 1.2, end: 0 },
+      lifespan: 400,
+      quantity: 18,
+      tint: [0xffd32a, 0x2ed573, 0x70a1ff]
+    });
+
+    // Magnetic pull tween: smoothly sucks and shrinks hero directly into doorway center
     this.tweens.add({
       targets: this.player,
       x: this.exitGate.x,
       y: this.exitGate.y + 6,
-      scaleX: 0.05,
-      scaleY: 0.05,
+      scaleX: 0.02,
+      scaleY: 0.02,
+      angle: 180,
       alpha: 0,
-      duration: 380,
-      ease: "Cubic.easeIn",
+      duration: 340,
+      ease: "Cubic.easeInOut",
       onComplete: () => {
         this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
           speed: { min: 80, max: 280 },
-          scale: { start: 1.2, end: 0 },
+          scale: { start: 1.3, end: 0 },
           lifespan: 600,
-          quantity: 28,
+          quantity: 32,
           tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
         });
 
-        this.time.delayedCall(450, () => {
+        this.time.delayedCall(400, () => {
           const nextLvl = this.currentLevel + 1;
           if (nextLvl >= 30) {
             MobileGamepad.hide();
@@ -1795,10 +1828,10 @@ class GameScene extends Phaser.Scene {
       if (lvl === 0) { // Level 1 (Gentle Intro)
         addPlat(-80, 460, 340, 80);
         addPlat(320, 460, 260, 80);
-        addPlat(640, 460, 320, 80);
+        addPlat(640, 460, 400, 80);
         addSpike(290, 450);
         addSpike(610, 450);
-        addPlat(800, 400, 160, 60);
+        addPlat(800, 400, 240, 60);
 
         this.exitGate = this.physics.add.sprite(750, 437, "door_tex");
         this.exitGate.fleeOnProximity = true;
@@ -1806,7 +1839,7 @@ class GameScene extends Phaser.Scene {
         this.exitGate.targetY = 377;
         this.exitGate.fleeMessage = "Oops! Just a little hop! 😃";
       } else if (lvl === 1) { // Level 2: Boulder Crusher
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         addCrusher(360, 60);
         addCrusher(640, 60);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
@@ -1815,11 +1848,11 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(220, 460, 100, 25);
         addFallingPlat(380, 460, 100, 25);
         addFallingPlat(540, 460, 100, 25);
-        addPlat(700, 460, 260, 80);
+        addPlat(700, 460, 340, 80);
         for (let sx = 190; sx <= 690; sx += 40) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 3) { // Level 4: Pop-Up Sand Spikes
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
           triggered: false,
           condition: (sc) => sc.player.x > 380,
@@ -1840,7 +1873,7 @@ class GameScene extends Phaser.Scene {
         addPlat(450, 360, 120, 25);
         addTrampoline(510, 352);
         addPlat(630, 340, 100, 25);
-        addPlat(780, 320, 180, 220);
+        addPlat(780, 320, 260, 220);
         for (let sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       } else { // Levels 6 - 30: Progressive Escalating Desert Gauntlets
@@ -1851,7 +1884,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(370, 400 - tier * 4, 100, 25);
         if (lvl % 3 === 0) addCrusher(520, 60);
         addFallingPlat(530, 360 - tier * 4, 100, 25);
-        addPlat(690, 320, 270, 220);
+        addPlat(690, 320, 350, 220);
         for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       }
@@ -1863,11 +1896,11 @@ class GameScene extends Phaser.Scene {
     else if (wIdx === 1) {
       if (lvl === 0) { // Level 1 (Ice Intro)
         addPlat(-80, 460, 480, 80);
-        addPlat(480, 460, 480, 80);
+        addPlat(480, 460, 560, 80);
         addSpike(440, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Falling Icicles
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         addIcicle(320, 120);
         addIcicle(580, 120);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
@@ -1878,11 +1911,11 @@ class GameScene extends Phaser.Scene {
         addPlat(400, 390, 120, 25);
         addIcicle(460, 100);
         addPlat(580, 360, 120, 25);
-        addPlat(760, 340, 200, 200);
+        addPlat(760, 340, 280, 200);
         for (let sx = 170; sx < 750; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
       } else if (lvl === 3) { // Level 4: Ice Avalanche Row
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         for (let ix = 240; ix <= 760; ix += 130) {
           addIcicle(ix, 80);
         }
@@ -1895,7 +1928,7 @@ class GameScene extends Phaser.Scene {
         addPlat(450, 360, 120, 25);
         addTrampoline(510, 352);
         addPlat(630, 340, 100, 25);
-        addPlat(780, 320, 180, 220);
+        addPlat(780, 320, 260, 220);
         for (let sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       } else { // Levels 6 - 30: Blizzard Chasm & Ice Spires
@@ -1906,7 +1939,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(370, 390 - tier * 3, 100, 25);
         addIcicle(420, 80);
         addFallingPlat(530, 350 - tier * 3, 100, 25);
-        addPlat(690, 320, 270, 220);
+        addPlat(690, 320, 350, 220);
         for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       }
@@ -1918,11 +1951,11 @@ class GameScene extends Phaser.Scene {
     else if (wIdx === 2) {
       if (lvl === 0) { // Level 1 (Obsidian Crypt Intro)
         addPlat(-80, 460, 460, 80);
-        addPlat(460, 460, 500, 80);
+        addPlat(460, 460, 580, 80);
         addSpike(420, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Laser Tripwire Beam
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         addLaser(480, 430, false);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 2) { // Level 3: Crypt Stepping Stones & Laser
@@ -1931,11 +1964,11 @@ class GameScene extends Phaser.Scene {
         addPlat(390, 380, 110, 25);
         addLaser(445, 350, true);
         addPlat(560, 350, 110, 25);
-        addPlat(730, 340, 230, 200);
+        addPlat(730, 340, 310, 200);
         for (let sx = 170; sx < 720; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
       } else if (lvl === 3) { // Level 4: Dual Pulsing Lasers
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         addLaser(340, 430, true);
         addLaser(620, 430, true);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
@@ -1947,7 +1980,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(370, 380 - tier * 3, 100, 25);
         if (lvl % 3 === 0) addLaser(490, 350 - tier * 3, true);
         addFallingPlat(530, 340 - tier * 3, 100, 25);
-        addPlat(690, 300, 270, 240);
+        addPlat(690, 300, 350, 240);
         for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
       }
@@ -1959,23 +1992,23 @@ class GameScene extends Phaser.Scene {
     else if (wIdx === 3) {
       if (lvl === 0) { // Level 1 (Gravity Intro)
         addPlat(-80, 460, 400, 80);
-        addPlat(-80, 0, width + 100, 50);
+        addPlat(-80, 0, width + 150, 50);
         addPlat(320, 240, 80, 300);
-        addPlat(400, 460, 560, 80);
+        addPlat(400, 460, 640, 80);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Inverted Spikes on Floor & Ceiling
         addPlat(-80, 460, 440, 80);
-        addPlat(-80, 0, width + 100, 50);
-        addPlat(500, 460, 460, 80);
+        addPlat(-80, 0, width + 150, 50);
+        addPlat(500, 460, 540, 80);
         for (let sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else { // Levels 3 - 30: Gravity Maze Chambers
         addPlat(-80, 460, 260, 80);
-        addPlat(-80, 0, width + 100, 50);
+        addPlat(-80, 0, width + 150, 50);
         addPlat(240, 180, 120, 25);
         addPlat(420, 360, 120, 25);
         addPlat(600, 180, 120, 25);
-        addPlat(780, 460, 180, 80);
+        addPlat(780, 460, 260, 80);
         for (let sx = 190; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       }
@@ -1990,12 +2023,12 @@ class GameScene extends Phaser.Scene {
         const gb = addPlat(340, 460, 240, 80);
         gb.period = 1.6;
         this.glitchBlocks.push(gb);
-        addPlat(640, 460, 320, 80);
+        addPlat(640, 460, 400, 80);
         addSpike(300, 450);
         addSpike(600, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Control Flip Zone!
-        addPlat(-80, 460, width + 100, 80);
+        addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
           triggered: false,
           condition: (sc) => sc.player.x > 320,
@@ -2019,7 +2052,7 @@ class GameScene extends Phaser.Scene {
         const gb3 = addFallingPlat(530, 340 - tier * 3, 100, 25);
         gb3.period = 1.6;
         this.glitchBlocks.push(gb3);
-        addPlat(690, 300, 270, 240);
+        addPlat(690, 300, 350, 240);
         for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
       }
@@ -2088,4 +2121,4 @@ try {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with Edge-to-Edge Theme Backgrounds & Left Spawn Wall Protection! Size:", len(code))
+print("game.js generated with Magnetic Exit Gate Pull & Right Wall Protection! Size:", len(code))
