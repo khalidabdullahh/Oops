@@ -1,14 +1,14 @@
-# Comprehensive Multiverse Engine with 5 Distinct World Mechanics & Handcrafted 30-Level Curves
+# Updated Multiverse Engine with crystal-clear Shadow Crypt atmospheric lighting & no blinding shroud
 code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Completely Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Unique Physics, Exclusive Traps & Progressive Difficulty per World
+//  Crystal-Clear Visuals & Tailored Physics per World
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
 // ─── 1. Save Manager ─────────────────────────────────────────
-const SAVE_KEY = "oops_multiverse_v5";
+const SAVE_KEY = "oops_multiverse_v6";
 
 const SaveManager = {
   getInitialState() {
@@ -194,7 +194,7 @@ const AudioEngine = {
   }
 };
 
-// ─── 3. 5 Unique Multiverse Worlds Configuration ─────────────
+// ─── 3. 5 Multiverse Worlds Configuration ────────────────────
 const WORLD_THEMES = [
   {
     id: 0,
@@ -230,12 +230,12 @@ const WORLD_THEMES = [
     id: 2,
     name: "SHADOW CRYPT",
     badge: "WORLD 3",
-    subtitle: "Darkness torchlight radius, phantom traps & laser tripwires",
-    gimmickName: "TORCHLIGHT & PHANTOM MAZES",
-    bg: 0x1a0728,
-    platform: 0x8a5ca8,
-    platformTop: 0xa878c8,
-    spike: 0xd63031,
+    subtitle: "Mystic obsidian cavern, phantom traps & laser tripwires",
+    gimmickName: "OBSIDIAN CRYPT & LASER TRIPWIRES",
+    bg: 0x240e34,
+    platform: 0x7b449b,
+    platformTop: 0x9d5ebd,
+    spike: 0xe056fd,
     door: 0xffffff,
     island: 0x5a2d78,
     islandBorder: 0x401c59,
@@ -278,7 +278,7 @@ function getTheme(worldIdx) {
   return WORLD_THEMES[idx];
 }
 
-// ─── 4. BootScene: Character & Asset Generation ──────────────
+// ─── 4. BootScene: Assets & Animations ───────────────────────
 class BootScene extends Phaser.Scene {
   constructor() {
     super("BootScene");
@@ -289,7 +289,6 @@ class BootScene extends Phaser.Scene {
     this.createWorldAssets();
     this.createAnimations();
 
-    // Start in Overworld Island Map
     this.scene.start("WorldSelectScene");
   }
 
@@ -331,28 +330,23 @@ class BootScene extends Phaser.Scene {
         return;
       }
 
-      // Headband fluttering ribbons
       g.fillStyle(0xd63031, 1);
       g.fillRect(2, 8 + yOff, 5, 4);
       g.fillStyle(0xff3838, 1);
       g.fillRect(0, 10 + yOff, 4, 4);
 
-      // Cartoon Head (Skin Tone)
       g.fillStyle(0xffdbac, 1);
       g.fillCircle(16, 12 + yOff, 10);
 
-      // Red Ninja Headband across forehead
       g.fillStyle(0xff3838, 1);
       g.fillRect(6, 6 + yOff, 20, 4);
       g.fillStyle(0xf1c40f, 1);
       g.fillRect(15, 6 + yOff, 2, 4);
 
-      // Cheerful Pink Cheeks
       g.fillStyle(0xff7675, 0.75);
       g.fillCircle(10, 15 + yOff, 2);
       g.fillCircle(22, 15 + yOff, 2);
 
-      // Eyes
       if (blink) {
         g.lineStyle(2, 0x111111, 1);
         g.lineBetween(11, 12 + yOff, 14, 12 + yOff);
@@ -382,17 +376,14 @@ class BootScene extends Phaser.Scene {
         g.lineBetween(14, 18 + yOff, 18, 18 + yOff);
       }
 
-      // Shirt / Tunic
       g.fillStyle(0x0984e3, 1);
       g.fillRoundedRect(8, 20 + yOff, 16, 10, 3);
 
-      // Gold Belt
       g.fillStyle(0xf1c40f, 1);
       g.fillRect(8, 28 + yOff, 16, 3);
       g.fillStyle(0xe67e22, 1);
       g.fillRect(14, 27 + yOff, 4, 5);
 
-      // Arms
       if (armsUp) {
         g.fillStyle(0x0984e3, 1);
         g.fillRect(5, 14 + yOff, 4, 8);
@@ -409,7 +400,6 @@ class BootScene extends Phaser.Scene {
         g.fillCircle(25.5, 28 + yOff, 2);
       }
 
-      // Legs & Boots
       g.fillStyle(0x2d3436, 1);
       const leg1X = 10 + legOffset;
       const leg2X = 18 - legOffset;
@@ -435,7 +425,6 @@ class BootScene extends Phaser.Scene {
   }
 
   createWorldAssets() {
-    // 1. Platform Texture
     const platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0xffffff, 1);
     platGfx.fillRect(0, 0, 32, 32);
@@ -443,7 +432,6 @@ class BootScene extends Phaser.Scene {
     platGfx.fillRect(0, 0, 32, 3);
     platGfx.generateTexture("plat_tex", 32, 32);
 
-    // 2. Sharp Spikes (Up)
     const spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
     spkGfx.fillStyle(0xffffff, 1);
     spkGfx.beginPath();
@@ -454,7 +442,6 @@ class BootScene extends Phaser.Scene {
     spkGfx.fill();
     spkGfx.generateTexture("spike_up", 20, 20);
 
-    // 3. Hanging Icicle (Downwards Spike)
     const iciGfx = this.make.graphics({ x: 0, y: 0, add: false });
     iciGfx.fillStyle(0x70a1ff, 1);
     iciGfx.beginPath();
@@ -467,7 +454,6 @@ class BootScene extends Phaser.Scene {
     iciGfx.fillRect(8, 2, 4, 16);
     iciGfx.generateTexture("icicle_tex", 20, 28);
 
-    // 4. Crusher Block
     const crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
     crushGfx.fillStyle(0x2d3436, 1);
     crushGfx.fillRoundedRect(0, 0, 60, 60, 4);
@@ -482,7 +468,6 @@ class BootScene extends Phaser.Scene {
     crushGfx.fillTriangle(40, 60, 50, 72, 60, 60);
     crushGfx.generateTexture("crusher_tex", 60, 72);
 
-    // 5. White Arch Exit Door
     const doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0xffffff, 1);
     doorGfx.fillRoundedRect(0, 0, 32, 46, 10);
@@ -490,7 +475,6 @@ class BootScene extends Phaser.Scene {
     doorGfx.fillRoundedRect(4, 8, 24, 38, 8);
     doorGfx.generateTexture("door_tex", 32, 46);
 
-    // 6. Trampoline Pad
     const trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
     trampGfx.fillStyle(0x2ed573, 1);
     trampGfx.fillRoundedRect(0, 8, 32, 8, 3);
@@ -498,17 +482,15 @@ class BootScene extends Phaser.Scene {
     trampGfx.fillRoundedRect(4, 2, 24, 6, 2);
     trampGfx.generateTexture("tramp_tex", 32, 16);
 
-    // 7. Particle Dot
     const dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dotGfx.fillStyle(0xffffff, 1);
     dotGfx.fillCircle(4, 4, 4);
     dotGfx.generateTexture("part_dot", 8, 8);
 
-    // 8. Laser Beam Texture
     const lsrGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    lsrGfx.fillStyle(0xff4757, 1);
+    lsrGfx.fillStyle(0xe056fd, 1);
     lsrGfx.fillRect(0, 0, 4, 60);
-    lsrGfx.fillStyle(0xffffff, 0.8);
+    lsrGfx.fillStyle(0xffffff, 0.85);
     lsrGfx.fillRect(1, 0, 2, 60);
     lsrGfx.generateTexture("laser_tex", 4, 60);
   }
@@ -600,7 +582,6 @@ class WorldSelectScene extends Phaser.Scene {
     const theme = getTheme(this.currentWorldIdx);
     const maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
 
-    // 1. Top Header Title
     const titleText = this.add.text(width / 2, 34, "Oops! - WORLD MAP", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "22px",
@@ -610,7 +591,6 @@ class WorldSelectScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.islandContainer.add(titleText);
 
-    // Sound Toggle (Top-Right)
     const sndText = this.add.text(width - 40, 34, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "22px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
@@ -621,7 +601,6 @@ class WorldSelectScene extends Phaser.Scene {
     });
     this.islandContainer.add(sndText);
 
-    // 2. Large Pixel Organic World Island
     const islandW = 820, islandH = 370;
     const islandX = width / 2, islandY = height / 2 + 25;
 
@@ -634,7 +613,6 @@ class WorldSelectScene extends Phaser.Scene {
     islGfx.strokeRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     this.islandContainer.add(islGfx);
 
-    // World Banner & Mechanics Badge
     const worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, `${theme.badge}: ${theme.name}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "14px",
@@ -651,7 +629,6 @@ class WorldSelectScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.islandContainer.add(subText);
 
-    // 3. Level Pagination Tabs (1-10 | 11-20 | 21-30)
     const tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
     const tabW = 160, tabGap = 12;
     const tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
@@ -684,7 +661,6 @@ class WorldSelectScene extends Phaser.Scene {
       this.islandContainer.add([tabGfx, tText, tabZone]);
     });
 
-    // 4. 10 Large Circular Level Nodes (2 rows of 5 nodes)
     const pageOffset = this.pageIdx * 10;
     const nodeSize = 52, gapX = 36, gapY = 24;
     const gridCols = 5, gridRows = 2;
@@ -767,7 +743,6 @@ class WorldSelectScene extends Phaser.Scene {
       }
     }
 
-    // 5. World Switching Navigation
     if (this.currentWorldIdx > 0) {
       const prevBtn = this.add.container(islandX - islandW / 2 + 70, islandY + islandH / 2 - 32);
       const pbGfx = this.add.graphics();
@@ -818,7 +793,6 @@ class WorldSelectScene extends Phaser.Scene {
       this.islandContainer.add(nextBtn);
     }
 
-    // Direct Play Button for Active Level
     const playBtn = this.add.container(islandX, islandY + islandH / 2 - 32);
     const plGfx = this.add.graphics();
     plGfx.fillStyle(0x2ed573, 1);
@@ -862,8 +836,8 @@ class GameScene extends Phaser.Scene {
     this.touchLeft = false;
     this.touchRight = false;
     this.touchJump = false;
-    this.controlsInverted = false; // World 5 Glitch mechanic
-    this.iceVelocityX = 0; // World 2 Ice momentum
+    this.controlsInverted = false;
+    this.iceVelocityX = 0;
   }
 
   create() {
@@ -873,26 +847,22 @@ class GameScene extends Phaser.Scene {
     AudioEngine.init();
     AudioEngine.startMusic();
 
-    // 1. World Background
     this.bgGfx = this.add.graphics();
     this.bgGfx.fillStyle(theme.bg, 1);
     this.bgGfx.fillRect(0, 0, width, height);
 
-    // 2. Physics Groups
     this.platforms = this.physics.add.staticGroup();
     this.spikes = this.physics.add.staticGroup();
     this.crushers = this.physics.add.group();
-    this.icicles = this.physics.add.group(); // World 2 falling icicles
-    this.lasers = this.physics.add.group(); // World 3 laser tripwires
-    this.glitchBlocks = []; // World 5 shifting glitch blocks
+    this.icicles = this.physics.add.group();
+    this.lasers = this.physics.add.group();
+    this.glitchBlocks = [];
     this.trampolines = this.physics.add.staticGroup();
     this.fallingPlatforms = [];
     this.customTriggers = [];
 
-    // 3. Build Level Layout for this specific World & Level
     this.buildWorldLevel(this.currentWorld, this.currentLevel);
 
-    // 4. Create Animated Cartoon Hero
     this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "hero_idle_1");
     this.player.setCollideWorldBounds(false);
     this.player.body.setSize(22, 34);
@@ -900,7 +870,6 @@ class GameScene extends Phaser.Scene {
     this.player.body.setGravityY(1400);
     this.player.anims.play("hero_anim_idle");
 
-    // Collisions
     this.physics.add.collider(this.player, this.platforms, this.onPlatformCollide, null, this);
     this.physics.add.collider(this.player, this.trampolines, this.onTrampolineCollide, null, this);
     this.physics.add.overlap(this.player, this.spikes, this.onPlayerDie, null, this);
@@ -912,7 +881,6 @@ class GameScene extends Phaser.Scene {
       this.physics.add.overlap(this.player, this.exitGate, this.onReachExit, null, this);
     }
 
-    // 5. Input Controls
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -921,30 +889,32 @@ class GameScene extends Phaser.Scene {
     this.keyShift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
-    // 6. World 3 Torchlight Mask (Dark Crypt Vision)
-    if (this.currentWorld === 2) {
-      this.createShadowTorchlight();
-    }
-
-    // 7. World 2 Blizzard Particle Atmosphere
     if (this.currentWorld === 1) {
       this.createBlizzardParticles();
     }
 
-    // 8. Minimalist HUD
+    if (this.currentWorld === 2) {
+      this.createShadowAmbiance();
+    }
+
     this.createHUD();
-
-    // 9. On-Screen Touch Gamepad
     this.createMobileGamepad();
-
-    // 10. Sliding Intro Banner
     this.showLevelBanner();
   }
 
-  createShadowTorchlight() {
+  createShadowAmbiance() {
     const { width, height } = this.scale;
-    // Dark shroud over cavern
-    this.darkShroud = this.add.graphics().setDepth(120);
+    // Ambient mystic purple glowing dust particles
+    this.add.particles(0, 0, "part_dot", {
+      x: { min: 0, max: width },
+      y: { min: 0, max: height },
+      lifespan: 2500,
+      speedY: { min: -20, max: 20 },
+      scale: { start: 0.8, end: 0 },
+      alpha: { start: 0.5, end: 0 },
+      tint: [0xe056fd, 0xbe2edd, 0xffffff],
+      frequency: 140
+    });
   }
 
   createBlizzardParticles() {
@@ -953,7 +923,7 @@ class GameScene extends Phaser.Scene {
       x: { min: 0, max: width },
       y: { min: -20, max: height },
       lifespan: 2200,
-      speedX: { min: -180, max: -80 }, // Wind blowing left!
+      speedX: { min: -180, max: -80 },
       speedY: { min: 80, max: 200 },
       scale: { start: 0.8, end: 0 },
       alpha: { start: 0.6, end: 0 },
@@ -988,14 +958,12 @@ class GameScene extends Phaser.Scene {
     const { width } = this.scale;
     const theme = getTheme(this.currentWorld);
 
-    // Top-Left: Level Title & World Gimmick
     this.levelText = this.add.text(25, 20, `${theme.badge} · LV ${this.currentLevel + 1}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ffffff"
     }).setDepth(200);
 
-    // Top-Right: Deaths & Map Return
     this.deathText = this.add.text(width - 90, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "11px",
@@ -1062,7 +1030,6 @@ class GameScene extends Phaser.Scene {
     makeTouchBtn(width - 75, padY, 95, 52, "▲", () => { this.touchJump = true; }, () => { this.touchJump = false; });
     makeTouchBtn(width - 160, padY, 50, 42, "↺", () => { this.restartLevel(); }, null);
 
-    // Gravity flip button for World 4
     if (this.currentWorld === 3) {
       makeTouchBtn(width - 225, padY, 50, 42, "⇄", () => { this.flipGravity(); }, null);
     }
@@ -1074,24 +1041,20 @@ class GameScene extends Phaser.Scene {
     this.levelTime += dt;
     const { width, height } = this.scale;
 
-    // Pit fall death check
     if (this.player.y > height + 25 || this.player.y < -120 || this.player.x < -60 || this.player.x > width + 60) {
       this.onPlayerDie();
       return;
     }
 
-    // 1. Horizontal Movement & Direction Facing
     let moveLeft = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
     let moveRight = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
 
-    // World 5 Glitch Core: Invert Controls Zone
     if (this.controlsInverted) {
       const temp = moveLeft;
       moveLeft = moveRight;
       moveRight = temp;
     }
 
-    // World 2 Frost Spire: Slippery Ice Momentum Physics
     if (this.currentWorld === 1) {
       const targetSpeed = moveLeft ? -240 : (moveRight ? 240 : 0);
       const accel = 600 * dt;
@@ -1116,7 +1079,6 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // 2. Jumping & Coyote Time
     const onFloor = (this.gravityDir === 1) ? this.player.body.blocked.down : this.player.body.blocked.up;
     if (onFloor) {
       this.coyoteTimer = 0.12;
@@ -1152,7 +1114,6 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    // 3. Cartoon Animation State Machine
     if (!onFloor) {
       if (this.player.body.velocity.y * this.gravityDir < 0) {
         this.player.anims.play("hero_anim_jump", true);
@@ -1167,43 +1128,17 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // 4. Gravity Flip (World 4)
     if (this.currentWorld === 3) {
       if (Phaser.Input.Keyboard.JustDown(this.keyShift) || Phaser.Input.Keyboard.JustDown(this.keyF)) {
         this.flipGravity();
       }
     }
 
-    // 5. R key restart
     if (Phaser.Input.Keyboard.JustDown(this.keyR)) {
       this.restartLevel();
     }
 
-    // 6. Interactive Hazards for this World
     this.updateWorldHazards(dt);
-
-    // 7. World 3 Dynamic Torchlight Vision Rendering
-    if (this.currentWorld === 2 && this.darkShroud) {
-      this.updateShadowTorchlight();
-    }
-  }
-
-  updateShadowTorchlight() {
-    const { width, height } = this.scale;
-    const px = this.player.x, py = this.player.y;
-    const radius = 130;
-
-    this.darkShroud.clear();
-    this.darkShroud.fillStyle(0x06010c, 0.94);
-    this.darkShroud.fillRect(0, 0, width, height);
-
-    // Cut a light hole around player
-    this.darkShroud.beginPath();
-    this.darkShroud.arc(px, py, radius, 0, Math.PI * 2);
-    this.darkShroud.arc(px, py, radius + 35, 0, Math.PI * 2, true);
-    this.darkShroud.closePath();
-    this.darkShroud.fillStyle(0x06010c, 0.5);
-    this.darkShroud.fill();
   }
 
   flipGravity() {
@@ -1215,7 +1150,6 @@ class GameScene extends Phaser.Scene {
   }
 
   updateWorldHazards(dt) {
-    // A. Crushers (World 1 & World 4)
     this.crushers.getChildren().forEach(crusher => {
       const dist = Math.abs(this.player.x - crusher.x);
       if (!crusher.isDropping && !crusher.isRetracting && dist < 75 && this.player.y > crusher.y) {
@@ -1239,7 +1173,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // B. Falling Icicles (World 2 Frost Spire)
     this.icicles.getChildren().forEach(icicle => {
       const dist = Math.abs(this.player.x - icicle.x);
       if (!icicle.hasFallen && dist < 65 && this.player.y > icicle.y) {
@@ -1250,7 +1183,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // C. Laser Tripwires (World 3 Shadow Crypt)
     this.lasers.getChildren().forEach(laser => {
       if (laser.isPulsing) {
         laser.pulseTimer = (laser.pulseTimer || 0) + dt;
@@ -1262,7 +1194,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // D. Flickering Glitch Blocks (World 5 Glitch Core)
     this.glitchBlocks.forEach(gb => {
       gb.flickerTimer = (gb.flickerTimer || 0) + dt;
       if (gb.flickerTimer > gb.period) {
@@ -1273,7 +1204,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // E. Fleeing Exit Door
     if (this.exitGate && this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
       if (dist < 100) {
@@ -1290,7 +1220,6 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // F. Falling Crumbling Platforms
     this.fallingPlatforms.forEach(p => {
       if (p.stepped && !p.hasFallen) {
         p.shakeTimer -= dt;
@@ -1304,7 +1233,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // G. Custom Triggers
     this.customTriggers.forEach(t => {
       if (!t.triggered && t.condition(this)) {
         t.triggered = true;
@@ -1406,7 +1334,7 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // ─── 7. World-Specific Level Generators (30 Distinct Levels Each) ─
+  // ─── 7. World-Specific Handcrafted Level Layouts ─────────────
   buildWorldLevel(wIdx, lvl) {
     const { width, height } = this.scale;
     const theme = getTheme(wIdx);
@@ -1472,7 +1400,7 @@ class GameScene extends Phaser.Scene {
     this.spawnY = 410;
 
     // ─────────────────────────────────────────────────────────────
-    // 🏜️ WORLD 1: DESERT RUINS (Crumbling Floors & Sandstone Traps)
+    // 🏜️ WORLD 1: DESERT RUINS (Sandstone Crumble & Troll Traps)
     // ─────────────────────────────────────────────────────────────
     if (wIdx === 0) {
       if (lvl === 0) { // Level 1 (Gentle Intro)
@@ -1578,27 +1506,27 @@ class GameScene extends Phaser.Scene {
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 🔮 WORLD 3: SHADOW CRYPT (Torchlight Vision & Laser Tripwires)
+    // 🔮 WORLD 3: SHADOW CRYPT (Mystic Obsidian & Laser Tripwires)
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 2) {
-      if (lvl === 0) { // Level 1 (Torchlight Intro)
-        addPlat(0, 460, 450, 80);
-        addPlat(540, 460, 420, 80);
-        addSpike(495, 450);
+      if (lvl === 0) { // Level 1 (Obsidian Crypt Intro - Jump over crypt pit)
+        addPlat(0, 460, 380, 80);
+        addPlat(460, 460, 500, 80);
+        addSpike(420, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Laser Tripwire Beam
+      } else if (lvl === 1) { // Level 2: Laser Tripwire Beam (Jump over laser!)
         addPlat(0, 460, width, 80);
-        addLaser(450, 400, false);
+        addLaser(480, 430, false);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 2) { // Level 3: Crypt Stepping Stones in Darkness
-        addPlat(0, 460, 160, 80);
+      } else if (lvl === 2) { // Level 3: Crypt Stepping Stones & Laser
+        addPlat(0, 460, 180, 80);
         addPlat(260, 420, 100, 25);
         addPlat(460, 380, 100, 25);
-        addLaser(510, 320, true);
+        addLaser(510, 350, true);
         addPlat(680, 340, 280, 200);
         for (let sx = 180; sx < 660; sx += 40) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
-      } else { // Levels 4 - 30: Pulsing Lasers & Phantom Labyrinth
+      } else { // Levels 4 - 30: Pulsing Lasers & Shadow Crypt Labyrinth
         const tier = Math.floor(lvl / 5);
         addPlat(0, 460, 160, 80);
         addFallingPlat(220, 420 - tier * 3, 90, 25);
@@ -1720,4 +1648,4 @@ try {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with 5 unique world mechanics and 150 stages! Size:", len(code))
+print("game.js generated with crystal-clear World 3! Size:", len(code))
