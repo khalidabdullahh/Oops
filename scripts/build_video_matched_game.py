@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Generator script for Oops! with video-matched aesthetics and pit fall death fix
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Ultra-Sharp Phaser 3 Edition
 //  Faithfully matched to Reference: Organic World Island Map & Monochromatic Caverns
 // ═══════════════════════════════════════════════════════════════
@@ -1425,3 +1426,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js generated with reference-matched aesthetics and pit fall death fix! Size:", len(code))
