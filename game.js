@@ -61,10 +61,17 @@ function stopMusic() {
 }
 
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new AudioCtx();
-    startMusic();
-  }
+  try {
+    if (!audioCtx && AudioCtx) {
+      audioCtx = new AudioCtx();
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+      audioCtx.resume().catch(()=>{});
+    }
+    if (audioCtx && !musicInterval && gameState === "playing") {
+      startMusic();
+    }
+  } catch(e) {}
 }
 
 function playTone(freq, type = "square", duration = 0.08, vol = 0.15, delay = 0) {
@@ -3013,11 +3020,37 @@ function loop(ts) {
 
 // ─── Button Handlers ─────────────────────────────────────────
 
+function bindAction(elOrId, handler) {
+  const el = typeof elOrId === "string" ? document.getElementById(elOrId) : elOrId;
+  if (!el) return;
+  
+  let touchActive = false;
+  
+  const trigger = (e) => {
+    if (e) {
+      if (e.type === "touchend") {
+        touchActive = true;
+        setTimeout(() => { touchActive = false; }, 350);
+      } else if (e.type === "click" && touchActive) {
+        return;
+      }
+    }
+    initAudio();
+    try {
+      handler(e);
+    } catch(err) {
+      console.error("Button error:", err);
+    }
+  };
+
+  el.addEventListener("click", trigger);
+  el.addEventListener("touchend", trigger, { passive: true });
+}
+
 // Logo Click animation and SFX trigger
 const logoSpan = document.querySelector(".title-oops");
 if (logoSpan) {
-  logoSpan.addEventListener("click", () => {
-    initAudio();
+  bindAction(logoSpan, () => {
     SFX.trap();
     logoSpan.classList.add("bounce-click");
     setTimeout(() => {
@@ -3027,31 +3060,28 @@ if (logoSpan) {
 }
 
 // PLAY GAME — start from level 0 (or first unlocked)
-document.getElementById("start-btn").addEventListener("click", () => {
-  initAudio();
+bindAction("start-btn", () => {
   startLevel(0);
 });
 
 // SELECT WORLD & LEVEL — open Multiverse & Level Select Map Screen
-document.getElementById("select-world-btn")?.addEventListener("click", () => {
-  initAudio();
+bindAction("select-world-btn", () => {
   refreshMultiverseSelector();
   showScreen("multiverse");
 });
 
 // CONTINUE — load saved level
-document.getElementById("continue-btn")?.addEventListener("click", () => {
-  initAudio();
+bindAction("continue-btn", () => {
   const saved = SaveManager.load();
   if (saved) {
     deaths       = saved.deaths || 0;
-    currentLevel = Math.min(saved.level, getMaxLevels() - 1);
+    currentLevel = Math.min(saved.level || 0, getMaxLevels() - 1);
   }
   startLevel(currentLevel);
 });
 
 // START OVER link inside continue section
-document.getElementById("new-game-link")?.addEventListener("click", () => {
+bindAction("new-game-link", () => {
   if (confirm("Start over? Your saved progress will be deleted.")) {
     SaveManager.clear();
     deaths = 0;
@@ -3062,14 +3092,12 @@ document.getElementById("new-game-link")?.addEventListener("click", () => {
 });
 
 // Click anywhere on death screen to instant retry
-document.getElementById("death-screen").addEventListener("click", () => {
-  initAudio();
+bindAction("death-screen", () => {
   startLevel(currentLevel);
 });
 
 // NEXT LEVEL after completing a level
-document.getElementById("next-btn").addEventListener("click", () => {
-  initAudio();
+bindAction("next-btn", () => {
   currentLevel++;
   if (currentLevel >= getMaxLevels()) {
     gameState = "gamecomplete";
@@ -3081,19 +3109,11 @@ document.getElementById("next-btn").addEventListener("click", () => {
 });
 
 // PLAY AGAIN after game complete — full reset
-document.getElementById("play-again-btn").addEventListener("click", () => {
-  initAudio();
+bindAction("play-again-btn", () => {
   deaths = 0;
   currentLevel = 0;
   startLevel(0);
 });
-
-// ─── Instant Game Startup ────────────────────────────────────
-gameState = "start";
-refreshStartScreen();
-showScreen("start");
-lastTime = performance.now();
-requestAnimationFrame(loop);
 
 // ─── Multiverse & Level Select Map Screen Logic ───────────────
 function refreshMultiverseSelector() {
@@ -3117,9 +3137,8 @@ function refreshMultiverseSelector() {
         btn.classList.add("locked");
         btn.title = `Level ${i + 1} (Locked)`;
       }
-      btn.addEventListener("click", () => {
+      bindAction(btn, () => {
         if (i <= maxUnlocked) {
-          initAudio();
           startLevel(i);
         }
       });
@@ -3130,24 +3149,21 @@ function refreshMultiverseSelector() {
 
 // Bind World buttons to jump directly to world starting levels
 document.querySelectorAll("[data-world]").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    initAudio();
-    const wIdx = parseInt(e.currentTarget.getAttribute("data-world") || "0", 10);
+  bindAction(btn, () => {
+    const wIdx = parseInt(btn.getAttribute("data-world") || "0", 10);
     const startLvl = wIdx * 6;
     startLevel(startLvl);
   });
 });
 
 // Back to main menu
-document.getElementById("mv-back-btn").addEventListener("click", () => {
-  initAudio();
+bindAction("mv-back-btn", () => {
   refreshStartScreen();
   showScreen("start");
 });
 
 // HUD Home button (exit to world & level select)
-document.getElementById("btn-home").addEventListener("click", () => {
-  initAudio();
+bindAction("btn-home", () => {
   if (musicInterval) {
     clearInterval(musicInterval);
     musicInterval = null;
@@ -3156,4 +3172,11 @@ document.getElementById("btn-home").addEventListener("click", () => {
   refreshMultiverseSelector();
   showScreen("multiverse");
 });
+
+// ─── Instant Game Startup ────────────────────────────────────
+gameState = "start";
+refreshStartScreen();
+showScreen("start");
+lastTime = performance.now();
+requestAnimationFrame(loop);
 
