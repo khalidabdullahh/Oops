@@ -38,11 +38,16 @@
     <div class="rotate-desc">Rotate to landscape for full-screen gameplay!</div>
   </div>
 
-  <!-- Instant Visual Splash Loader (Removed upon game load) -->
+  <!-- High-Speed Progressive Splash Loader (Removed upon game load) -->
   <div id="game-loader">
-    <div class="loader-logo">Oops!</div>
-    <div class="loader-spinner"></div>
-    <div class="loader-text">LOADING FAIR TRAPS...</div>
+    <div class="loader-card">
+      <div class="loader-logo">Oops!</div>
+      <div class="loader-tagline">A TOTALLY FAIR MULTIVERSE</div>
+      <div class="loader-bar-wrap">
+        <div id="loader-bar-fill" class="loader-bar-fill"></div>
+      </div>
+      <div id="loader-status" class="loader-status">STARTING ENGINE (20%)...</div>
+    </div>
   </div>
 
   <div id="game-container"></div>
@@ -129,7 +134,7 @@
     </div>
   </div>
 
-  <!-- Instant Cache Purge & Clean Service Worker Lifecycle -->
+  <!-- High-Speed Progressive Loader & Clean Service Worker Lifecycle -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -138,17 +143,45 @@
         }
       }).catch(function(){});
     }
+
+    (function() {
+      var bar = document.getElementById('loader-bar-fill');
+      var txt = document.getElementById('loader-status');
+      function setProgress(pct, msg) {
+        if (bar) bar.style.width = pct + '%';
+        if (txt) txt.textContent = msg + ' (' + pct + '%)';
+      }
+
+      function loadScript(src, onSuccess, onError) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.async = false;
+        s.onload = onSuccess;
+        s.onerror = onError;
+        document.head.appendChild(s);
+      }
+
+      setProgress(25, 'CONNECTING ENGINE');
+
+      // 1. Try Cloudflare Edge CDN first (Brotli compressed ~280KB, worldwide edge caching)
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js', function() {
+        setProgress(70, 'LOADING MULTIVERSE WORLDS');
+        loadScript('game.js?v=5.3.0', function() {
+          setProgress(100, 'READY!');
+        });
+      }, function() {
+        // 2. Failover to local phaser.min.js if CDN is blocked or offline
+        setProgress(50, 'LOADING LOCAL ENGINE');
+        loadScript('phaser.min.js', function() {
+          setProgress(85, 'LOADING MULTIVERSE WORLDS');
+          loadScript('game.js?v=5.3.0', function() {
+            setProgress(100, 'READY!');
+          });
+        }, function() {
+          setProgress(100, 'STARTING...');
+        });
+      });
+    })();
   </script>
-  <!-- Phaser 3 Engine (Local + Cloudflare CDN Failover) -->
-  <script src="phaser.min.js"></script>
-  <script>
-    if (typeof Phaser === 'undefined') {
-      var s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js';
-      s.async = false;
-      document.head.appendChild(s);
-    }
-  </script>
-  <script src="game.js?v=5.1.0"></script>
 </body>
 </html>

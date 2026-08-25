@@ -84,45 +84,64 @@
   }
 }
 
-/* ── Instant Game Loader Splash ────────────────────────── */
+/* ── High-Speed Progressive Game Loader ──────────────────── */
 #game-loader {
   position: fixed;
   inset: 0;
-  z-index: 99999;
-  background: #8a2c14;
+  z-index: 999999;
+  background: #0d0f17;
+  background: radial-gradient(ellipse at center, #1a1d2e 0%, #08090f 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
   font-family: 'Press Start 2P', monospace, sans-serif;
   color: #ffffff;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
   user-select: none;
   -webkit-user-select: none;
 }
+.loader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+}
 .loader-logo {
-  font-size: clamp(36px, 8vw, 64px);
+  font-size: clamp(36px, 8vw, 56px);
   color: #ffd32a;
   text-shadow: 0 0 20px rgba(255, 211, 42, 0.7), 4px 4px 0px #000;
   letter-spacing: 3px;
   animation: logoPulse 1.2s ease-in-out infinite alternate;
 }
-.loader-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.15);
-  border-top-color: #ffd32a;
-  border-radius: 50%;
-  animation: spinLoader 0.75s linear infinite;
-}
-.loader-text {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.85);
+.loader-tagline {
+  font-size: 8px;
+  color: #ff4757;
   letter-spacing: 1px;
 }
-@keyframes spinLoader {
-  to { transform: rotate(360deg); }
+.loader-bar-wrap {
+  width: 100%;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 2px;
+}
+.loader-bar-fill {
+  width: 20%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff4757, #ffd32a, #2ed573);
+  border-radius: 4px;
+  transition: width 0.15s ease;
+}
+.loader-status {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
 }
 @keyframes logoPulse {
   from { transform: scale(0.96); }
