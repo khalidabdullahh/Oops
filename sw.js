@@ -1,8 +1,9 @@
-const CACHE = "oops-v7";
+const CACHE = "oops-phaser-v1";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
+  "./phaser.min.js",
   "./game.js",
   "./manifest.json"
 ];

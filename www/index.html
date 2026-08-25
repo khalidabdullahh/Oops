@@ -12,158 +12,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css?v=3.5.0"/>
+  <link rel="stylesheet" href="style.css?v=4.0.0"/>
 </head>
 <body>
-  <div id="game-wrapper">
-    <canvas id="gameCanvas"></canvas>
+  <div id="game-container"></div>
 
-    <div id="ui-overlay">
-      <!-- HUD -->
-      <div id="hud" class="hidden">
-        <div id="level-progress-bar"><div id="level-progress-fill" style="width:10%"></div></div>
-        <div id="level-display">LEVEL <span id="level-num">1</span></div>
-        <div id="deaths-display">💀 <span id="death-count">0</span></div>
-        <div id="timer-display">⏱ <span id="timer-val">0.0</span>s</div>
-        <div id="hud-buttons">
-          <button id="btn-home" title="Exit to Multiverse Select">🏡</button>
-          <button id="btn-sound-toggle" title="Toggle Sound">🔊</button>
-          <button id="btn-touch-toggle" title="Toggle On-Screen Controls">🎮</button>
-        </div>
-      </div>
-
-      <!-- Mobile On-Screen Gamepad Controls -->
-      <div id="mobile-controls">
-        <div id="dpad">
-          <button class="touch-btn dpad-btn" id="btn-left" aria-label="Left">◀</button>
-          <button class="touch-btn dpad-btn" id="btn-right" aria-label="Right">▶</button>
-        </div>
-        <div id="action-buttons">
-          <button class="touch-btn restart-btn" id="btn-restart" aria-label="Restart">↺ R</button>
-          <button class="touch-btn flip-btn hidden" id="btn-flip" aria-label="Flip Gravity">⇄ FLIP</button>
-          <button class="touch-btn jump-btn" id="btn-jump" aria-label="Jump">▲ JUMP</button>
-        </div>
-      </div>
-
-      <!-- Start Screen (Visible by default on load) -->
-      <div id="start-screen" class="screen">
-        <div class="screen-content">
-          <div class="game-title">
-            <span class="title-oops">Oops!</span>
-          </div>
-          <div class="subtitle">a totally fair game 😇</div>
-          <div class="controls-hint">
-            <div class="ctrl">PC: ← → / A D — Move &nbsp;|&nbsp; Space / W — Jump &nbsp;|&nbsp; R — Restart</div>
-            <div class="ctrl">Mobile: Use On-Screen Gamepad Buttons Below</div>
-          </div>
-          <!-- Continue button — shown only if saved progress exists -->
-          <div id="continue-section" class="hidden">
-            <div class="saved-progress-info">📁 Saved: <span id="saved-level-text">Level 1</span> · 💀 <span id="saved-deaths-text">0</span> deaths</div>
-            <button id="continue-btn" class="game-btn glow">▶ CONTINUE</button>
-            <div class="new-game-link" id="new-game-link">↺ Start Over</div>
-          </div>
-          <button id="start-btn" class="game-btn pulse">▶ PLAY GAME</button>
-          <button id="select-world-btn" class="game-btn text-btn" style="color:var(--accent2)!important;font-size:11px!important;padding:6px 12px!important;margin-top:-6px;">🗺️ SELECT WORLD & LEVEL</button>
-          <div class="warning-text">⚠️ Trust nothing. Question everything.</div>
-        </div>
-      </div>
-
-      <!-- Multiverse & Level Select Map Screen -->
-      <div id="multiverse-screen" class="screen hidden">
-        <div class="screen-content level-select-content">
-          <div class="multiverse-title">SELECT WORLD & LEVEL</div>
-          
-          <div class="multiverse-list">
-            <!-- World 1: Desert Ruins -->
-            <div class="multiverse-card" id="card-w1">
-              <div class="mv-name">🏜️ Desert Ruins</div>
-              <div class="mv-gimmick">Lv 1-6 · Collapsing floors & fleeing gates.</div>
-              <div class="mv-stats" id="stats-w1">Levels 1 - 6</div>
-              <button class="mv-btn game-btn" data-world="0">PLAY WORLD</button>
-            </div>
-            
-            <!-- World 2: Frost Spire -->
-            <div class="multiverse-card" id="card-w2">
-              <div class="mv-name">❄️ Frost Spire</div>
-              <div class="mv-gimmick">Lv 7-12 · Slippery ice & icicle crushers.</div>
-              <div class="mv-stats" id="stats-w2">Levels 7 - 12</div>
-              <button class="mv-btn game-btn" data-world="1">PLAY WORLD</button>
-            </div>
-            
-            <!-- World 3: Shadow Crypt -->
-            <div class="multiverse-card" id="card-w3">
-              <div class="mv-name">🏰 Shadow Crypt</div>
-              <div class="mv-gimmick">Lv 13-18 · Dark ambushes & crossfire lasers.</div>
-              <div class="mv-stats" id="stats-w3">Levels 13 - 18</div>
-              <button class="mv-btn game-btn" data-world="2">PLAY WORLD</button>
-            </div>
-
-            <!-- World 4: Gravity Nexus -->
-            <div class="multiverse-card" id="card-w4">
-              <div class="mv-name">🌀 Gravity Nexus</div>
-              <div class="mv-gimmick">Lv 19-24 · Inverted walking & ceiling saws.</div>
-              <div class="mv-stats" id="stats-w4">Levels 19 - 24</div>
-              <button class="mv-btn game-btn" data-world="3">PLAY WORLD</button>
-            </div>
-
-            <!-- World 5: Glitch Core -->
-            <div class="multiverse-card" id="card-w5">
-              <div class="mv-name">⚡ Glitch Core</div>
-              <div class="mv-gimmick">Lv 25-30 · Chromatic flickers & troll finale.</div>
-              <div class="mv-stats" id="stats-w5">Levels 25 - 30</div>
-              <button class="mv-btn game-btn" data-world="4">PLAY WORLD</button>
-            </div>
-          </div>
-
-          <!-- Level Nodes Grid (1-30) -->
-          <div class="level-grid-section">
-            <div class="level-grid-title">OR CHOOSE A SPECIFIC LEVEL:</div>
-            <div id="level-nodes-container" class="level-nodes-grid"></div>
-          </div>
-          
-          <button id="mv-back-btn" class="game-btn text-btn" style="margin-top: 10px;">◀ Back to Menu</button>
-        </div>
-      </div>
-
-      <!-- Death Screen -->
-      <div id="death-screen" class="screen hidden">
-        <div class="screen-content">
-          <div class="death-title" id="death-title">Oops!</div>
-          <div class="death-msg" id="death-msg">Almost had it!</div>
-          <div class="death-count-big">💀 <span id="death-big">0</span> deaths</div>
-          <div class="retry-hint">Click or Tap anywhere to Retry</div>
-        </div>
-      </div>
-
-      <!-- Level Complete -->
-      <div id="level-complete" class="screen hidden">
-        <div class="screen-content">
-          <div class="win-title">LEVEL CLEAR!</div>
-          <div class="win-time">Time: <span id="win-time">0.0</span>s</div>
-          <div class="win-rating" id="win-rating">⭐⭐⭐</div>
-          <button id="next-btn" class="game-btn glow">NEXT LEVEL →</button>
-        </div>
-      </div>
-
-      <!-- Game Complete -->
-      <div id="game-complete" class="screen hidden">
-        <div class="screen-content">
-          <div class="complete-title">YOU WIN! 🏆</div>
-          <div class="complete-sub">You actually did it. Oops!</div>
-          <div class="final-deaths">Total Deaths: <span id="final-deaths">0</span></div>
-          <button id="play-again-btn" class="game-btn glow">▶ PLAY AGAIN</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- Offline Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=3.5.0').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=4.0.0').then(reg => {
         reg.update();
       }).catch(()=>{});
     }
   </script>
-  <script src="game.js?v=3.5.0"></script>
+  <!-- Phaser 3 Engine (Local + CDN Fallback) -->
+  <script src="phaser.min.js"></script>
+  <script>
+    if (typeof Phaser === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\\/script>');
+    }
+  </script>
+  <script src="game.js?v=4.0.0"></script>
 </body>
 </html>

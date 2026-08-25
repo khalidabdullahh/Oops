@@ -1,5 +1,5 @@
 /* ============================================================
-   Oops! – Style Sheet
+   Oops! – Phaser 3 Style Sheet
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -52,25 +52,29 @@ html, body {
   background: var(--bg);
   overflow: hidden;
   font-family: 'Press Start 2P', monospace;
-  touch-action: manipulation;
+  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#game-wrapper {
-  position: relative;
-  width: 100vw; 
+#game-container {
+  width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
+  overflow: hidden;
 }
 
-#gameCanvas {
+canvas {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
 }
 
 /* ── UI Overlay ─────────────────────────────────────────── */
