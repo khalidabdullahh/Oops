@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Comprehensive Multiverse Engine with 5 Distinct World Mechanics & Handcrafted 30-Level Curves
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Completely Unique Worlds x 30 Handcrafted Stages (150 Total)
 //  Unique Physics, Exclusive Traps & Progressive Difficulty per World
@@ -1714,3 +1715,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js generated with 5 unique world mechanics and 150 stages! Size:", len(code))
