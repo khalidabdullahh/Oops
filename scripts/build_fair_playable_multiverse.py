@@ -1,8 +1,8 @@
-# Generator script with Rock-Solid Modal Hiding & DOM Ready Phaser Initialization
+# Generator script for Ultra-Fast Instant Boot & Rock-Solid Stability
 code = r'''// ═══════════════════════════════════════════════════════════════
-//  Oops! – Multiverse Platformer Edition
+//  Oops! – Multiverse Platformer Edition (v5.0.0 Fast Boot)
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Rock-Solid Modal Hiding & Dynamic Scaled Phaser Engine
+//  Ultra-Fast Boot & Magnetic Exit Gate & Edge-to-Edge Sync
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -339,7 +339,7 @@ const FeedbackManager = {
     const btnSnap = document.getElementById("btn-snap-screen");
     const btnRemove = document.getElementById("btn-remove-preview");
 
-    // Ensure hidden on init
+    // Strictly ensure modal is hidden on init
     if (modal) {
       modal.style.display = "none";
       modal.classList.add("hidden");
@@ -498,7 +498,6 @@ const FeedbackManager = {
       imageSection = `\n\n### 📸 Attached Screenshot\n> *Screenshot file: ${this.attachedImage.name}*\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*`;
     }
 
-    // 1. Format Markdown Issue for GitHub
     const issueTitle = encodeURIComponent(`[${category}] Feedback from ${name} on ${worldName} ${levelName}`);
     const issueBody = encodeURIComponent(`### 👤 Player Information
 - **Player Name / Nickname:** ${name}
@@ -518,7 +517,6 @@ ${message}${imageSection}
 
     const githubIssueUrl = `https://github.com/khalidabdullahh/Oops/issues/new?title=${issueTitle}&body=${issueBody}`;
 
-    // 2. Save locally in localStorage for backup
     try {
       const logs = JSON.parse(localStorage.getItem("oops_feedback_logs") || "[]");
       logs.push({
@@ -535,9 +533,7 @@ ${message}${imageSection}
       localStorage.setItem("oops_feedback_logs", JSON.stringify(logs));
     } catch(e) {}
 
-    // 3. Open GitHub issue in a new window/tab
     window.open(githubIssueUrl, "_blank");
-
     this.close();
 
     const msgInput = document.getElementById("fb-message");
@@ -680,6 +676,7 @@ class BootScene extends Phaser.Scene {
         g.fillRect(8, 30 + yOff, 6, 6);
         g.fillRect(18, 30 + yOff, 6, 6);
         g.generateTexture(key, 32, 40);
+        g.destroy();
         return;
       }
 
@@ -764,6 +761,7 @@ class BootScene extends Phaser.Scene {
       g.fillRoundedRect(leg2X - 1, 34 + yOff, 6, 5, 2);
 
       g.generateTexture(key, 32, 40);
+      g.destroy();
     };
 
     drawHeroFrame("hero_idle_1", { blink: false, bobY: 0, legOffset: 0 });
@@ -784,6 +782,7 @@ class BootScene extends Phaser.Scene {
     platGfx.fillStyle(0x000000, 0.12);
     platGfx.fillRect(0, 0, 32, 3);
     platGfx.generateTexture("plat_tex", 32, 32);
+    platGfx.destroy();
 
     const spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
     spkGfx.fillStyle(0xffffff, 1);
@@ -794,6 +793,7 @@ class BootScene extends Phaser.Scene {
     spkGfx.closePath();
     spkGfx.fill();
     spkGfx.generateTexture("spike_up", 20, 20);
+    spkGfx.destroy();
 
     const iciGfx = this.make.graphics({ x: 0, y: 0, add: false });
     iciGfx.fillStyle(0x70a1ff, 1);
@@ -806,6 +806,7 @@ class BootScene extends Phaser.Scene {
     iciGfx.fillStyle(0xffffff, 0.7);
     iciGfx.fillRect(8, 2, 4, 16);
     iciGfx.generateTexture("icicle_tex", 20, 28);
+    iciGfx.destroy();
 
     const crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
     crushGfx.fillStyle(0x2d3436, 1);
@@ -820,6 +821,7 @@ class BootScene extends Phaser.Scene {
     crushGfx.fillTriangle(20, 60, 30, 72, 40, 60);
     crushGfx.fillTriangle(40, 60, 50, 72, 60, 60);
     crushGfx.generateTexture("crusher_tex", 60, 72);
+    crushGfx.destroy();
 
     const doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0xffffff, 1);
@@ -827,6 +829,7 @@ class BootScene extends Phaser.Scene {
     doorGfx.fillStyle(0x2d3436, 1);
     doorGfx.fillRoundedRect(4, 8, 24, 38, 8);
     doorGfx.generateTexture("door_tex", 32, 46);
+    doorGfx.destroy();
 
     const trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
     trampGfx.fillStyle(0x2ed573, 1);
@@ -834,11 +837,13 @@ class BootScene extends Phaser.Scene {
     trampGfx.fillStyle(0xff4757, 1);
     trampGfx.fillRoundedRect(4, 2, 24, 6, 2);
     trampGfx.generateTexture("tramp_tex", 32, 16);
+    trampGfx.destroy();
 
     const dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dotGfx.fillStyle(0xffffff, 1);
     dotGfx.fillCircle(4, 4, 4);
     dotGfx.generateTexture("part_dot", 8, 8);
+    dotGfx.destroy();
 
     const lsrGfx = this.make.graphics({ x: 0, y: 0, add: false });
     lsrGfx.fillStyle(0xe056fd, 1);
@@ -846,6 +851,7 @@ class BootScene extends Phaser.Scene {
     lsrGfx.fillStyle(0xffffff, 0.85);
     lsrGfx.fillRect(1, 0, 2, 60);
     lsrGfx.generateTexture("laser_tex", 4, 60);
+    lsrGfx.destroy();
   }
 
   createAnimations() {
@@ -1406,7 +1412,6 @@ class GameScene extends Phaser.Scene {
 
     // ── 🧲 EXIT GATE MAGNETIC ATTRACTION & RIGHT BOUNDARY PROTECTION ──
     if (this.exitGate) {
-      // Prevent player from walking past the exit gate into the right void
       const maxGateX = this.exitGate.x + 20;
       if (this.player.x > maxGateX) {
         this.player.x = maxGateX;
@@ -1416,7 +1421,6 @@ class GameScene extends Phaser.Scene {
         }
       }
 
-      // Check proximity for Flee trap vs Magnetic Win Attraction
       if (this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
         if (dist < 100) {
@@ -1432,7 +1436,6 @@ class GameScene extends Phaser.Scene {
           this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
         }
       } else {
-        // Magnetic Suction Zone: whenever player gets near or tries to jump over gate, suck into exit!
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
         const dx = Math.abs(this.player.x - this.exitGate.x);
         const dy = Math.abs(this.player.y - this.exitGate.y);
@@ -2138,8 +2141,12 @@ window.addEventListener("orientationchange", () => {
   }, 200);
 });
 
-// Launch Game Instance on DOM Ready
+// Fast Direct Boot
 function launchOopsGame() {
+  if (typeof Phaser === "undefined") {
+    setTimeout(launchOopsGame, 30);
+    return;
+  }
   if (!window.game) {
     try {
       window.game = new Phaser.Game(config);
@@ -2149,14 +2156,10 @@ function launchOopsGame() {
   }
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", launchOopsGame);
-} else {
-  launchOopsGame();
-}
+launchOopsGame();
 '''
 
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with rock-solid modal protection! Size:", len(code))
+print("game.js generated with Fast Direct Boot! Size:", len(code))

@@ -111,21 +111,18 @@
     </div>
   </div>
 
-  <!-- Offline Service Worker -->
+  <!-- Instant Cache Purge & Clean Service Worker Lifecycle -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=4.7.0').then(reg => {
-        reg.update();
-      }).catch(()=>{});
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      }).catch(function(){});
     }
   </script>
-  <!-- Phaser 3 Engine (Local + CDN Fallback) -->
+  <!-- Phaser 3 Engine -->
   <script src="phaser.min.js"></script>
-  <script>
-    if (typeof Phaser === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\\/script>');
-    }
-  </script>
-  <script src="game.js?v=4.7.0"></script>
+  <script src="game.js?v=5.0.0"></script>
 </body>
 </html>
