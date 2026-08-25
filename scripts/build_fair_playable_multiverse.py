@@ -1,8 +1,8 @@
-# Generator script guaranteeing 100% physically beatable levels + responsive mobile viewport & anchored touch controls
+# Generator script guaranteeing 100% physically beatable levels + responsive mobile viewport & in-game feedback/report system
 code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  100% Responsive Viewport & Ergonomic Mobile Touch Gamepad
+//  100% Responsive Viewport & In-Game GitHub Feedback System
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -272,7 +272,149 @@ const MobileGamepad = {
   }
 };
 
-// ─── 4. 5 Multiverse Worlds Configuration ────────────────────
+// ─── 4. In-Game Player Feedback & GitHub Report Manager ───────
+const FeedbackManager = {
+  initialized: false,
+
+  init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    const modal = document.getElementById("feedback-modal");
+    const btnOpen = document.getElementById("btn-open-feedback");
+    const btnClose = document.getElementById("btn-close-feedback");
+    const btnCancel = document.getElementById("btn-cancel-feedback");
+    const form = document.getElementById("feedback-form");
+
+    if (btnOpen) {
+      btnOpen.addEventListener("click", () => this.open());
+    }
+    if (btnClose) {
+      btnClose.addEventListener("click", () => this.close());
+    }
+    if (btnCancel) {
+      btnCancel.addEventListener("click", () => this.close());
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) this.close();
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.submit();
+      });
+    }
+  },
+
+  open() {
+    this.init();
+    const modal = document.getElementById("feedback-modal");
+    if (!modal) return;
+
+    let worldName = "World 1 (Desert Ruins)";
+    let levelNum = 1;
+    let deathsCount = SaveManager.getTotalDeaths();
+
+    if (window.game && window.game.scene) {
+      const gScene = window.game.scene.getScene("GameScene");
+      if (gScene && window.game.scene.isActive("GameScene")) {
+        const theme = getTheme(gScene.currentWorld);
+        worldName = `${theme.badge} (${theme.name})`;
+        levelNum = gScene.currentLevel + 1;
+        deathsCount = gScene.deaths;
+      } else {
+        const wsScene = window.game.scene.getScene("WorldSelectScene");
+        if (wsScene) {
+          const theme = getTheme(wsScene.currentWorldIdx);
+          worldName = `${theme.badge} (${theme.name})`;
+          levelNum = SaveManager.getWorldUnlocked(wsScene.currentWorldIdx) + 1;
+        }
+      }
+    }
+
+    const currWorldEl = document.getElementById("fb-curr-world");
+    const currLevelEl = document.getElementById("fb-curr-level");
+    const currDeathsEl = document.getElementById("fb-curr-deaths");
+    if (currWorldEl) currWorldEl.textContent = worldName;
+    if (currLevelEl) currLevelEl.textContent = `Level ${levelNum}`;
+    if (currDeathsEl) currDeathsEl.textContent = `${deathsCount}`;
+
+    modal.classList.remove("hidden");
+    const msgInput = document.getElementById("fb-message");
+    if (msgInput) msgInput.focus();
+  },
+
+  close() {
+    const modal = document.getElementById("feedback-modal");
+    if (modal) modal.classList.add("hidden");
+  },
+
+  submit() {
+    const category = document.getElementById("fb-category")?.value || "General Feedback";
+    const name = document.getElementById("fb-name")?.value?.trim() || "Anonymous Player";
+    const message = document.getElementById("fb-message")?.value?.trim() || "";
+
+    const worldName = document.getElementById("fb-curr-world")?.textContent || "World 1";
+    const levelName = document.getElementById("fb-curr-level")?.textContent || "Level 1";
+    const deaths = document.getElementById("fb-curr-deaths")?.textContent || "0";
+
+    if (!message) return;
+
+    // 1. Format Markdown Issue for GitHub
+    const issueTitle = encodeURIComponent(`[${category}] Feedback from ${name} on ${worldName} ${levelName}`);
+    const issueBody = encodeURIComponent(`### 👤 Player Information
+- **Player Name / Nickname:** ${name}
+- **Feedback Category:** ${category}
+
+### 🎮 Game Context
+- **World & Level:** ${worldName} · ${levelName}
+- **Total Deaths:** 💀 ${deaths}
+- **Device / Screen:** ${window.innerWidth}x${window.innerHeight} (${('ontouchstart' in window) ? 'Touch Device' : 'Desktop'})
+- **Submission Time:** ${new Date().toISOString()}
+
+### 💡 Feedback & Improvement Suggestions
+${message}
+
+---
+*Submitted via Oops! In-Game Feedback System*`);
+
+    const githubIssueUrl = `https://github.com/khalidabdullahh/Oops/issues/new?title=${issueTitle}&body=${issueBody}`;
+
+    // 2. Save locally in localStorage for backup
+    try {
+      const logs = JSON.parse(localStorage.getItem("oops_feedback_logs") || "[]");
+      logs.push({
+        name,
+        category,
+        message,
+        worldName,
+        levelName,
+        deaths,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem("oops_feedback_logs", JSON.stringify(logs));
+    } catch(e) {}
+
+    // 3. Open GitHub issue in a new window/tab
+    window.open(githubIssueUrl, "_blank");
+
+    this.close();
+
+    const gScene = window.game?.scene?.getScene("GameScene");
+    if (gScene && window.game?.scene?.isActive("GameScene")) {
+      gScene.showTrollToast("Feedback Prepared! Opening GitHub... 🚀");
+    }
+
+    const msgInput = document.getElementById("fb-message");
+    if (msgInput) msgInput.value = "";
+  }
+};
+
+// ─── 5. 5 Multiverse Worlds Configuration ────────────────────
 const WORLD_THEMES = [
   {
     id: 0,
@@ -356,7 +498,7 @@ function getTheme(worldIdx) {
   return WORLD_THEMES[idx];
 }
 
-// ─── 5. BootScene: Assets & Animations ───────────────────────
+// ─── 6. BootScene: Assets & Animations ───────────────────────
 class BootScene extends Phaser.Scene {
   constructor() {
     super("BootScene");
@@ -367,6 +509,7 @@ class BootScene extends Phaser.Scene {
     this.createWorldAssets();
     this.createAnimations();
 
+    FeedbackManager.init();
     this.scene.start("WorldSelectScene");
   }
 
@@ -609,7 +752,7 @@ class BootScene extends Phaser.Scene {
   }
 }
 
-// ─── 6. WorldSelectScene: 30 Levels per World Island Map ─────
+// ─── 7. WorldSelectScene: 30 Levels per World Island Map ─────
 class WorldSelectScene extends Phaser.Scene {
   constructor() {
     super("WorldSelectScene");
@@ -896,7 +1039,7 @@ class WorldSelectScene extends Phaser.Scene {
   }
 }
 
-// ─── 7. GameScene: Core Platformer & 5 World Engines ─────────
+// ─── 8. GameScene: Core Platformer & 5 World Engines ─────────
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -1408,7 +1551,7 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // ─── 8. Handcrafted & Guaranteed Beatable Level Layouts ───────
+  // ─── 9. Handcrafted & Guaranteed Beatable Level Layouts ───────
   buildWorldLevel(wIdx, lvl) {
     const { width, height } = this.scale;
     const theme = getTheme(wIdx);
@@ -1712,7 +1855,7 @@ class GameScene extends Phaser.Scene {
   }
 }
 
-// ─── 9. Phaser Game Configuration & Dynamic Scale Manager ────
+// ─── 10. Phaser Game Configuration & Dynamic Scale Manager ───
 const config = {
   type: Phaser.AUTO,
   parent: "game-container",
@@ -1772,4 +1915,4 @@ try {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js successfully regenerated with responsive viewport & anchored mobile gamepad! Size:", len(code))
+print("game.js successfully regenerated with In-Game Feedback & Report Manager! Size:", len(code))

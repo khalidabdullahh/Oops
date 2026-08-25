@@ -29,6 +29,54 @@
 <body>
   <div id="game-container"></div>
 
+  <!-- Feedback & Report Trigger Button (Top-Right) -->
+  <button type="button" id="btn-open-feedback" class="feedback-trigger-btn" aria-label="Submit Feedback or Report">
+    💬 Feedback
+  </button>
+
+  <!-- In-Game Player Feedback & Bug Report Modal -->
+  <div id="feedback-modal" class="modal-overlay hidden">
+    <div class="feedback-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">💬 PLAYER REPORT &amp; FEEDBACK</div>
+        <button type="button" id="btn-close-feedback" class="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <p class="modal-desc">Share your opinion, report a bug, or suggest improvements directly to GitHub!</p>
+
+      <form id="feedback-form">
+        <div class="form-row">
+          <label for="fb-category">Category</label>
+          <select id="fb-category" class="feedback-input">
+            <option value="💡 Suggestion / Idea">💡 Suggestion / Improvement Idea</option>
+            <option value="🐛 Bug Report">🐛 Bug Report / Glitch</option>
+            <option value="⚖️ Level Difficulty">⚖️ Level Difficulty Balance</option>
+            <option value="🎨 Visual &amp; Sound">🎨 Visual &amp; Audio Feedback</option>
+            <option value="⭐ General Feedback">⭐ General Feedback</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="fb-name">Your Name / Nickname</label>
+          <input type="text" id="fb-name" class="feedback-input" placeholder="e.g. NinjaMaster (optional)" maxlength="40" />
+        </div>
+
+        <div class="form-row">
+          <label for="fb-message">Your Feedback / Improvement Idea</label>
+          <textarea id="fb-message" class="feedback-textarea" rows="4" placeholder="Tell us what you liked, what felt unfair, or how to make Oops! even better..." required></textarea>
+        </div>
+
+        <div class="fb-meta-info" id="fb-meta-info">
+          📍 Game Context: <span id="fb-curr-world">World 1</span> · <span id="fb-curr-level">Level 1</span> · 💀 <span id="fb-curr-deaths">0</span> Deaths
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-feedback" class="fb-btn-cancel">Cancel</button>
+          <button type="submit" id="btn-submit-feedback" class="fb-btn-submit">🚀 Submit to GitHub</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Responsive On-Screen Mobile Gamepad -->
   <div id="mobile-gamepad" class="hidden">
     <div class="touch-cluster-left">
