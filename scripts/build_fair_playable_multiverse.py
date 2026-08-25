@@ -1,16 +1,16 @@
-# Generator script with Arcade Bezel, Theme Ambient Glow, SafeStorage, and Failover Scripting
+# Generator script with ES2018 Compatibility (No Optional Chaining), WebGL-to-Canvas Fallback, and Auto-Splash Removal
 code = r'''// ═══════════════════════════════════════════════════════════════
-//  Oops! – Multiverse Platformer Edition (v5.2.0 Arcade Edition)
+//  Oops! – Multiverse Platformer Edition (v5.4.0 Ultra-Compatible)
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Sleek Arcade Bezel & Theme Glow, SafeStorage & Fast Direct Boot
+//  Zero-Crash WebGL/Canvas Fallback & Universal Mobile Support
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
 // ─── 0. Universal In-App & Safe Storage (Never crashes on iOS/Incognito) ───
-let _memoryStore = {};
-const SafeStorage = {
-  getItem(key) {
+var _memoryStore = {};
+var SafeStorage = {
+  getItem: function(key) {
     try {
       if (typeof window !== "undefined" && window.localStorage) {
         return window.localStorage.getItem(key);
@@ -18,7 +18,7 @@ const SafeStorage = {
     } catch(e) {}
     return _memoryStore[key] || null;
   },
-  setItem(key, val) {
+  setItem: function(key, val) {
     try {
       if (typeof window !== "undefined" && window.localStorage) {
         window.localStorage.setItem(key, val);
@@ -31,10 +31,10 @@ const SafeStorage = {
 // ─── Dynamic Fullscreen & Background Sync Helper ─────────────
 function toggleFullScreen() {
   try {
-    const doc = document.documentElement;
+    var doc = document.documentElement;
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
       if (doc.requestFullscreen && typeof doc.requestFullscreen === "function") {
-        doc.requestFullscreen().catch(()=>{});
+        doc.requestFullscreen().catch(function(){});
       } else if (doc.webkitRequestFullscreen && typeof doc.webkitRequestFullscreen === "function") {
         doc.webkitRequestFullscreen();
       } else if (doc.msRequestFullscreen && typeof doc.msRequestFullscreen === "function") {
@@ -42,7 +42,7 @@ function toggleFullScreen() {
       }
     } else {
       if (document.exitFullscreen && typeof document.exitFullscreen === "function") {
-        document.exitFullscreen().catch(()=>{});
+        document.exitFullscreen().catch(function(){});
       } else if (document.webkitExitFullscreen && typeof document.webkitExitFullscreen === "function") {
         document.webkitExitFullscreen();
       }
@@ -52,13 +52,13 @@ function toggleFullScreen() {
 
 function autoLandscapeFullScreen() {
   try {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+    var isLandscape = window.innerWidth > window.innerHeight;
+    var isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
     if (isLandscape && isMobile) {
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        const doc = document.documentElement;
+        var doc = document.documentElement;
         if (doc.requestFullscreen && typeof doc.requestFullscreen === "function") {
-          doc.requestFullscreen().catch(()=>{});
+          doc.requestFullscreen().catch(function(){});
         } else if (doc.webkitRequestFullscreen && typeof doc.webkitRequestFullscreen === "function") {
           try { doc.webkitRequestFullscreen(); } catch(e){}
         }
@@ -71,32 +71,36 @@ window.addEventListener("pointerdown", autoLandscapeFullScreen, { passive: true 
 
 function syncBodyBackground(theme) {
   try {
-    const canvas = document.querySelector("canvas");
+    var canvas = document.querySelector("canvas");
     if (canvas && theme) {
-      const accentHex = "#" + (theme.accent || 0xffd32a).toString(16).padStart(6, "0");
-      canvas.style.borderColor = `rgba(255, 255, 255, 0.22)`;
-      canvas.style.boxShadow = `0 0 0 1px rgba(0, 0, 0, 0.95), 0 12px 45px rgba(0, 0, 0, 0.88), 0 0 30px ${accentHex}40`;
+      var accentHex = "#" + (theme.accent || 0xffd32a).toString(16).padStart(6, "0");
+      canvas.style.borderColor = "rgba(255, 255, 255, 0.22)";
+      canvas.style.boxShadow = "0 0 0 1px rgba(0, 0, 0, 0.95), 0 12px 45px rgba(0, 0, 0, 0.88), 0 0 30px " + accentHex + "40";
     }
   } catch(e) {}
 }
 
 function removeLoaderSplash() {
   try {
-    const loader = document.getElementById("game-loader");
+    var loader = document.getElementById("game-loader");
     if (loader) {
       loader.style.opacity = "0";
-      setTimeout(() => {
+      loader.style.pointerEvents = "none";
+      setTimeout(function() {
         if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 300);
+      }, 200);
     }
   } catch(e) {}
 }
 
-// ─── 1. Save Manager (Bulletproof Storage) ───────────────────
-const SAVE_KEY = "oops_multiverse_v9";
+// Safety timeout: ensure splash is never permanently stuck
+setTimeout(removeLoaderSplash, 1500);
 
-const SaveManager = {
-  getInitialState() {
+// ─── 1. Save Manager (Bulletproof Storage) ───────────────────
+var SAVE_KEY = "oops_multiverse_v9";
+
+var SaveManager = {
+  getInitialState: function() {
     return {
       worlds: {
         0: { maxUnlocked: 0, cleared: [] },
@@ -110,11 +114,11 @@ const SaveManager = {
     };
   },
 
-  load() {
+  load: function() {
     try {
-      const raw = SafeStorage.getItem(SAVE_KEY);
+      var raw = SafeStorage.getItem(SAVE_KEY);
       if (!raw) return this.getInitialState();
-      const data = JSON.parse(raw);
+      var data = JSON.parse(raw);
       if (!data || !data.worlds) return this.getInitialState();
       return data;
     } catch(e) {
@@ -122,13 +126,13 @@ const SaveManager = {
     }
   },
 
-  saveLevelClear(worldIdx, levelIdx, deaths) {
+  saveLevelClear: function(worldIdx, levelIdx, deaths) {
     try {
-      const data = this.load();
+      var data = this.load();
       if (!data.worlds[worldIdx]) {
         data.worlds[worldIdx] = { maxUnlocked: 0, cleared: [] };
       }
-      const w = data.worlds[worldIdx];
+      var w = data.worlds[worldIdx];
       if (!w.cleared.includes(levelIdx)) {
         w.cleared.push(levelIdx);
       }
@@ -139,34 +143,34 @@ const SaveManager = {
     } catch(e) {}
   },
 
-  saveDeaths(deaths) {
+  saveDeaths: function(deaths) {
     try {
-      const data = this.load();
+      var data = this.load();
       data.deaths = deaths;
       SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
   },
 
-  getWorldUnlocked(worldIdx) {
-    const data = this.load();
-    const w = data.worlds[worldIdx];
+  getWorldUnlocked: function(worldIdx) {
+    var data = this.load();
+    var w = data.worlds[worldIdx];
     return w ? (w.maxUnlocked || 0) : 0;
   },
 
-  isLevelCleared(worldIdx, levelIdx) {
-    const data = this.load();
-    const w = data.worlds[worldIdx];
+  isLevelCleared: function(worldIdx, levelIdx) {
+    var data = this.load();
+    var w = data.worlds[worldIdx];
     return w && w.cleared && w.cleared.includes(levelIdx);
   },
 
-  getTotalDeaths() {
-    const data = this.load();
+  getTotalDeaths: function() {
+    var data = this.load();
     return data.deaths || 0;
   }
 };
 
 // ─── 2. Web Audio Synthesizer (Zero-Crash iOS/Mobile Audio) ──
-const AudioEngine = {
+var AudioEngine = {
   ctx: null,
   muted: false,
   musicTimer: null,
@@ -178,26 +182,31 @@ const AudioEngine = {
     174, 220, 261, 349, 196, 246, 293, 392
   ],
 
-  init() {
+  init: function() {
     try {
       if (!this.ctx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
         if (AudioContext) {
           this.ctx = new AudioContext();
         }
       }
       if (this.ctx && this.ctx.state === "suspended") {
-        this.ctx.resume().catch(()=>{});
+        this.ctx.resume().catch(function(){});
       }
     } catch(e) {}
   },
 
-  playTone(freq, type = "square", duration = 0.08, vol = 0.15, delay = 0) {
+  playTone: function(freq, type, duration, vol, delay) {
+    if (!type) type = "square";
+    if (duration === undefined) duration = 0.08;
+    if (vol === undefined) vol = 0.15;
+    if (delay === undefined) delay = 0;
+
     if (!this.ctx || this.muted) return;
     try {
-      const t = this.ctx.currentTime + delay;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+      var t = this.ctx.currentTime + delay;
+      var osc = this.ctx.createOscillator();
+      var gain = this.ctx.createGain();
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       osc.type = type;
@@ -209,71 +218,73 @@ const AudioEngine = {
     } catch(e) {}
   },
 
-  sfxJump() {
+  sfxJump: function() {
     this.playTone(320, "square", 0.08, 0.16);
     this.playTone(480, "square", 0.06, 0.14, 0.025);
   },
-  sfxLand() {
+  sfxLand: function() {
     this.playTone(130, "sawtooth", 0.04, 0.12);
   },
-  sfxDie() {
-    for (let i = 0; i < 5; i++) {
+  sfxDie: function() {
+    for (var i = 0; i < 5; i++) {
       this.playTone(460 - i * 75, "sawtooth", 0.1, 0.2, i * 0.05);
     }
   },
-  sfxWin() {
-    [523, 659, 784, 1047, 1318].forEach((f, i) => this.playTone(f, "square", 0.14, 0.2, i * 0.08));
+  sfxWin: function() {
+    var self = this;
+    [523, 659, 784, 1047, 1318].forEach(function(f, i) { self.playTone(f, "square", 0.14, 0.2, i * 0.08); });
   },
-  sfxTrap() {
+  sfxTrap: function() {
     this.playTone(240, "sawtooth", 0.12, 0.2);
     this.playTone(150, "sawtooth", 0.1, 0.16, 0.06);
   },
-  sfxPortal() {
-    for (let i = 0; i < 6; i++) {
+  sfxPortal: function() {
+    for (var i = 0; i < 6; i++) {
       this.playTone(320 + i * 85, "sine", 0.06, 0.14, i * 0.03);
     }
   },
-  sfxIcicle() {
+  sfxIcicle: function() {
     this.playTone(600, "sine", 0.08, 0.2);
     this.playTone(400, "triangle", 0.1, 0.15, 0.04);
   },
-  sfxLaser() {
+  sfxLaser: function() {
     this.playTone(750, "sawtooth", 0.08, 0.18);
     this.playTone(950, "square", 0.06, 0.15, 0.03);
   },
-  sfxGlitch() {
-    for (let i = 0; i < 4; i++) {
+  sfxGlitch: function() {
+    for (var i = 0; i < 4; i++) {
       this.playTone(180 + Math.random() * 600, "sawtooth", 0.04, 0.18, i * 0.03);
     }
   },
-  sfxCrush() {
+  sfxCrush: function() {
     this.playTone(95, "sawtooth", 0.25, 0.35);
     this.playTone(65, "square", 0.3, 0.4, 0.03);
   },
-  sfxBounce() {
+  sfxBounce: function() {
     this.playTone(280, "sine", 0.12, 0.2);
     this.playTone(580, "sine", 0.15, 0.25, 0.04);
   },
 
-  startMusic() {
+  startMusic: function() {
+    var self = this;
     if (this.musicTimer || this.muted) return;
     this.musicStep = 0;
-    this.musicTimer = setInterval(() => {
-      if (this.muted || !this.ctx) return;
-      const freq = this.melody[this.musicStep % this.melody.length];
-      this.playTone(freq, "triangle", 0.16, 0.025);
-      this.musicStep++;
+    this.musicTimer = setInterval(function() {
+      if (self.muted || !self.ctx) return;
+      var freq = self.melody[self.musicStep % self.melody.length];
+      self.playTone(freq, "triangle", 0.16, 0.025);
+      self.musicStep++;
     }, 220);
   },
 
-  stopMusic() {
+  stopMusic: function() {
     if (this.musicTimer) {
       clearInterval(this.musicTimer);
       this.musicTimer = null;
     }
   },
 
-  toggleMute() {
+  toggleMute: function() {
     this.muted = !this.muted;
     if (this.muted) this.stopMusic();
     else this.startMusic();
@@ -282,34 +293,35 @@ const AudioEngine = {
 };
 
 // ─── 3. Mobile Gamepad Controller Bridge (Ergonomic & Anchored)
-const MobileGamepad = {
+var MobileGamepad = {
   initialized: false,
   activeScene: null,
 
-  init() {
+  init: function() {
+    var self = this;
     if (this.initialized) return;
     this.initialized = true;
 
-    const btnLeft = document.getElementById("btn-left");
-    const btnRight = document.getElementById("btn-right");
-    const btnJump = document.getElementById("btn-jump");
-    const btnFlip = document.getElementById("btn-flip");
-    const btnRestart = document.getElementById("btn-restart");
+    var btnLeft = document.getElementById("btn-left");
+    var btnRight = document.getElementById("btn-right");
+    var btnJump = document.getElementById("btn-jump");
+    var btnFlip = document.getElementById("btn-flip");
+    var btnRestart = document.getElementById("btn-restart");
 
-    const bindButton = (el, onDown, onUp) => {
+    var bindButton = function(el, onDown, onUp) {
       if (!el) return;
 
-      const press = (e) => {
+      var press = function(e) {
         if (e.cancelable) e.preventDefault();
         el.classList.add("pressed");
         AudioEngine.init();
-        if (onDown && this.activeScene) onDown(this.activeScene);
+        if (onDown && self.activeScene) onDown(self.activeScene);
       };
 
-      const release = (e) => {
+      var release = function(e) {
         if (e.cancelable) e.preventDefault();
         el.classList.remove("pressed");
-        if (onUp && this.activeScene) onUp(this.activeScene);
+        if (onUp && self.activeScene) onUp(self.activeScene);
       };
 
       el.addEventListener("pointerdown", press, { passive: false });
@@ -322,20 +334,20 @@ const MobileGamepad = {
       el.addEventListener("touchcancel", release, { passive: false });
     };
 
-    bindButton(btnLeft, (s) => { s.touchLeft = true; }, (s) => { s.touchLeft = false; });
-    bindButton(btnRight, (s) => { s.touchRight = true; }, (s) => { s.touchRight = false; });
-    bindButton(btnJump, (s) => { s.touchJump = true; }, (s) => { s.touchJump = false; });
-    bindButton(btnFlip, (s) => { s.touchFlip = true; }, (s) => { s.touchFlip = false; });
-    bindButton(btnRestart, (s) => { s.touchRestart = true; }, (s) => { s.touchRestart = false; });
+    bindButton(btnLeft, function(s) { s.touchLeft = true; }, function(s) { s.touchLeft = false; });
+    bindButton(btnRight, function(s) { s.touchRight = true; }, function(s) { s.touchRight = false; });
+    bindButton(btnJump, function(s) { s.touchJump = true; }, function(s) { s.touchJump = false; });
+    bindButton(btnFlip, function(s) { s.touchFlip = true; }, function(s) { s.touchFlip = false; });
+    bindButton(btnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
   },
 
-  show(scene) {
+  show: function(scene) {
     this.init();
     this.activeScene = scene;
-    const gamepad = document.getElementById("mobile-gamepad");
+    var gamepad = document.getElementById("mobile-gamepad");
     if (!gamepad) return;
 
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
     if (isTouch) {
       gamepad.style.display = "flex";
       gamepad.classList.remove("hidden");
@@ -344,7 +356,7 @@ const MobileGamepad = {
       gamepad.classList.add("hidden");
     }
 
-    const btnFlip = document.getElementById("btn-flip");
+    var btnFlip = document.getElementById("btn-flip");
     if (btnFlip) {
       if (scene && scene.currentWorld === 3) {
         btnFlip.classList.remove("hidden");
@@ -356,9 +368,9 @@ const MobileGamepad = {
     }
   },
 
-  hide() {
+  hide: function() {
     this.activeScene = null;
-    const gamepad = document.getElementById("mobile-gamepad");
+    var gamepad = document.getElementById("mobile-gamepad");
     if (gamepad) {
       gamepad.style.display = "none";
       gamepad.classList.add("hidden");
@@ -367,22 +379,23 @@ const MobileGamepad = {
 };
 
 // ─── 4. In-Game Player Feedback & GitHub Report Manager ───────
-const FeedbackManager = {
+var FeedbackManager = {
   initialized: false,
-  attachedImage: null, // { name: string, dataUrl: string }
+  attachedImage: null,
 
-  init() {
+  init: function() {
+    var self = this;
     if (this.initialized) return;
     this.initialized = true;
 
-    const modal = document.getElementById("feedback-modal");
-    const btnClose = document.getElementById("btn-close-feedback");
-    const btnCancel = document.getElementById("btn-cancel-feedback");
-    const form = document.getElementById("feedback-form");
+    var modal = document.getElementById("feedback-modal");
+    var btnClose = document.getElementById("btn-close-feedback");
+    var btnCancel = document.getElementById("btn-cancel-feedback");
+    var form = document.getElementById("feedback-form");
 
-    const fileInput = document.getElementById("fb-image-input");
-    const btnSnap = document.getElementById("btn-snap-screen");
-    const btnRemove = document.getElementById("btn-remove-preview");
+    var fileInput = document.getElementById("fb-image-input");
+    var btnSnap = document.getElementById("btn-snap-screen");
+    var btnRemove = document.getElementById("btn-remove-preview");
 
     if (modal) {
       modal.style.display = "none";
@@ -390,25 +403,25 @@ const FeedbackManager = {
     }
 
     if (btnClose) {
-      btnClose.addEventListener("click", () => this.close());
+      btnClose.addEventListener("click", function() { self.close(); });
     }
     if (btnCancel) {
-      btnCancel.addEventListener("click", () => this.close());
+      btnCancel.addEventListener("click", function() { self.close(); });
     }
 
     if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) this.close();
+      modal.addEventListener("click", function(e) {
+        if (e.target === modal) self.close();
       });
     }
 
     if (fileInput) {
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files && e.target.files[0];
+      fileInput.addEventListener("change", function(e) {
+        var file = e.target.files && e.target.files[0];
         if (file) {
-          const reader = new FileReader();
-          reader.onload = (re) => {
-            this.setImagePreview(re.target.result, file.name);
+          var reader = new FileReader();
+          reader.onload = function(re) {
+            self.setImagePreview(re.target.result, file.name);
           };
           reader.readAsDataURL(file);
         }
@@ -416,35 +429,36 @@ const FeedbackManager = {
     }
 
     if (btnSnap) {
-      btnSnap.addEventListener("click", () => {
-        this.snapGameScreen();
+      btnSnap.addEventListener("click", function() {
+        self.snapGameScreen();
       });
     }
 
     if (btnRemove) {
-      btnRemove.addEventListener("click", () => {
-        this.clearImagePreview();
+      btnRemove.addEventListener("click", function() {
+        self.clearImagePreview();
       });
     }
 
     if (form) {
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", function(e) {
         e.preventDefault();
-        this.submit();
+        self.submit();
       });
     }
   },
 
-  snapGameScreen() {
+  snapGameScreen: function() {
+    var self = this;
     try {
-      const canvas = (window.game && window.game.canvas) || document.querySelector("canvas");
+      var canvas = (window.game && window.game.canvas) || document.querySelector("canvas");
       if (canvas) {
-        const dataUrl = canvas.toDataURL("image/png");
-        this.setImagePreview(dataUrl, `oops_snap_${Date.now()}.png`);
+        var dataUrl = canvas.toDataURL("image/png");
+        this.setImagePreview(dataUrl, "oops_snap_" + Date.now() + ".png");
       } else if (window.game && window.game.renderer) {
-        window.game.renderer.snapshot((image) => {
+        window.game.renderer.snapshot(function(image) {
           if (image && image.src) {
-            this.setImagePreview(image.src, `oops_snap_${Date.now()}.png`);
+            self.setImagePreview(image.src, "oops_snap_" + Date.now() + ".png");
           }
         });
       }
@@ -453,11 +467,11 @@ const FeedbackManager = {
     }
   },
 
-  setImagePreview(dataUrl, name) {
-    this.attachedImage = { name, dataUrl };
-    const container = document.getElementById("fb-preview-container");
-    const imgEl = document.getElementById("fb-preview-img");
-    const textEl = document.getElementById("fb-preview-name");
+  setImagePreview: function(dataUrl, name) {
+    this.attachedImage = { name: name, dataUrl: dataUrl };
+    var container = document.getElementById("fb-preview-container");
+    var imgEl = document.getElementById("fb-preview-img");
+    var textEl = document.getElementById("fb-preview-name");
     if (imgEl) imgEl.src = dataUrl;
     if (textEl) textEl.textContent = name || "Attached Image";
     if (container) {
@@ -466,11 +480,11 @@ const FeedbackManager = {
     }
   },
 
-  clearImagePreview() {
+  clearImagePreview: function() {
     this.attachedImage = null;
-    const container = document.getElementById("fb-preview-container");
-    const imgEl = document.getElementById("fb-preview-img");
-    const fileInput = document.getElementById("fb-image-input");
+    var container = document.getElementById("fb-preview-container");
+    var imgEl = document.getElementById("fb-preview-img");
+    var fileInput = document.getElementById("fb-image-input");
     if (imgEl) imgEl.src = "";
     if (fileInput) fileInput.value = "";
     if (container) {
@@ -479,99 +493,92 @@ const FeedbackManager = {
     }
   },
 
-  open() {
+  open: function() {
     this.init();
-    const modal = document.getElementById("feedback-modal");
+    var modal = document.getElementById("feedback-modal");
     if (!modal) return;
 
-    let worldName = "World 1 (Desert Ruins)";
-    let levelNum = 1;
-    let deathsCount = SaveManager.getTotalDeaths();
+    var worldName = "World 1 (Desert Ruins)";
+    var levelNum = 1;
+    var deathsCount = SaveManager.getTotalDeaths();
 
     if (window.game && window.game.scene) {
-      const wsScene = window.game.scene.getScene("WorldSelectScene");
+      var wsScene = window.game.scene.getScene("WorldSelectScene");
       if (wsScene && window.game.scene.isActive("WorldSelectScene")) {
-        const theme = getTheme(wsScene.currentWorldIdx);
-        worldName = `${theme.badge} (${theme.name})`;
+        var theme = getTheme(wsScene.currentWorldIdx);
+        worldName = theme.badge + " (" + theme.name + ")";
         levelNum = SaveManager.getWorldUnlocked(wsScene.currentWorldIdx) + 1;
       } else {
-        const gScene = window.game.scene.getScene("GameScene");
+        var gScene = window.game.scene.getScene("GameScene");
         if (gScene && window.game.scene.isActive("GameScene")) {
-          const theme = getTheme(gScene.currentWorld);
-          worldName = `${theme.badge} (${theme.name})`;
+          var theme = getTheme(gScene.currentWorld);
+          worldName = theme.badge + " (" + theme.name + ")";
           levelNum = gScene.currentLevel + 1;
           deathsCount = gScene.deaths;
         }
       }
     }
 
-    const currWorldEl = document.getElementById("fb-curr-world");
-    const currLevelEl = document.getElementById("fb-curr-level");
-    const currDeathsEl = document.getElementById("fb-curr-deaths");
+    var currWorldEl = document.getElementById("fb-curr-world");
+    var currLevelEl = document.getElementById("fb-curr-level");
+    var currDeathsEl = document.getElementById("fb-curr-deaths");
     if (currWorldEl) currWorldEl.textContent = worldName;
-    if (currLevelEl) currLevelEl.textContent = `Level ${levelNum}`;
-    if (currDeathsEl) currDeathsEl.textContent = `${deathsCount}`;
+    if (currLevelEl) currLevelEl.textContent = "Level " + levelNum;
+    if (currDeathsEl) currDeathsEl.textContent = "" + deathsCount;
 
     modal.style.display = "flex";
     modal.classList.remove("hidden");
-    const msgInput = document.getElementById("fb-message");
+    var msgInput = document.getElementById("fb-message");
     if (msgInput) msgInput.focus();
   },
 
-  close() {
-    const modal = document.getElementById("feedback-modal");
+  close: function() {
+    var modal = document.getElementById("feedback-modal");
     if (modal) {
       modal.style.display = "none";
       modal.classList.add("hidden");
     }
   },
 
-  submit() {
-    const category = document.getElementById("fb-category")?.value || "General Feedback";
-    const name = document.getElementById("fb-name")?.value?.trim() || "Anonymous Player";
-    const message = document.getElementById("fb-message")?.value?.trim() || "";
+  submit: function() {
+    var catEl = document.getElementById("fb-category");
+    var nameEl = document.getElementById("fb-name");
+    var msgEl = document.getElementById("fb-message");
+    var cwEl = document.getElementById("fb-curr-world");
+    var clEl = document.getElementById("fb-curr-level");
+    var cdEl = document.getElementById("fb-curr-deaths");
 
-    const worldName = document.getElementById("fb-curr-world")?.textContent || "World 1";
-    const levelName = document.getElementById("fb-curr-level")?.textContent || "Level 1";
-    const deaths = document.getElementById("fb-curr-deaths")?.textContent || "0";
+    var category = (catEl && catEl.value) ? catEl.value : "General Feedback";
+    var name = (nameEl && nameEl.value) ? nameEl.value.trim() : "Anonymous Player";
+    var message = (msgEl && msgEl.value) ? msgEl.value.trim() : "";
+
+    var worldName = (cwEl && cwEl.textContent) ? cwEl.textContent : "World 1";
+    var levelName = (clEl && clEl.textContent) ? clEl.textContent : "Level 1";
+    var deaths = (cdEl && cdEl.textContent) ? cdEl.textContent : "0";
 
     if (!message) return;
 
-    let imageSection = "";
+    var imageSection = "";
     if (this.attachedImage) {
-      imageSection = `\n\n### 📸 Attached Screenshot\n> *Screenshot file: ${this.attachedImage.name}*\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*`;
+      imageSection = "\n\n### 📸 Attached Screenshot\n> *Screenshot file: " + this.attachedImage.name + "*\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*";
     }
 
-    const issueTitle = encodeURIComponent(`[${category}] Feedback from ${name} on ${worldName} ${levelName}`);
-    const issueBody = encodeURIComponent(`### 👤 Player Information
-- **Player Name / Nickname:** ${name}
-- **Feedback Category:** ${category}
+    var issueTitle = encodeURIComponent("[" + category + "] Feedback from " + name + " on " + worldName + " " + levelName);
+    var issueBody = encodeURIComponent("### 👤 Player Information\n- **Player Name / Nickname:** " + name + "\n- **Feedback Category:** " + category + "\n\n### 🎮 Game Context\n- **World & Level:** " + worldName + " · " + levelName + "\n- **Total Deaths:** 💀 " + deaths + "\n- **Device / Screen:** " + window.innerWidth + "x" + window.innerHeight + " (" + (('ontouchstart' in window) ? 'Touch Device' : 'Desktop') + ")\n- **Submission Time:** " + new Date().toISOString() + "\n\n### 💡 Feedback & Improvement Suggestions\n" + message + imageSection + "\n\n---\n*Submitted via Oops! In-Game Feedback System*");
 
-### 🎮 Game Context
-- **World & Level:** ${worldName} · ${levelName}
-- **Total Deaths:** 💀 ${deaths}
-- **Device / Screen:** ${window.innerWidth}x${window.innerHeight} (${('ontouchstart' in window) ? 'Touch Device' : 'Desktop'})
-- **Submission Time:** ${new Date().toISOString()}
-
-### 💡 Feedback & Improvement Suggestions
-${message}${imageSection}
-
----
-*Submitted via Oops! In-Game Feedback System*`);
-
-    const githubIssueUrl = `https://github.com/khalidabdullahh/Oops/issues/new?title=${issueTitle}&body=${issueBody}`;
+    var githubIssueUrl = "https://github.com/khalidabdullahh/Oops/issues/new?title=" + issueTitle + "&body=" + issueBody;
 
     try {
-      const logs = JSON.parse(SafeStorage.getItem("oops_feedback_logs") || "[]");
+      var logs = JSON.parse(SafeStorage.getItem("oops_feedback_logs") || "[]");
       logs.push({
-        name,
-        category,
-        message,
+        name: name,
+        category: category,
+        message: message,
         hasImage: !!this.attachedImage,
         imageName: this.attachedImage ? this.attachedImage.name : null,
-        worldName,
-        levelName,
-        deaths,
+        worldName: worldName,
+        levelName: levelName,
+        deaths: deaths,
         timestamp: new Date().toISOString()
       });
       SafeStorage.setItem("oops_feedback_logs", JSON.stringify(logs));
@@ -580,14 +587,13 @@ ${message}${imageSection}
     window.open(githubIssueUrl, "_blank");
     this.close();
 
-    const msgInput = document.getElementById("fb-message");
-    if (msgInput) msgInput.value = "";
+    if (msgEl) msgEl.value = "";
     this.clearImagePreview();
   }
 };
 
 // ─── 5. 5 Multiverse Worlds Configuration ────────────────────
-const WORLD_THEMES = [
+var WORLD_THEMES = [
   {
     id: 0,
     name: "DESERT RUINS",
@@ -666,7 +672,7 @@ const WORLD_THEMES = [
 ];
 
 function getTheme(worldIdx) {
-  const idx = Math.max(0, Math.min(worldIdx, WORLD_THEMES.length - 1));
+  var idx = Math.max(0, Math.min(worldIdx, WORLD_THEMES.length - 1));
   return WORLD_THEMES[idx];
 }
 
@@ -694,19 +700,19 @@ class BootScene extends Phaser.Scene {
   }
 
   createCartoonHero() {
-    const drawHeroFrame = (key, options = {}) => {
-      const g = this.make.graphics({ x: 0, y: 0, add: false });
-      const {
-        blink = false,
-        legOffset = 0,
-        bobY = 0,
-        armsUp = false,
-        panicked = false,
-        dead = false,
-        eyeLookX = 1
-      } = options;
+    var self = this;
+    var drawHeroFrame = function(key, options) {
+      if (!options) options = {};
+      var g = self.make.graphics({ x: 0, y: 0, add: false });
+      var blink = options.blink || false;
+      var legOffset = options.legOffset || 0;
+      var bobY = options.bobY || 0;
+      var armsUp = options.armsUp || false;
+      var panicked = options.panicked || false;
+      var dead = options.dead || false;
+      var eyeLookX = (options.eyeLookX !== undefined) ? options.eyeLookX : 1;
 
-      const yOff = bobY;
+      var yOff = bobY;
 
       if (dead) {
         g.fillStyle(0x0984e3, 1);
@@ -763,7 +769,7 @@ class BootScene extends Phaser.Scene {
         g.fillStyle(0x111111, 1);
         g.fillCircle(16, 18 + yOff, 2.5);
       } else {
-        const px = eyeLookX;
+        var px = eyeLookX;
         g.fillStyle(0xffffff, 1);
         g.fillRoundedRect(10, 9 + yOff, 5, 7, 2);
         g.fillRoundedRect(17, 9 + yOff, 5, 7, 2);
@@ -803,8 +809,8 @@ class BootScene extends Phaser.Scene {
       }
 
       g.fillStyle(0x2d3436, 1);
-      const leg1X = 10 + legOffset;
-      const leg2X = 18 - legOffset;
+      var leg1X = 10 + legOffset;
+      var leg2X = 18 - legOffset;
       g.fillRect(leg1X, 31 + yOff, 4, 4);
       g.fillRect(leg2X, 31 + yOff, 4, 4);
 
@@ -828,7 +834,7 @@ class BootScene extends Phaser.Scene {
   }
 
   createWorldAssets() {
-    const platGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0xffffff, 1);
     platGfx.fillRect(0, 0, 32, 32);
     platGfx.fillStyle(0x000000, 0.12);
@@ -836,7 +842,7 @@ class BootScene extends Phaser.Scene {
     platGfx.generateTexture("plat_tex", 32, 32);
     platGfx.destroy();
 
-    const spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
     spkGfx.fillStyle(0xffffff, 1);
     spkGfx.beginPath();
     spkGfx.moveTo(0, 20);
@@ -847,7 +853,7 @@ class BootScene extends Phaser.Scene {
     spkGfx.generateTexture("spike_up", 20, 20);
     spkGfx.destroy();
 
-    const iciGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var iciGfx = this.make.graphics({ x: 0, y: 0, add: false });
     iciGfx.fillStyle(0x70a1ff, 1);
     iciGfx.beginPath();
     iciGfx.moveTo(0, 0);
@@ -860,7 +866,7 @@ class BootScene extends Phaser.Scene {
     iciGfx.generateTexture("icicle_tex", 20, 28);
     iciGfx.destroy();
 
-    const crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
     crushGfx.fillStyle(0x2d3436, 1);
     crushGfx.fillRoundedRect(0, 0, 60, 60, 4);
     crushGfx.fillStyle(0x1e272e, 1);
@@ -875,7 +881,7 @@ class BootScene extends Phaser.Scene {
     crushGfx.generateTexture("crusher_tex", 60, 72);
     crushGfx.destroy();
 
-    const doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0xffffff, 1);
     doorGfx.fillRoundedRect(0, 0, 32, 46, 10);
     doorGfx.fillStyle(0x2d3436, 1);
@@ -883,7 +889,7 @@ class BootScene extends Phaser.Scene {
     doorGfx.generateTexture("door_tex", 32, 46);
     doorGfx.destroy();
 
-    const trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
     trampGfx.fillStyle(0x2ed573, 1);
     trampGfx.fillRoundedRect(0, 8, 32, 8, 3);
     trampGfx.fillStyle(0xff4757, 1);
@@ -891,13 +897,13 @@ class BootScene extends Phaser.Scene {
     trampGfx.generateTexture("tramp_tex", 32, 16);
     trampGfx.destroy();
 
-    const dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dotGfx.fillStyle(0xffffff, 1);
     dotGfx.fillCircle(4, 4, 4);
     dotGfx.generateTexture("part_dot", 8, 8);
     dotGfx.destroy();
 
-    const lsrGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    var lsrGfx = this.make.graphics({ x: 0, y: 0, add: false });
     lsrGfx.fillStyle(0xe056fd, 1);
     lsrGfx.fillRect(0, 0, 4, 60);
     lsrGfx.fillStyle(0xffffff, 0.85);
@@ -957,12 +963,16 @@ class WorldSelectScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.scale;
+    var self = this;
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+
     AudioEngine.init();
     MobileGamepad.hide();
     removeLoaderSplash();
 
-    const theme = getTheme(this.currentWorldIdx);
+    var theme = getTheme(this.currentWorldIdx);
     syncBodyBackground(theme);
 
     this.bgGfx = this.add.graphics();
@@ -973,8 +983,11 @@ class WorldSelectScene extends Phaser.Scene {
   }
 
   drawBackground() {
-    const { width, height } = this.scale;
-    const theme = getTheme(this.currentWorldIdx);
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+
+    var theme = getTheme(this.currentWorldIdx);
     syncBodyBackground(theme);
 
     this.bgGfx.clear();
@@ -995,12 +1008,16 @@ class WorldSelectScene extends Phaser.Scene {
   }
 
   renderWorldIsland() {
+    var self = this;
     this.islandContainer.removeAll(true);
-    const { width, height } = this.scale;
-    const theme = getTheme(this.currentWorldIdx);
-    const maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
 
-    const titleText = this.add.text(width / 2, 34, "Oops! - WORLD MAP", {
+    var theme = getTheme(this.currentWorldIdx);
+    var maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
+
+    var titleText = this.add.text(width / 2, 34, "Oops! - WORLD MAP", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "20px",
       color: "#ffffff",
@@ -1010,48 +1027,45 @@ class WorldSelectScene extends Phaser.Scene {
     this.islandContainer.add(titleText);
 
     // ── TOP-RIGHT BUTTON CLUSTER: [ 💬 FEEDBACK ]  [ 🔊 SOUND ]  [ ⛶ FULLSCREEN ] ──
-    // 1. Fullscreen Toggle Icon (Far Right)
-    const fsText = this.add.text(width - 32, 34, "⛶", {
+    var fsText = this.add.text(width - 32, 34, "⛶", {
       fontSize: "18px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
-    fsText.on("pointerdown", () => {
+    fsText.on("pointerdown", function() {
       toggleFullScreen();
     });
     this.islandContainer.add(fsText);
 
-    // 2. Sound Toggle Icon (Middle)
-    const sndText = this.add.text(width - 68, 34, AudioEngine.muted ? "🔇" : "🔊", {
+    var sndText = this.add.text(width - 68, 34, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "18px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
-    sndText.on("pointerdown", () => {
+    sndText.on("pointerdown", function() {
       AudioEngine.init();
-      const muted = AudioEngine.toggleMute();
+      var muted = AudioEngine.toggleMute();
       sndText.setText(muted ? "🔇" : "🔊");
     });
     this.islandContainer.add(sndText);
 
-    // 3. Feedback / Report Button (Directly to the Left of Sound Icon)
-    const fbBtn = this.add.container(width - 150, 34);
-    const fbGfx = this.add.graphics();
+    var fbBtn = this.add.container(width - 150, 34);
+    var fbGfx = this.add.graphics();
     fbGfx.fillStyle(0x161822, 0.9);
     fbGfx.fillRoundedRect(-48, -13, 96, 26, 13);
     fbGfx.lineStyle(1.5, 0xff4757, 0.85);
     fbGfx.strokeRoundedRect(-48, -13, 96, 26, 13);
-    const fbLabel = this.add.text(0, 0, "💬 FEEDBACK", {
+    var fbLabel = this.add.text(0, 0, "💬 FEEDBACK", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "7px",
       color: "#ffffff"
     }).setOrigin(0.5);
-    const fbZone = this.add.zone(0, 0, 96, 26).setInteractive({ cursor: "pointer" });
-    fbZone.on("pointerover", () => {
+    var fbZone = this.add.zone(0, 0, 96, 26).setInteractive({ cursor: "pointer" });
+    fbZone.on("pointerover", function() {
       fbBtn.setScale(1.06);
       fbLabel.setColor("#ffd32a");
     });
-    fbZone.on("pointerout", () => {
+    fbZone.on("pointerout", function() {
       fbBtn.setScale(1);
       fbLabel.setColor("#ffffff");
     });
-    fbZone.on("pointerdown", () => {
+    fbZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
       FeedbackManager.open();
@@ -1059,10 +1073,10 @@ class WorldSelectScene extends Phaser.Scene {
     fbBtn.add([fbGfx, fbLabel, fbZone]);
     this.islandContainer.add(fbBtn);
 
-    const islandW = 820, islandH = 370;
-    const islandX = width / 2, islandY = height / 2 + 25;
+    var islandW = 820, islandH = 370;
+    var islandX = width / 2, islandY = height / 2 + 25;
 
-    const islGfx = this.add.graphics();
+    var islGfx = this.add.graphics();
     islGfx.fillStyle(0x000000, 0.4);
     islGfx.fillRoundedRect(islandX - islandW / 2 + 10, islandY - islandH / 2 + 15, islandW, islandH, 24);
     islGfx.fillStyle(theme.island, 1);
@@ -1071,7 +1085,7 @@ class WorldSelectScene extends Phaser.Scene {
     islGfx.strokeRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     this.islandContainer.add(islGfx);
 
-    const worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, `${theme.badge}: ${theme.name}`, {
+    var worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, theme.badge + ": " + theme.name, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "14px",
       color: "#ffd32a",
@@ -1080,195 +1094,197 @@ class WorldSelectScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.islandContainer.add(worldBadge);
 
-    const subText = this.add.text(islandX, islandY - islandH / 2 + 48, `✦ GIMMICK: ${theme.gimmickName} ✦`, {
+    var subText = this.add.text(islandX, islandY - islandH / 2 + 48, "✦ GIMMICK: " + theme.gimmickName + " ✦", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "8px",
       color: "#ffffff"
     }).setOrigin(0.5);
     this.islandContainer.add(subText);
 
-    const tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
-    const tabW = 160, tabGap = 12;
-    const tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
-    const tabY = islandY - islandH / 2 + 78;
+    var tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
+    var tabW = 160, tabGap = 12;
+    var tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
+    var tabY = islandY - islandH / 2 + 78;
 
-    tabLabels.forEach((label, p) => {
-      const tx = tabStartX + p * (tabW + tabGap);
-      const isSelected = (this.pageIdx === p);
+    tabLabels.forEach(function(label, p) {
+      var tx = tabStartX + p * (tabW + tabGap);
+      var isSelected = (self.pageIdx === p);
 
-      const tabGfx = this.add.graphics();
+      var tabGfx = self.add.graphics();
       tabGfx.fillStyle(isSelected ? 0xffd32a : 0x111111, isSelected ? 1 : 0.6);
       tabGfx.fillRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
       tabGfx.lineStyle(2, isSelected ? 0xffffff : theme.islandBorder, 1);
       tabGfx.strokeRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
 
-      const tText = this.add.text(tx, tabY, label, {
+      var tText = self.add.text(tx, tabY, label, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8px",
         color: isSelected ? "#000000" : "#ffffff"
       }).setOrigin(0.5);
 
-      const tabZone = this.add.zone(tx, tabY, tabW, 28).setInteractive({ cursor: "pointer" });
-      tabZone.on("pointerdown", () => {
+      var tabZone = self.add.zone(tx, tabY, tabW, 28).setInteractive({ cursor: "pointer" });
+      tabZone.on("pointerdown", function() {
         AudioEngine.init();
         AudioEngine.sfxJump();
-        this.pageIdx = p;
-        this.renderWorldIsland();
+        self.pageIdx = p;
+        self.renderWorldIsland();
       });
 
-      this.islandContainer.add([tabGfx, tText, tabZone]);
+      self.islandContainer.add([tabGfx, tText, tabZone]);
     });
 
-    const pageOffset = this.pageIdx * 10;
-    const nodeSize = 52, gapX = 36, gapY = 24;
-    const gridCols = 5, gridRows = 2;
-    const totalNodesW = gridCols * nodeSize + (gridCols - 1) * gapX;
-    const nodesStartX = islandX - totalNodesW / 2 + nodeSize / 2;
-    const nodesStartY = islandY + 12;
+    var pageOffset = this.pageIdx * 10;
+    var nodeSize = 52, gapX = 36, gapY = 24;
+    var gridCols = 5, gridRows = 2;
+    var totalNodesW = gridCols * nodeSize + (gridCols - 1) * gapX;
+    var nodesStartX = islandX - totalNodesW / 2 + nodeSize / 2;
+    var nodesStartY = islandY + 12;
 
-    for (let r = 0; r < gridRows; r++) {
-      for (let c = 0; c < gridCols; c++) {
-        const localIdx = r * gridCols + c;
-        const lvlIdx = pageOffset + localIdx;
-        const nx = nodesStartX + c * (nodeSize + gapX);
-        const ny = nodesStartY + r * (nodeSize + gapY);
+    for (var r = 0; r < gridRows; r++) {
+      for (var c = 0; c < gridCols; c++) {
+        (function(row, col) {
+          var localIdx = row * gridCols + col;
+          var lvlIdx = pageOffset + localIdx;
+          var nx = nodesStartX + col * (nodeSize + gapX);
+          var ny = nodesStartY + row * (nodeSize + gapY);
 
-        const isCleared = SaveManager.isLevelCleared(this.currentWorldIdx, lvlIdx);
-        const isCurrent = lvlIdx === maxUnlocked;
-        const isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
+          var isCleared = SaveManager.isLevelCleared(self.currentWorldIdx, lvlIdx);
+          var isCurrent = lvlIdx === maxUnlocked;
+          var isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
 
-        const nodeContainer = this.add.container(nx, ny);
+          var nodeContainer = self.add.container(nx, ny);
 
-        const nodeGfx = this.add.graphics();
-        const fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
-        const borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
+          var nodeGfx = self.add.graphics();
+          var fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
+          var borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
 
-        nodeGfx.fillStyle(fillCol, isLocked ? 0.4 : 1);
-        nodeGfx.fillCircle(0, 0, nodeSize / 2);
-        nodeGfx.lineStyle(3, borderCol, 1);
-        nodeGfx.strokeCircle(0, 0, nodeSize / 2);
+          nodeGfx.fillStyle(fillCol, isLocked ? 0.4 : 1);
+          nodeGfx.fillCircle(0, 0, nodeSize / 2);
+          nodeGfx.lineStyle(3, borderCol, 1);
+          nodeGfx.strokeCircle(0, 0, nodeSize / 2);
 
-        const numText = this.add.text(0, -3, `${lvlIdx + 1}`, {
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: "12px",
-          color: isLocked ? "#666666" : isCurrent ? "#000000" : "#ffffff",
-          stroke: "#000000",
-          strokeThickness: isCurrent ? 0 : 3
-        }).setOrigin(0.5);
-
-        const statusText = this.add.text(0, 14, isCleared ? "✓" : isCurrent ? "★" : "🔒", {
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: "7px",
-          color: isCleared ? "#ffffff" : isCurrent ? "#000000" : "#777777"
-        }).setOrigin(0.5);
-
-        nodeContainer.add([nodeGfx, numText, statusText]);
-
-        if (isCurrent) {
-          const arrow = this.add.text(0, -nodeSize / 2 - 14, "▼", {
+          var numText = self.add.text(0, -3, "" + (lvlIdx + 1), {
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: "14px",
-            color: "#ffd32a"
+            fontSize: "12px",
+            color: isLocked ? "#666666" : isCurrent ? "#000000" : "#ffffff",
+            stroke: "#000000",
+            strokeThickness: isCurrent ? 0 : 3
           }).setOrigin(0.5);
-          this.tweens.add({
-            targets: arrow,
-            y: -nodeSize / 2 - 8,
-            duration: 400,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut"
-          });
-          nodeContainer.add(arrow);
-        }
 
-        if (!isLocked) {
-          const hitZone = this.add.zone(0, 0, nodeSize + 8, nodeSize + 8).setInteractive({ cursor: "pointer" });
-          hitZone.on("pointerover", () => {
-            nodeContainer.setScale(1.12);
-          });
-          hitZone.on("pointerout", () => {
-            nodeContainer.setScale(1);
-          });
-          hitZone.on("pointerdown", () => {
-            AudioEngine.init();
-            AudioEngine.sfxJump();
-            this.scene.start("GameScene", { world: this.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
-          });
-          nodeContainer.add(hitZone);
-        }
+          var statusText = self.add.text(0, 14, isCleared ? "✓" : isCurrent ? "★" : "🔒", {
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "7px",
+            color: isCleared ? "#ffffff" : isCurrent ? "#000000" : "#777777"
+          }).setOrigin(0.5);
 
-        this.islandContainer.add(nodeContainer);
+          nodeContainer.add([nodeGfx, numText, statusText]);
+
+          if (isCurrent) {
+            var arrow = self.add.text(0, -nodeSize / 2 - 14, "▼", {
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: "14px",
+              color: "#ffd32a"
+            }).setOrigin(0.5);
+            self.tweens.add({
+              targets: arrow,
+              y: -nodeSize / 2 - 8,
+              duration: 400,
+              yoyo: true,
+              repeat: -1,
+              ease: "Sine.easeInOut"
+            });
+            nodeContainer.add(arrow);
+          }
+
+          if (!isLocked) {
+            var hitZone = self.add.zone(0, 0, nodeSize + 8, nodeSize + 8).setInteractive({ cursor: "pointer" });
+            hitZone.on("pointerover", function() {
+              nodeContainer.setScale(1.12);
+            });
+            hitZone.on("pointerout", function() {
+              nodeContainer.setScale(1);
+            });
+            hitZone.on("pointerdown", function() {
+              AudioEngine.init();
+              AudioEngine.sfxJump();
+              self.scene.start("GameScene", { world: self.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
+            });
+            nodeContainer.add(hitZone);
+          }
+
+          self.islandContainer.add(nodeContainer);
+        })(r, c);
       }
     }
 
     if (this.currentWorldIdx > 0) {
-      const prevBtn = this.add.container(islandX - islandW / 2 + 70, islandY + islandH / 2 - 32);
-      const pbGfx = this.add.graphics();
+      var prevBtn = this.add.container(islandX - islandW / 2 + 70, islandY + islandH / 2 - 32);
+      var pbGfx = this.add.graphics();
       pbGfx.fillStyle(0x111111, 0.85);
       pbGfx.fillRoundedRect(-55, -16, 110, 32, 6);
       pbGfx.lineStyle(2, 0xffffff, 0.8);
       pbGfx.strokeRoundedRect(-55, -16, 110, 32, 6);
-      const pbLabel = this.add.text(0, 0, "◀ PREV", {
+      var pbLabel = this.add.text(0, 0, "◀ PREV", {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8.5px",
         color: "#ffffff"
       }).setOrigin(0.5);
-      const pZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
-      pZone.on("pointerdown", () => {
+      var pZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
+      pZone.on("pointerdown", function() {
         AudioEngine.init();
         AudioEngine.sfxJump();
-        this.currentWorldIdx--;
-        this.pageIdx = 0;
-        this.drawBackground();
-        this.renderWorldIsland();
+        self.currentWorldIdx--;
+        self.pageIdx = 0;
+        self.drawBackground();
+        self.renderWorldIsland();
       });
       prevBtn.add([pbGfx, pbLabel, pZone]);
       this.islandContainer.add(prevBtn);
     }
 
     if (this.currentWorldIdx < WORLD_THEMES.length - 1) {
-      const nextBtn = this.add.container(islandX + islandW / 2 - 70, islandY + islandH / 2 - 32);
-      const nbGfx = this.add.graphics();
+      var nextBtn = this.add.container(islandX + islandW / 2 - 70, islandY + islandH / 2 - 32);
+      var nbGfx = this.add.graphics();
       nbGfx.fillStyle(0x111111, 0.85);
       nbGfx.fillRoundedRect(-55, -16, 110, 32, 6);
       nbGfx.lineStyle(2, 0xffffff, 0.8);
       nbGfx.strokeRoundedRect(-55, -16, 110, 32, 6);
-      const nbLabel = this.add.text(0, 0, "NEXT ▶", {
+      var nbLabel = this.add.text(0, 0, "NEXT ▶", {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8.5px",
         color: "#ffffff"
       }).setOrigin(0.5);
-      const nZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
-      nZone.on("pointerdown", () => {
+      var nZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
+      nZone.on("pointerdown", function() {
         AudioEngine.init();
         AudioEngine.sfxJump();
-        this.currentWorldIdx++;
-        this.pageIdx = 0;
-        this.drawBackground();
-        this.renderWorldIsland();
+        self.currentWorldIdx++;
+        self.pageIdx = 0;
+        self.drawBackground();
+        self.renderWorldIsland();
       });
       nextBtn.add([nbGfx, nbLabel, nZone]);
       this.islandContainer.add(nextBtn);
     }
 
-    const playBtn = this.add.container(islandX, islandY + islandH / 2 - 32);
-    const plGfx = this.add.graphics();
+    var playBtn = this.add.container(islandX, islandY + islandH / 2 - 32);
+    var plGfx = this.add.graphics();
     plGfx.fillStyle(0x2ed573, 1);
     plGfx.fillRoundedRect(-130, -16, 260, 32, 8);
     plGfx.lineStyle(2, 0xffffff, 1);
     plGfx.strokeRoundedRect(-130, -16, 260, 32, 8);
 
-    const plLabel = this.add.text(0, 0, `▶ PLAY LEVEL ${maxUnlocked + 1}`, {
+    var plLabel = this.add.text(0, 0, "▶ PLAY LEVEL " + (maxUnlocked + 1), {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9.5px",
       color: "#ffffff"
     }).setOrigin(0.5);
 
-    const plZone = this.add.zone(0, 0, 260, 32).setInteractive({ cursor: "pointer" });
-    plZone.on("pointerdown", () => {
+    var plZone = this.add.zone(0, 0, 260, 32).setInteractive({ cursor: "pointer" });
+    plZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      this.scene.start("GameScene", { world: this.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
+      self.scene.start("GameScene", { world: self.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
     });
     playBtn.add([plGfx, plLabel, plZone]);
     this.islandContainer.add(playBtn);
@@ -1301,8 +1317,11 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.scale;
-    const theme = getTheme(this.currentWorld);
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+
+    var theme = getTheme(this.currentWorld);
     syncBodyBackground(theme);
 
     AudioEngine.init();
@@ -1364,10 +1383,10 @@ class GameScene extends Phaser.Scene {
   }
 
   createShadowAmbiance() {
-    const { width, height } = this.scale;
+    var size = this.scale;
     this.add.particles(0, 0, "part_dot", {
-      x: { min: 0, max: width },
-      y: { min: 0, max: height },
+      x: { min: 0, max: size.width },
+      y: { min: 0, max: size.height },
       lifespan: 2500,
       speedY: { min: -20, max: 20 },
       scale: { start: 0.8, end: 0 },
@@ -1378,10 +1397,10 @@ class GameScene extends Phaser.Scene {
   }
 
   createBlizzardParticles() {
-    const { width, height } = this.scale;
+    var size = this.scale;
     this.add.particles(0, 0, "part_dot", {
-      x: { min: 0, max: width },
-      y: { min: -20, max: height },
+      x: { min: 0, max: size.width },
+      y: { min: -20, max: size.height },
       lifespan: 2200,
       speedX: { min: -180, max: -80 },
       speedY: { min: 80, max: 200 },
@@ -1393,10 +1412,10 @@ class GameScene extends Phaser.Scene {
   }
 
   showLevelBanner() {
-    const { width } = this.scale;
-    const theme = getTheme(this.currentWorld);
+    var size = this.scale;
+    var theme = getTheme(this.currentWorld);
 
-    const banner = this.add.text(width / 2, 60, `${theme.badge}: LEVEL ${this.currentLevel + 1}`, {
+    var banner = this.add.text(size.width / 2, 60, theme.badge + ": LEVEL " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "14px",
       color: "#ffd32a",
@@ -1410,51 +1429,55 @@ class GameScene extends Phaser.Scene {
       y: 40,
       delay: 1200,
       duration: 500,
-      onComplete: () => banner.destroy()
+      onComplete: function() { banner.destroy(); }
     });
   }
 
   createHUD() {
-    const { width } = this.scale;
-    const theme = getTheme(this.currentWorld);
+    var self = this;
+    var size = this.scale;
+    var width = size.width;
+    var theme = getTheme(this.currentWorld);
 
-    this.levelText = this.add.text(25, 20, `${theme.badge} · LV ${this.currentLevel + 1}`, {
+    this.levelText = this.add.text(25, 20, theme.badge + " · LV " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ffffff"
     }).setDepth(200);
 
-    this.deathText = this.add.text(width - 120, 20, `💀 ${this.deaths}`, {
+    this.deathText = this.add.text(width - 120, 20, "💀 " + this.deaths, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
 
-    const fsBtn = this.add.text(width - 60, 20, "⛶", {
+    var fsBtn = this.add.text(width - 60, 20, "⛶", {
       fontSize: "17px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
-    fsBtn.on("pointerdown", () => {
+    fsBtn.on("pointerdown", function() {
       toggleFullScreen();
     });
 
-    const mapBtn = this.add.text(width - 25, 20, "🗺️", {
+    var mapBtn = this.add.text(width - 25, 20, "🗺️", {
       fontSize: "18px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
 
-    mapBtn.on("pointerdown", () => {
+    mapBtn.on("pointerdown", function() {
       AudioEngine.stopMusic();
       MobileGamepad.hide();
-      this.scene.start("WorldSelectScene", { world: this.currentWorld });
+      self.scene.start("WorldSelectScene", { world: self.currentWorld });
     });
   }
 
   update(time, delta) {
     if (this.isDead || this.isComplete) return;
-    const dt = delta / 1000;
+    var dt = delta / 1000;
     this.levelTime += dt;
-    const { width, height } = this.scale;
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
 
-    // ── 🛡️ LEFT BOUNDARY PROTECTION (No unfair deaths walking left at spawn) ──
+    // ── 🛡️ LEFT BOUNDARY PROTECTION ──
     if (this.player.x < 18) {
       this.player.x = 18;
       if (this.player.body.velocity.x < 0) {
@@ -1463,9 +1486,9 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // ── 🧲 EXIT GATE MAGNETIC ATTRACTION & RIGHT BOUNDARY PROTECTION ──
+    // ── 🧲 EXIT GATE MAGNETIC ATTRACTION ──
     if (this.exitGate) {
-      const maxGateX = this.exitGate.x + 20;
+      var maxGateX = this.exitGate.x + 20;
       if (this.player.x > maxGateX) {
         this.player.x = maxGateX;
         if (this.player.body.velocity.x > 0) {
@@ -1475,7 +1498,7 @@ class GameScene extends Phaser.Scene {
       }
 
       if (this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
-        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
+        var dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
         if (dist < 100) {
           this.exitGate.hasFled = true;
           AudioEngine.sfxTrap();
@@ -1489,9 +1512,9 @@ class GameScene extends Phaser.Scene {
           this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
         }
       } else {
-        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
-        const dx = Math.abs(this.player.x - this.exitGate.x);
-        const dy = Math.abs(this.player.y - this.exitGate.y);
+        var dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
+        var dx = Math.abs(this.player.x - this.exitGate.x);
+        var dy = Math.abs(this.player.y - this.exitGate.y);
         if (dist < 72 || (dx < 48 && dy < 72) || (this.player.x >= this.exitGate.x - 25 && dy < 85)) {
           this.onReachExit();
           return;
@@ -1499,24 +1522,23 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // Death bounds check
     if (this.player.y > height + 40 || (this.gravityDir === -1 && this.player.y < -40) || this.player.x > width + 70) {
       this.onPlayerDie();
       return;
     }
 
-    let moveLeft = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
-    let moveRight = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
+    var moveLeft = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
+    var moveRight = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
 
     if (this.controlsInverted) {
-      const temp = moveLeft;
+      var temp = moveLeft;
       moveLeft = moveRight;
       moveRight = temp;
     }
 
     if (this.currentWorld === 1) {
-      const targetSpeed = moveLeft ? -240 : (moveRight ? 240 : 0);
-      const accel = 600 * dt;
+      var targetSpeed = moveLeft ? -240 : (moveRight ? 240 : 0);
+      var accel = 600 * dt;
       if (this.iceVelocityX < targetSpeed) {
         this.iceVelocityX = Math.min(this.iceVelocityX + accel, targetSpeed);
       } else if (this.iceVelocityX > targetSpeed) {
@@ -1526,7 +1548,7 @@ class GameScene extends Phaser.Scene {
       if (moveLeft) this.player.setFlipX(true);
       else if (moveRight) this.player.setFlipX(false);
     } else {
-      const walkSpeed = 220;
+      var walkSpeed = 220;
       if (moveLeft) {
         this.player.setVelocityX(-walkSpeed);
         this.player.setFlipX(true);
@@ -1538,17 +1560,17 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    const onFloor = (this.gravityDir === 1) ? this.player.body.blocked.down : this.player.body.blocked.up;
+    var onFloor = (this.gravityDir === 1) ? this.player.body.blocked.down : this.player.body.blocked.up;
     if (onFloor) {
       this.coyoteTimer = 0.12;
     } else {
       this.coyoteTimer -= dt;
     }
 
-    const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-                        Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
-                        Phaser.Input.Keyboard.JustDown(this.keyW) ||
-                        this.touchJump;
+    var jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+                      Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
+                      Phaser.Input.Keyboard.JustDown(this.keyW) ||
+                      this.touchJump;
 
     if (jumpPressed) {
       this.jumpBufferTimer = 0.12;
@@ -1611,9 +1633,10 @@ class GameScene extends Phaser.Scene {
   }
 
   updateWorldHazards(dt) {
-    this.crushers.getChildren().forEach(crusher => {
-      const dist = Math.abs(this.player.x - crusher.x);
-      if (!crusher.isDropping && !crusher.isRetracting && dist < 75 && this.player.y > crusher.y) {
+    var self = this;
+    this.crushers.getChildren().forEach(function(crusher) {
+      var dist = Math.abs(self.player.x - crusher.x);
+      if (!crusher.isDropping && !crusher.isRetracting && dist < 75 && self.player.y > crusher.y) {
         crusher.isDropping = true;
         crusher.setVelocityY(850);
         AudioEngine.sfxCrush();
@@ -1622,8 +1645,8 @@ class GameScene extends Phaser.Scene {
         crusher.isDropping = false;
         crusher.isRetracting = true;
         crusher.setVelocityY(0);
-        this.cameras.main.shake(160, 0.022);
-        this.time.delayedCall(400, () => {
+        self.cameras.main.shake(160, 0.022);
+        self.time.delayedCall(400, function() {
           if (crusher && crusher.body) crusher.setVelocityY(-140);
         });
       }
@@ -1634,17 +1657,17 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    this.icicles.getChildren().forEach(icicle => {
-      const dist = Math.abs(this.player.x - icicle.x);
-      if (!icicle.hasFallen && dist < 65 && this.player.y > icicle.y) {
+    this.icicles.getChildren().forEach(function(icicle) {
+      var dist = Math.abs(self.player.x - icicle.x);
+      if (!icicle.hasFallen && dist < 65 && self.player.y > icicle.y) {
         icicle.hasFallen = true;
         icicle.body.setGravityY(1500);
         AudioEngine.sfxIcicle();
-        this.tweens.add({ targets: icicle, angle: 10, duration: 60, yoyo: true });
+        self.tweens.add({ targets: icicle, angle: 10, duration: 60, yoyo: true });
       }
     });
 
-    this.lasers.getChildren().forEach(laser => {
+    this.lasers.getChildren().forEach(function(laser) {
       if (laser.isPulsing) {
         laser.pulseTimer = (laser.pulseTimer || 0) + dt;
         if (laser.pulseTimer > 1.8) {
@@ -1655,7 +1678,7 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    this.glitchBlocks.forEach(gb => {
+    this.glitchBlocks.forEach(function(gb) {
       gb.flickerTimer = (gb.flickerTimer || 0) + dt;
       if (gb.flickerTimer > gb.period) {
         gb.flickerTimer = 0;
@@ -1665,41 +1688,42 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // ── ROCK-SOLID FALLING PLATFORMS ──
-    for (let i = this.fallingPlatforms.length - 1; i >= 0; i--) {
-      const p = this.fallingPlatforms[i];
-      if (p.stepped && !p.hasFallen) {
-        p.shakeTimer -= dt;
-        p.x += (Math.random() - 0.5) * 3;
-        if (p.shakeTimer <= 0) {
-          p.hasFallen = true;
-          if (p.body) p.body.enable = false;
-          this.tweens.add({
-            targets: p,
-            y: p.y + 350,
-            alpha: 0,
-            duration: 450,
-            ease: "Quad.easeIn",
-            onComplete: () => {
-              this.platforms.remove(p, true, true);
-            }
-          });
-          this.fallingPlatforms.splice(i, 1);
+    for (var i = this.fallingPlatforms.length - 1; i >= 0; i--) {
+      (function(idx) {
+        var p = self.fallingPlatforms[idx];
+        if (p.stepped && !p.hasFallen) {
+          p.shakeTimer -= dt;
+          p.x += (Math.random() - 0.5) * 3;
+          if (p.shakeTimer <= 0) {
+            p.hasFallen = true;
+            if (p.body) p.body.enable = false;
+            self.tweens.add({
+              targets: p,
+              y: p.y + 350,
+              alpha: 0,
+              duration: 450,
+              ease: "Quad.easeIn",
+              onComplete: function() {
+                self.platforms.remove(p, true, true);
+              }
+            });
+            self.fallingPlatforms.splice(idx, 1);
+          }
         }
-      }
+      })(i);
     }
 
-    this.customTriggers.forEach(t => {
-      if (!t.triggered && t.condition(this)) {
+    this.customTriggers.forEach(function(t) {
+      if (!t.triggered && t.condition(self)) {
         t.triggered = true;
-        t.action(this);
+        t.action(self);
       }
     });
   }
 
   showTrollToast(msg) {
-    const { width } = this.scale;
-    const toast = this.add.text(width / 2, 70, msg, {
+    var size = this.scale;
+    var toast = this.add.text(size.width / 2, 70, msg, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "11px",
       color: "#ffd32a",
@@ -1713,7 +1737,7 @@ class GameScene extends Phaser.Scene {
       alpha: 0,
       delay: 1500,
       duration: 450,
-      onComplete: () => toast.destroy()
+      onComplete: function() { toast.destroy(); }
     });
   }
 
@@ -1736,6 +1760,7 @@ class GameScene extends Phaser.Scene {
   }
 
   onPlayerDie() {
+    var self = this;
     if (this.isDead || this.isComplete) return;
     this.isDead = true;
     this.deaths++;
@@ -1756,8 +1781,8 @@ class GameScene extends Phaser.Scene {
       tint: 0xff4757
     });
 
-    this.time.delayedCall(500, () => {
-      this.restartLevel();
+    this.time.delayedCall(500, function() {
+      self.restartLevel();
     });
   }
 
@@ -1767,6 +1792,7 @@ class GameScene extends Phaser.Scene {
 
   // ── 🧲 SIGNATURE MAGNETIC "SUCK INTO DOOR" ANIMATION ────────
   onReachExit() {
+    var self = this;
     if (this.isComplete || this.isDead) return;
     this.isComplete = true;
     AudioEngine.sfxWin();
@@ -1780,8 +1806,7 @@ class GameScene extends Phaser.Scene {
 
     SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
-    // Door Portal Aura Flare
-    const aura = this.add.graphics().setDepth(150);
+    var aura = this.add.graphics().setDepth(150);
     aura.fillStyle(0xffffff, 0.8);
     aura.fillCircle(this.exitGate.x, this.exitGate.y, 24);
     this.tweens.add({
@@ -1790,10 +1815,9 @@ class GameScene extends Phaser.Scene {
       scaleY: 2.2,
       alpha: 0,
       duration: 450,
-      onComplete: () => aura.destroy()
+      onComplete: function() { aura.destroy(); }
     });
 
-    // Magnetic Suction Particles converging onto the door
     this.add.particles(this.player.x, this.player.y, "part_dot", {
       speed: { min: 100, max: 250 },
       scale: { start: 1.2, end: 0 },
@@ -1802,7 +1826,6 @@ class GameScene extends Phaser.Scene {
       tint: [0xffd32a, 0x2ed573, 0x70a1ff]
     });
 
-    // Magnetic pull tween: smoothly sucks and shrinks hero directly into doorway center
     this.tweens.add({
       targets: this.player,
       x: this.exitGate.x,
@@ -1813,8 +1836,8 @@ class GameScene extends Phaser.Scene {
       alpha: 0,
       duration: 340,
       ease: "Cubic.easeInOut",
-      onComplete: () => {
-        this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
+      onComplete: function() {
+        self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
           speed: { min: 80, max: 280 },
           scale: { start: 1.3, end: 0 },
           lifespan: 600,
@@ -1822,13 +1845,13 @@ class GameScene extends Phaser.Scene {
           tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
         });
 
-        this.time.delayedCall(400, () => {
-          const nextLvl = this.currentLevel + 1;
+        self.time.delayedCall(400, function() {
+          var nextLvl = self.currentLevel + 1;
           if (nextLvl >= 30) {
             MobileGamepad.hide();
-            this.scene.start("WorldSelectScene", { world: this.currentWorld });
+            self.scene.start("WorldSelectScene", { world: self.currentWorld });
           } else {
-            this.scene.restart({ world: this.currentWorld, level: nextLvl, deaths: this.deaths });
+            self.scene.restart({ world: self.currentWorld, level: nextLvl, deaths: self.deaths });
           }
         });
       }
@@ -1837,36 +1860,39 @@ class GameScene extends Phaser.Scene {
 
   // ─── 9. Handcrafted & Guaranteed Beatable Level Layouts ───────
   buildWorldLevel(wIdx, lvl) {
-    const { width, height } = this.scale;
-    const theme = getTheme(wIdx);
+    var self = this;
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+    var theme = getTheme(wIdx);
 
-    const addPlat = (x, y, w, h) => {
-      const p = this.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
+    var addPlat = function(x, y, w, h) {
+      var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
       p.setTint(theme.platform);
-      this.platforms.add(p);
+      self.platforms.add(p);
       return p;
     };
 
-    const addFallingPlat = (x, y, w, h) => {
-      const p = this.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
+    var addFallingPlat = function(x, y, w, h) {
+      var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
       p.setTint(theme.platform);
       p.isFallingPlat = true;
       p.stepped = false;
       p.hasFallen = false;
-      this.platforms.add(p);
-      this.fallingPlatforms.push(p);
+      self.platforms.add(p);
+      self.fallingPlatforms.push(p);
       return p;
     };
 
-    const addSpike = (x, y) => {
-      const s = this.spikes.create(x, y, "spike_up");
+    var addSpike = function(x, y) {
+      var s = self.spikes.create(x, y, "spike_up");
       s.setTint(theme.spike);
       s.body.setSize(18, 14).setOffset(1, 6);
       return s;
     };
 
-    const addCrusher = (x, startY) => {
-      const c = this.crushers.create(x, startY, "crusher_tex");
+    var addCrusher = function(x, startY) {
+      var c = self.crushers.create(x, startY, "crusher_tex");
       c.startY = startY;
       c.isDropping = false;
       c.isRetracting = false;
@@ -1875,24 +1901,25 @@ class GameScene extends Phaser.Scene {
       return c;
     };
 
-    const addIcicle = (x, y) => {
-      const ic = this.icicles.create(x, y, "icicle_tex");
+    var addIcicle = function(x, y) {
+      var ic = self.icicles.create(x, y, "icicle_tex");
       ic.hasFallen = false;
       ic.body.setImmovable(true);
       ic.body.setSize(18, 26);
       return ic;
     };
 
-    const addLaser = (x, y, isPulsing = false) => {
-      const lz = this.lasers.create(x, y, "laser_tex");
+    var addLaser = function(x, y, isPulsing) {
+      if (isPulsing === undefined) isPulsing = false;
+      var lz = self.lasers.create(x, y, "laser_tex");
       lz.body.setImmovable(true);
       lz.isPulsing = isPulsing;
       lz.pulseTimer = 0;
       return lz;
     };
 
-    const addTrampoline = (x, y) => {
-      const tr = this.trampolines.create(x, y, "tramp_tex");
+    var addTrampoline = function(x, y) {
+      var tr = self.trampolines.create(x, y, "tramp_tex");
       tr.body.setSize(32, 12).setOffset(0, 4);
       return tr;
     };
@@ -1900,11 +1927,9 @@ class GameScene extends Phaser.Scene {
     this.spawnX = 60;
     this.spawnY = 410;
 
-    // ─────────────────────────────────────────────────────────────
-    // 🏜️ WORLD 1: DESERT RUINS (Sandstone Crumble & Troll Traps)
-    // ─────────────────────────────────────────────────────────────
+    // 🏜️ WORLD 1: DESERT RUINS
     if (wIdx === 0) {
-      if (lvl === 0) { // Level 1 (Gentle Intro)
+      if (lvl === 0) {
         addPlat(-80, 460, 340, 80);
         addPlat(320, 460, 260, 80);
         addPlat(640, 460, 400, 80);
@@ -1917,27 +1942,27 @@ class GameScene extends Phaser.Scene {
         this.exitGate.targetX = 880;
         this.exitGate.targetY = 377;
         this.exitGate.fleeMessage = "Oops! Just a little hop! 😃";
-      } else if (lvl === 1) { // Level 2: Boulder Crusher
+      } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         addCrusher(360, 60);
         addCrusher(640, 60);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 2) { // Level 3: Crumbling Sandstone Bridge
+      } else if (lvl === 2) {
         addPlat(-80, 460, 260, 80);
         addFallingPlat(220, 460, 100, 25);
         addFallingPlat(380, 460, 100, 25);
         addFallingPlat(540, 460, 100, 25);
         addPlat(700, 460, 340, 80);
-        for (let sx = 190; sx <= 690; sx += 40) addSpike(sx, 520);
+        for (var sx = 190; sx <= 690; sx += 40) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 3) { // Level 4: Pop-Up Sand Spikes
+      } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
           triggered: false,
-          condition: (sc) => sc.player.x > 380,
-          action: (sc) => {
-            for (let i = 0; i < 4; i++) {
-              const sp = sc.spikes.create(480 + i * 22, 450, "spike_up").setTint(theme.spike);
+          condition: function(sc) { return sc.player.x > 380; },
+          action: function(sc) {
+            for (var i = 0; i < 4; i++) {
+              var sp = sc.spikes.create(480 + i * 22, 450, "spike_up").setTint(theme.spike);
               sc.tweens.add({ targets: sp, y: 440, duration: 100, yoyo: true });
             }
             AudioEngine.sfxTrap();
@@ -1945,7 +1970,7 @@ class GameScene extends Phaser.Scene {
           }
         });
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 4) { // Level 5: Spring Trampoline & Stepping Pillars
+      } else if (lvl === 4) {
         addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
         addPlat(270, 390, 120, 25);
@@ -1953,10 +1978,10 @@ class GameScene extends Phaser.Scene {
         addTrampoline(510, 352);
         addPlat(630, 340, 100, 25);
         addPlat(780, 320, 260, 220);
-        for (let sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
+        for (var sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
-      } else { // Levels 6 - 30: Progressive Escalating Desert Gauntlets
-        const tier = Math.min(Math.floor(lvl / 5), 4);
+      } else {
+        var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 440 - tier * 4, 100, 25);
         if (lvl % 2 === 0) addCrusher(360, 60);
@@ -1964,26 +1989,24 @@ class GameScene extends Phaser.Scene {
         if (lvl % 3 === 0) addCrusher(520, 60);
         addFallingPlat(530, 360 - tier * 4, 100, 25);
         addPlat(690, 320, 350, 220);
-        for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
+        for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // ❄️ WORLD 2: FROST SPIRE (Ice Sliding & Falling Icicles)
-    // ─────────────────────────────────────────────────────────────
+    // ❄️ WORLD 2: FROST SPIRE
     else if (wIdx === 1) {
-      if (lvl === 0) { // Level 1 (Ice Intro)
+      if (lvl === 0) {
         addPlat(-80, 460, 480, 80);
         addPlat(480, 460, 560, 80);
         addSpike(440, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Falling Icicles
+      } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         addIcicle(320, 120);
         addIcicle(580, 120);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 2) { // Level 3: Glacier Floes & Icicle Drop
+      } else if (lvl === 2) {
         addPlat(-80, 460, 240, 80);
         addPlat(220, 430, 120, 25);
         addIcicle(280, 100);
@@ -1991,15 +2014,15 @@ class GameScene extends Phaser.Scene {
         addIcicle(460, 100);
         addPlat(580, 360, 120, 25);
         addPlat(760, 340, 280, 200);
-        for (let sx = 170; sx < 750; sx += 35) addSpike(sx, 520);
+        for (var sx = 170; sx < 750; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
-      } else if (lvl === 3) { // Level 4: Ice Avalanche Row
+      } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
-        for (let ix = 240; ix <= 760; ix += 130) {
+        for (var ix = 240; ix <= 760; ix += 130) {
           addIcicle(ix, 80);
         }
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 4) { // Level 5: Trampoline Glacier Leap
+      } else if (lvl === 4) {
         addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
         addPlat(270, 390, 120, 25);
@@ -2008,10 +2031,10 @@ class GameScene extends Phaser.Scene {
         addTrampoline(510, 352);
         addPlat(630, 340, 100, 25);
         addPlat(780, 320, 260, 220);
-        for (let sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
+        for (var sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
-      } else { // Levels 6 - 30: Blizzard Chasm & Ice Spires
-        const tier = Math.min(Math.floor(lvl / 5), 4);
+      } else {
+        var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 430 - tier * 3, 100, 25);
         addIcicle(260, 80);
@@ -2019,40 +2042,38 @@ class GameScene extends Phaser.Scene {
         addIcicle(420, 80);
         addFallingPlat(530, 350 - tier * 3, 100, 25);
         addPlat(690, 320, 350, 220);
-        for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
+        for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 🔮 WORLD 3: SHADOW CRYPT (Mystic Obsidian & Laser Tripwires)
-    // ─────────────────────────────────────────────────────────────
+    // 🔮 WORLD 3: SHADOW CRYPT
     else if (wIdx === 2) {
-      if (lvl === 0) { // Level 1 (Obsidian Crypt Intro)
+      if (lvl === 0) {
         addPlat(-80, 460, 460, 80);
         addPlat(460, 460, 580, 80);
         addSpike(420, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Laser Tripwire Beam
+      } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         addLaser(480, 430, false);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 2) { // Level 3: Crypt Stepping Stones & Laser
+      } else if (lvl === 2) {
         addPlat(-80, 460, 240, 80);
         addPlat(220, 420, 110, 25);
         addPlat(390, 380, 110, 25);
         addLaser(445, 350, true);
         addPlat(560, 350, 110, 25);
         addPlat(730, 340, 310, 200);
-        for (let sx = 170; sx < 720; sx += 35) addSpike(sx, 520);
+        for (var sx = 170; sx < 720; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
-      } else if (lvl === 3) { // Level 4: Dual Pulsing Lasers
+      } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
         addLaser(340, 430, true);
         addLaser(620, 430, true);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else { // Levels 5 - 30: Pulsing Lasers & Shadow Crypt Labyrinth
-        const tier = Math.min(Math.floor(lvl / 5), 4);
+      } else {
+        var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 420 - tier * 3, 100, 25);
         if (lvl % 2 === 0) addLaser(330, 390 - tier * 3, true);
@@ -2060,79 +2081,75 @@ class GameScene extends Phaser.Scene {
         if (lvl % 3 === 0) addLaser(490, 350 - tier * 3, true);
         addFallingPlat(530, 340 - tier * 3, 100, 25);
         addPlat(690, 300, 350, 240);
-        for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
+        for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // ⚡ WORLD 4: GRAVITY NEXUS (Ceiling Walking & Inversion Mazes)
-    // ─────────────────────────────────────────────────────────────
+    // ⚡ WORLD 4: GRAVITY NEXUS
     else if (wIdx === 3) {
-      if (lvl === 0) { // Level 1 (Gravity Intro)
+      if (lvl === 0) {
         addPlat(-80, 460, 400, 80);
         addPlat(-80, 0, width + 150, 50);
         addPlat(320, 240, 80, 300);
         addPlat(400, 460, 640, 80);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Inverted Spikes on Floor & Ceiling
+      } else if (lvl === 1) {
         addPlat(-80, 460, 440, 80);
         addPlat(-80, 0, width + 150, 50);
         addPlat(500, 460, 540, 80);
-        for (let sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
+        for (var sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else { // Levels 3 - 30: Gravity Maze Chambers
+      } else {
         addPlat(-80, 460, 260, 80);
         addPlat(-80, 0, width + 150, 50);
         addPlat(240, 180, 120, 25);
         addPlat(420, 360, 120, 25);
         addPlat(600, 180, 120, 25);
         addPlat(780, 460, 260, 80);
-        for (let sx = 190; sx < 770; sx += 35) addSpike(sx, 520);
+        for (var sx = 190; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 🌌 WORLD 5: GLITCH CORE (Reality Distortions & Control Flips)
-    // ─────────────────────────────────────────────────────────────
+    // 🌌 WORLD 5: GLITCH CORE
     else {
-      if (lvl === 0) { // Level 1 (Glitch Intro - Flickering Platform)
+      if (lvl === 0) {
         addPlat(-80, 460, 360, 80);
-        const gb = addPlat(340, 460, 240, 80);
+        var gb = addPlat(340, 460, 240, 80);
         gb.period = 1.6;
         this.glitchBlocks.push(gb);
         addPlat(640, 460, 400, 80);
         addSpike(300, 450);
         addSpike(600, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 1) { // Level 2: Control Flip Zone!
+      } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
           triggered: false,
-          condition: (sc) => sc.player.x > 320,
-          action: (sc) => {
+          condition: function(sc) { return sc.player.x > 320; },
+          action: function(sc) {
             sc.controlsInverted = true;
             AudioEngine.sfxGlitch();
             sc.showTrollToast("GLITCH! Controls Inverted! 💫");
           }
         });
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else { // Levels 3 - 30: Singularity Finale
-        const tier = Math.min(Math.floor(lvl / 5), 4);
+      } else {
+        var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
-        const gb1 = addFallingPlat(210, 420 - tier * 3, 100, 25);
+        var gb1 = addFallingPlat(210, 420 - tier * 3, 100, 25);
         gb1.period = 1.8;
         this.glitchBlocks.push(gb1);
         if (lvl % 2 === 0) addCrusher(340, 60);
-        const gb2 = addFallingPlat(370, 380 - tier * 3, 100, 25);
+        var gb2 = addFallingPlat(370, 380 - tier * 3, 100, 25);
         gb2.period = 1.4;
         this.glitchBlocks.push(gb2);
-        const gb3 = addFallingPlat(530, 340 - tier * 3, 100, 25);
+        var gb3 = addFallingPlat(530, 340 - tier * 3, 100, 25);
         gb3.period = 1.6;
         this.glitchBlocks.push(gb3);
         addPlat(690, 300, 350, 240);
-        for (let sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
+        for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
       }
     }
@@ -2140,7 +2157,7 @@ class GameScene extends Phaser.Scene {
 }
 
 // ─── 10. Phaser Game Configuration & Dynamic Scale Manager ───
-const config = {
+var config = {
   type: Phaser.AUTO,
   parent: "game-container",
   width: 960,
@@ -2169,12 +2186,12 @@ const config = {
 };
 
 // Global Orientation & Resize Listeners
-window.addEventListener("resize", () => {
+window.addEventListener("resize", function() {
   if (window.game && window.game.scale) {
     window.game.scale.refresh();
   }
-  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
-  const gamepad = document.getElementById("mobile-gamepad");
+  var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+  var gamepad = document.getElementById("mobile-gamepad");
   if (gamepad && window.game && window.game.scene.isActive("GameScene")) {
     if (isTouch) {
       gamepad.style.display = "flex";
@@ -2186,8 +2203,8 @@ window.addEventListener("resize", () => {
   }
 });
 
-window.addEventListener("orientationchange", () => {
-  setTimeout(() => {
+window.addEventListener("orientationchange", function() {
+  setTimeout(function() {
     if (window.game && window.game.scale) {
       window.game.scale.refresh();
     }
@@ -2195,13 +2212,13 @@ window.addEventListener("orientationchange", () => {
   }, 200);
 });
 
-// Fast Direct Boot
+// Fast Direct Boot with WebGL-to-Canvas Auto-Failover
 function launchOopsGame() {
   if (typeof Phaser === "undefined") {
     setTimeout(launchOopsGame, 30);
     return;
   }
-  const container = document.getElementById("game-container");
+  var container = document.getElementById("game-container");
   if (!container) {
     setTimeout(launchOopsGame, 30);
     return;
@@ -2210,7 +2227,13 @@ function launchOopsGame() {
     try {
       window.game = new Phaser.Game(config);
     } catch (err) {
-      console.error("Critical: Failed to launch Phaser Game:", err);
+      console.warn("Retrying with Canvas 2D renderer:", err);
+      try {
+        config.type = Phaser.CANVAS;
+        window.game = new Phaser.Game(config);
+      } catch (canvasErr) {
+        console.error("Fatal game boot error:", canvasErr);
+      }
     }
   }
 }
@@ -2225,4 +2248,4 @@ if (document.readyState === "loading") {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with Arcade Bezel & Theme Glow! Size:", len(code))
+print("game.js generated with ES2018 Compatibility & Canvas Fallback! Size:", len(code))
