@@ -812,6 +812,25 @@ class WorldSelectScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.islandContainer.add(titleText);
 
+    // In-Canvas Feedback Button
+    const fbBtn = this.add.container(width - 145, 34);
+    const fbGfx = this.add.graphics();
+    fbGfx.fillStyle(0x111111, 0.9);
+    fbGfx.fillRoundedRect(-55, -14, 110, 28, 6);
+    fbGfx.lineStyle(2, 0xff4757, 1);
+    fbGfx.strokeRoundedRect(-55, -14, 110, 28, 6);
+    const fbLabel = this.add.text(0, 0, "💬 REPORT", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "8px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+    const fbZone = this.add.zone(0, 0, 110, 28).setInteractive({ cursor: "pointer" });
+    fbZone.on("pointerdown", () => {
+      FeedbackManager.open();
+    });
+    fbBtn.add([fbGfx, fbLabel, fbZone]);
+    this.islandContainer.add(fbBtn);
+
     const sndText = this.add.text(width - 40, 34, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "22px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
@@ -1186,11 +1205,30 @@ class GameScene extends Phaser.Scene {
       color: "#ffffff"
     }).setDepth(200);
 
-    this.deathText = this.add.text(width - 90, 20, `💀 ${this.deaths}`, {
+    this.deathText = this.add.text(width - 190, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "11px",
+      fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
+
+    // In-Canvas Feedback Button in HUD
+    const fbBtn = this.add.container(width - 100, 20);
+    const fbGfx = this.add.graphics();
+    fbGfx.fillStyle(0x111111, 0.88);
+    fbGfx.fillRoundedRect(-40, -11, 80, 22, 5);
+    fbGfx.lineStyle(1.5, 0xff4757, 1);
+    fbGfx.strokeRoundedRect(-40, -11, 80, 22, 5);
+    const fbText = this.add.text(0, 0, "💬 REPORT", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "6.5px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+    const fbZone = this.add.zone(0, 0, 80, 22).setInteractive({ cursor: "pointer" });
+    fbZone.on("pointerdown", () => {
+      FeedbackManager.open();
+    });
+    fbBtn.add([fbGfx, fbText, fbZone]);
+    fbBtn.setDepth(200);
 
     const mapBtn = this.add.text(width - 32, 20, "🗺️", {
       fontSize: "20px"

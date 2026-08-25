@@ -697,35 +697,45 @@ canvas {
 /* ── In-Game Feedback & Bug Report Modal ──────────────────── */
 .feedback-trigger-btn {
   position: fixed;
-  top: max(14px, env(safe-area-inset-top));
-  right: max(16px, env(safe-area-inset-right));
-  z-index: 1000;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 99999 !important;
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(8px, 1.8vw, 10px);
-  color: #fff;
-  background: rgba(15, 15, 25, 0.85);
-  border: 1.5px solid rgba(255, 211, 42, 0.6);
+  font-size: clamp(9px, 2vw, 11px);
+  color: #ffffff;
+  background: #ff4757;
+  border: 2px solid #ffffff;
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 211, 42, 0.25);
-  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
-  pointer-events: auto;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6), 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  pointer-events: auto !important;
   user-select: none;
   -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulseBtn 2s infinite;
+}
+
+@keyframes pulseBtn {
+  0%   { transform: scale(1);    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6); }
+  50%  { transform: scale(1.05); box-shadow: 0 4px 22px rgba(255, 71, 87, 0.95); }
+  100% { transform: scale(1);    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6); }
 }
 
 .feedback-trigger-btn:hover, .feedback-trigger-btn:active {
-  transform: scale(1.06);
-  background: rgba(255, 211, 42, 0.25);
-  border-color: #ffd32a;
+  transform: scale(1.08);
+  background: #ff6b81;
+  box-shadow: 0 6px 24px rgba(255, 71, 87, 1);
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2000;
-  background: rgba(0, 0, 0, 0.75);
+  z-index: 100000 !important;
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
