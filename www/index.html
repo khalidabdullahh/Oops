@@ -31,6 +31,13 @@
   <link rel="stylesheet" href="style.css?v=5.0.0"/>
 </head>
 <body>
+  <!-- Instant Visual Splash Loader (Removed upon game load) -->
+  <div id="game-loader">
+    <div class="loader-logo">Oops!</div>
+    <div class="loader-spinner"></div>
+    <div class="loader-text">LOADING FAIR TRAPS...</div>
+  </div>
+
   <div id="game-container"></div>
 
   <!-- In-Game Player Feedback & Bug Report Modal -->
@@ -125,8 +132,16 @@
       }).catch(function(){});
     }
   </script>
-  <!-- Phaser 3 Engine -->
+  <!-- Phaser 3 Engine (Local + Cloudflare CDN Failover) -->
   <script src="phaser.min.js"></script>
-  <script src="game.js?v=5.0.0"></script>
+  <script>
+    if (typeof Phaser === 'undefined') {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js';
+      s.async = false;
+      document.head.appendChild(s);
+    }
+  </script>
+  <script src="game.js?v=5.1.0"></script>
 </body>
 </html>

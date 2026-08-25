@@ -1,42 +1,70 @@
-# Generator script for Ultra-Fast Instant Boot & Rock-Solid Stability
+# Generator script with SafeStorage (In-App WebView Safe), WebGL/Canvas Fallbacks, and iOS Safari Safety
 code = r'''// ═══════════════════════════════════════════════════════════════
-//  Oops! – Multiverse Platformer Edition (v5.0.0 Fast Boot)
+//  Oops! – Multiverse Platformer Edition (v5.1.0 Bulletproof)
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Ultra-Fast Boot & Magnetic Exit Gate & Edge-to-Edge Sync
+//  In-App WebView Safe, Cross-Browser Fullscreen & SafeStorage
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
+// ─── 0. Universal In-App & Safe Storage (Never crashes on iOS/Incognito) ───
+let _memoryStore = {};
+const SafeStorage = {
+  getItem(key) {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch(e) {}
+    return _memoryStore[key] || null;
+  },
+  setItem(key, val) {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(key, val);
+      }
+    } catch(e) {}
+    _memoryStore[key] = val;
+  }
+};
+
 // ─── Dynamic Fullscreen & Background Sync Helper ─────────────
 function toggleFullScreen() {
-  const doc = document.documentElement;
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    if (doc.requestFullscreen) {
-      doc.requestFullscreen().catch(()=>{});
-    } else if (doc.webkitRequestFullscreen) {
-      doc.webkitRequestFullscreen();
-    } else if (doc.msRequestFullscreen) {
-      doc.msRequestFullscreen();
+  try {
+    const doc = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (doc.requestFullscreen && typeof doc.requestFullscreen === "function") {
+        doc.requestFullscreen().catch(()=>{});
+      } else if (doc.webkitRequestFullscreen && typeof doc.webkitRequestFullscreen === "function") {
+        doc.webkitRequestFullscreen();
+      } else if (doc.msRequestFullscreen && typeof doc.msRequestFullscreen === "function") {
+        doc.msRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen && typeof document.exitFullscreen === "function") {
+        document.exitFullscreen().catch(()=>{});
+      } else if (document.webkitExitFullscreen && typeof document.webkitExitFullscreen === "function") {
+        document.webkitExitFullscreen();
+      }
     }
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen().catch(()=>{});
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
-  }
+  } catch(e) {}
 }
 
 function autoLandscapeFullScreen() {
-  const isLandscape = window.innerWidth > window.innerHeight;
-  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
-  if (isLandscape && isMobile) {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      const doc = document.documentElement;
-      if (doc.requestFullscreen) doc.requestFullscreen().catch(()=>{});
-      else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+  try {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+    if (isLandscape && isMobile) {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const doc = document.documentElement;
+        if (doc.requestFullscreen && typeof doc.requestFullscreen === "function") {
+          doc.requestFullscreen().catch(()=>{});
+        } else if (doc.webkitRequestFullscreen && typeof doc.webkitRequestFullscreen === "function") {
+          try { doc.webkitRequestFullscreen(); } catch(e){}
+        }
+      }
     }
-  }
+  } catch(e) {}
 }
 window.addEventListener("touchstart", autoLandscapeFullScreen, { passive: true });
 window.addEventListener("pointerdown", autoLandscapeFullScreen, { passive: true });
@@ -49,7 +77,19 @@ function syncBodyBackground(hexNumber) {
   } catch(e) {}
 }
 
-// ─── 1. Save Manager ─────────────────────────────────────────
+function removeLoaderSplash() {
+  try {
+    const loader = document.getElementById("game-loader");
+    if (loader) {
+      loader.style.opacity = "0";
+      setTimeout(() => {
+        if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+      }, 300);
+    }
+  } catch(e) {}
+}
+
+// ─── 1. Save Manager (Bulletproof Storage) ───────────────────
 const SAVE_KEY = "oops_multiverse_v9";
 
 const SaveManager = {
@@ -69,10 +109,10 @@ const SaveManager = {
 
   load() {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
+      const raw = SafeStorage.getItem(SAVE_KEY);
       if (!raw) return this.getInitialState();
       const data = JSON.parse(raw);
-      if (!data.worlds) return this.getInitialState();
+      if (!data || !data.worlds) return this.getInitialState();
       return data;
     } catch(e) {
       return this.getInitialState();
@@ -80,27 +120,27 @@ const SaveManager = {
   },
 
   saveLevelClear(worldIdx, levelIdx, deaths) {
-    const data = this.load();
-    if (!data.worlds[worldIdx]) {
-      data.worlds[worldIdx] = { maxUnlocked: 0, cleared: [] };
-    }
-    const w = data.worlds[worldIdx];
-    if (!w.cleared.includes(levelIdx)) {
-      w.cleared.push(levelIdx);
-    }
-    w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, 29));
-    data.deaths = deaths;
-    data.currentWorld = worldIdx;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      const data = this.load();
+      if (!data.worlds[worldIdx]) {
+        data.worlds[worldIdx] = { maxUnlocked: 0, cleared: [] };
+      }
+      const w = data.worlds[worldIdx];
+      if (!w.cleared.includes(levelIdx)) {
+        w.cleared.push(levelIdx);
+      }
+      w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, 29));
+      data.deaths = deaths;
+      data.currentWorld = worldIdx;
+      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
   },
 
   saveDeaths(deaths) {
-    const data = this.load();
-    data.deaths = deaths;
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      const data = this.load();
+      data.deaths = deaths;
+      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
   },
 
@@ -122,7 +162,7 @@ const SaveManager = {
   }
 };
 
-// ─── 2. Web Audio Synthesizer ────────────────────────────────
+// ─── 2. Web Audio Synthesizer (Zero-Crash iOS/Mobile Audio) ──
 const AudioEngine = {
   ctx: null,
   muted: false,
@@ -139,7 +179,9 @@ const AudioEngine = {
     try {
       if (!this.ctx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioContext();
+        if (AudioContext) {
+          this.ctx = new AudioContext();
+        }
       }
       if (this.ctx && this.ctx.state === "suspended") {
         this.ctx.resume().catch(()=>{});
@@ -339,7 +381,6 @@ const FeedbackManager = {
     const btnSnap = document.getElementById("btn-snap-screen");
     const btnRemove = document.getElementById("btn-remove-preview");
 
-    // Strictly ensure modal is hidden on init
     if (modal) {
       modal.style.display = "none";
       modal.classList.add("hidden");
@@ -518,7 +559,7 @@ ${message}${imageSection}
     const githubIssueUrl = `https://github.com/khalidabdullahh/Oops/issues/new?title=${issueTitle}&body=${issueBody}`;
 
     try {
-      const logs = JSON.parse(localStorage.getItem("oops_feedback_logs") || "[]");
+      const logs = JSON.parse(SafeStorage.getItem("oops_feedback_logs") || "[]");
       logs.push({
         name,
         category,
@@ -530,7 +571,7 @@ ${message}${imageSection}
         deaths,
         timestamp: new Date().toISOString()
       });
-      localStorage.setItem("oops_feedback_logs", JSON.stringify(logs));
+      SafeStorage.setItem("oops_feedback_logs", JSON.stringify(logs));
     } catch(e) {}
 
     window.open(githubIssueUrl, "_blank");
@@ -633,11 +674,19 @@ class BootScene extends Phaser.Scene {
   }
 
   create() {
-    this.createCartoonHero();
-    this.createWorldAssets();
-    this.createAnimations();
+    try {
+      this.createCartoonHero();
+      this.createWorldAssets();
+      this.createAnimations();
+    } catch(err) {
+      console.warn("Texture creation notice:", err);
+    }
 
-    FeedbackManager.init();
+    try {
+      FeedbackManager.init();
+    } catch(e) {}
+
+    removeLoaderSplash();
     this.scene.start("WorldSelectScene");
   }
 
@@ -908,6 +957,7 @@ class WorldSelectScene extends Phaser.Scene {
     const { width, height } = this.scale;
     AudioEngine.init();
     MobileGamepad.hide();
+    removeLoaderSplash();
 
     const theme = getTheme(this.currentWorldIdx);
     syncBodyBackground(theme.bg);
@@ -2092,11 +2142,12 @@ const config = {
   parent: "game-container",
   width: 960,
   height: 540,
+  banner: false,
   render: {
     pixelArt: true,
     antialias: false,
     roundPixels: true,
-    powerPreference: "high-performance"
+    powerPreference: "default"
   },
   scale: {
     mode: Phaser.Scale.FIT,
@@ -2147,6 +2198,11 @@ function launchOopsGame() {
     setTimeout(launchOopsGame, 30);
     return;
   }
+  const container = document.getElementById("game-container");
+  if (!container) {
+    setTimeout(launchOopsGame, 30);
+    return;
+  }
   if (!window.game) {
     try {
       window.game = new Phaser.Game(config);
@@ -2156,10 +2212,14 @@ function launchOopsGame() {
   }
 }
 
-launchOopsGame();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", launchOopsGame);
+} else {
+  launchOopsGame();
+}
 '''
 
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with Fast Direct Boot! Size:", len(code))
+print("game.js generated with SafeStorage & iOS WebView fixes! Size:", len(code))
