@@ -1,13 +1,13 @@
-# Generator script with ES2018 Compatibility (No Optional Chaining), WebGL-to-Canvas Fallback, and Auto-Splash Removal
+# Generator script with True "Enter Door" Animation (Hero walks directly into doorway)
 code = r'''// ═══════════════════════════════════════════════════════════════
-//  Oops! – Multiverse Platformer Edition (v5.4.0 Ultra-Compatible)
+//  Oops! – Multiverse Platformer Edition (v5.5.0 Door Entry Polish)
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Zero-Crash WebGL/Canvas Fallback & Universal Mobile Support
+//  Clean Doorway Entrance Animation & Universal Mobile Stability
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
-// ─── 0. Universal In-App & Safe Storage (Never crashes on iOS/Incognito) ───
+// ─── 0. Universal In-App & Safe Storage ───────────────────────
 var _memoryStore = {};
 var SafeStorage = {
   getItem: function(key) {
@@ -93,7 +93,6 @@ function removeLoaderSplash() {
   } catch(e) {}
 }
 
-// Safety timeout: ensure splash is never permanently stuck
 setTimeout(removeLoaderSplash, 1500);
 
 // ─── 1. Save Manager (Bulletproof Storage) ───────────────────
@@ -169,7 +168,7 @@ var SaveManager = {
   }
 };
 
-// ─── 2. Web Audio Synthesizer (Zero-Crash iOS/Mobile Audio) ──
+// ─── 2. Web Audio Synthesizer ────────────────────────────────
 var AudioEngine = {
   ctx: null,
   muted: false,
@@ -292,7 +291,7 @@ var AudioEngine = {
   }
 };
 
-// ─── 3. Mobile Gamepad Controller Bridge (Ergonomic & Anchored)
+// ─── 3. Mobile Gamepad Controller Bridge ─────────────────────
 var MobileGamepad = {
   initialized: false,
   activeScene: null,
@@ -881,12 +880,15 @@ class BootScene extends Phaser.Scene {
     crushGfx.generateTexture("crusher_tex", 60, 72);
     crushGfx.destroy();
 
+    // Doorway with glowing dark doorway entrance
     var doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0xffffff, 1);
-    doorGfx.fillRoundedRect(0, 0, 32, 46, 10);
-    doorGfx.fillStyle(0x2d3436, 1);
-    doorGfx.fillRoundedRect(4, 8, 24, 38, 8);
-    doorGfx.generateTexture("door_tex", 32, 46);
+    doorGfx.fillRoundedRect(0, 0, 36, 50, 10);
+    doorGfx.fillStyle(0x111118, 1);
+    doorGfx.fillRoundedRect(4, 8, 28, 42, 8);
+    doorGfx.fillStyle(0xffd32a, 0.25);
+    doorGfx.fillRoundedRect(8, 12, 20, 38, 6);
+    doorGfx.generateTexture("door_tex", 36, 50);
     doorGfx.destroy();
 
     var trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
@@ -1349,6 +1351,7 @@ class GameScene extends Phaser.Scene {
     this.player.body.setSize(22, 34);
     this.player.body.setOffset(5, 4);
     this.player.body.setGravityY(1400);
+    this.player.setDepth(100);
     this.player.anims.play("hero_anim_idle");
 
     this.physics.add.collider(this.player, this.platforms, this.onPlatformCollide, null, this);
@@ -1477,7 +1480,7 @@ class GameScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    // ── 🛡️ LEFT BOUNDARY PROTECTION ──
+    // ── 🛡️ LEFT BOUNDARY WALL (Spawn Protection) ──
     if (this.player.x < 18) {
       this.player.x = 18;
       if (this.player.body.velocity.x < 0) {
@@ -1486,9 +1489,9 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // ── 🧲 EXIT GATE MAGNETIC ATTRACTION ──
+    // ── 🚪 EXIT GATE PROXIMITY & RIGHT BOUNDARY PROTECTION ──
     if (this.exitGate) {
-      var maxGateX = this.exitGate.x + 20;
+      var maxGateX = this.exitGate.x + 12;
       if (this.player.x > maxGateX) {
         this.player.x = maxGateX;
         if (this.player.body.velocity.x > 0) {
@@ -1499,7 +1502,7 @@ class GameScene extends Phaser.Scene {
 
       if (this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
         var dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
-        if (dist < 100) {
+        if (dist < 80) {
           this.exitGate.hasFled = true;
           AudioEngine.sfxTrap();
           this.tweens.add({
@@ -1509,13 +1512,12 @@ class GameScene extends Phaser.Scene {
             duration: 350,
             ease: "Back.easeOut"
           });
-          this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
+          this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😃");
         }
       } else {
-        var dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
         var dx = Math.abs(this.player.x - this.exitGate.x);
         var dy = Math.abs(this.player.y - this.exitGate.y);
-        if (dist < 72 || (dx < 48 && dy < 72) || (this.player.x >= this.exitGate.x - 25 && dy < 85)) {
+        if (dx < 22 && dy < 36) {
           this.onReachExit();
           return;
         }
@@ -1790,13 +1792,12 @@ class GameScene extends Phaser.Scene {
     this.scene.restart({ world: this.currentWorld, level: this.currentLevel, deaths: this.deaths });
   }
 
-  // ── 🧲 SIGNATURE MAGNETIC "SUCK INTO DOOR" ANIMATION ────────
+  // ── 🚪 AUTHENTIC "ENTER DOORWAY" WIN ANIMATION ───────────────
   onReachExit() {
     var self = this;
     if (this.isComplete || this.isDead) return;
     this.isComplete = true;
     AudioEngine.sfxWin();
-    AudioEngine.sfxPortal();
 
     this.player.setVelocity(0, 0);
     if (this.player.body) {
@@ -1806,46 +1807,43 @@ class GameScene extends Phaser.Scene {
 
     SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
+    // Hero faces forward / walks directly into doorway
+    this.player.setFlipX(false);
+    this.player.anims.play("hero_anim_idle", true);
+
+    // Doorway Light Flare
     var aura = this.add.graphics().setDepth(150);
-    aura.fillStyle(0xffffff, 0.8);
-    aura.fillCircle(this.exitGate.x, this.exitGate.y, 24);
+    aura.fillStyle(0xffd32a, 0.6);
+    aura.fillCircle(this.exitGate.x, this.exitGate.y, 20);
     this.tweens.add({
       targets: aura,
-      scaleX: 2.2,
-      scaleY: 2.2,
+      scaleX: 1.8,
+      scaleY: 1.8,
       alpha: 0,
-      duration: 450,
+      duration: 350,
       onComplete: function() { aura.destroy(); }
     });
 
-    this.add.particles(this.player.x, this.player.y, "part_dot", {
-      speed: { min: 100, max: 250 },
-      scale: { start: 1.2, end: 0 },
-      lifespan: 400,
-      quantity: 18,
-      tint: [0xffd32a, 0x2ed573, 0x70a1ff]
-    });
-
+    // Step smoothly into doorway center & fade into the room
     this.tweens.add({
       targets: this.player,
       x: this.exitGate.x,
-      y: this.exitGate.y + 6,
-      scaleX: 0.02,
-      scaleY: 0.02,
-      angle: 180,
+      y: this.exitGate.y + 4,
+      scaleX: 0.65,
+      scaleY: 0.65,
       alpha: 0,
-      duration: 340,
-      ease: "Cubic.easeInOut",
+      duration: 320,
+      ease: "Quad.easeIn",
       onComplete: function() {
         self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
-          speed: { min: 80, max: 280 },
-          scale: { start: 1.3, end: 0 },
-          lifespan: 600,
-          quantity: 32,
-          tint: [0xffd32a, 0x2ed573, 0xff4757, 0x70a1ff]
+          speed: { min: 60, max: 200 },
+          scale: { start: 1.1, end: 0 },
+          lifespan: 500,
+          quantity: 24,
+          tint: [0xffd32a, 0x2ed573, 0xffffff]
         });
 
-        self.time.delayedCall(400, function() {
+        self.time.delayedCall(350, function() {
           var nextLvl = self.currentLevel + 1;
           if (nextLvl >= 30) {
             MobileGamepad.hide();
@@ -1937,7 +1935,7 @@ class GameScene extends Phaser.Scene {
         addSpike(610, 450);
         addPlat(800, 400, 240, 60);
 
-        this.exitGate = this.physics.add.sprite(750, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(750, 437, "door_tex").setDepth(50);
         this.exitGate.fleeOnProximity = true;
         this.exitGate.targetX = 880;
         this.exitGate.targetY = 377;
@@ -1946,7 +1944,7 @@ class GameScene extends Phaser.Scene {
         addPlat(-80, 460, width + 150, 80);
         addCrusher(360, 60);
         addCrusher(640, 60);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 2) {
         addPlat(-80, 460, 260, 80);
         addFallingPlat(220, 460, 100, 25);
@@ -1954,7 +1952,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(540, 460, 100, 25);
         addPlat(700, 460, 340, 80);
         for (var sx = 190; sx <= 690; sx += 40) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
@@ -1969,7 +1967,7 @@ class GameScene extends Phaser.Scene {
             sc.showTrollToast("Surprise! 😈");
           }
         });
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 4) {
         addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
@@ -1979,7 +1977,7 @@ class GameScene extends Phaser.Scene {
         addPlat(630, 340, 100, 25);
         addPlat(780, 320, 260, 220);
         for (var sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 297, "door_tex").setDepth(50);
       } else {
         var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
@@ -1990,7 +1988,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(530, 360 - tier * 4, 100, 25);
         addPlat(690, 320, 350, 220);
         for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 297, "door_tex").setDepth(50);
       }
     }
 
@@ -2000,12 +1998,12 @@ class GameScene extends Phaser.Scene {
         addPlat(-80, 460, 480, 80);
         addPlat(480, 460, 560, 80);
         addSpike(440, 450);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         addIcicle(320, 120);
         addIcicle(580, 120);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 2) {
         addPlat(-80, 460, 240, 80);
         addPlat(220, 430, 120, 25);
@@ -2015,13 +2013,13 @@ class GameScene extends Phaser.Scene {
         addPlat(580, 360, 120, 25);
         addPlat(760, 340, 280, 200);
         for (var sx = 170; sx < 750; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 317, "door_tex").setDepth(50);
       } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
         for (var ix = 240; ix <= 760; ix += 130) {
           addIcicle(ix, 80);
         }
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 4) {
         addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
@@ -2032,7 +2030,7 @@ class GameScene extends Phaser.Scene {
         addPlat(630, 340, 100, 25);
         addPlat(780, 320, 260, 220);
         for (var sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 297, "door_tex").setDepth(50);
       } else {
         var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
@@ -2043,7 +2041,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(530, 350 - tier * 3, 100, 25);
         addPlat(690, 320, 350, 220);
         for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 297, "door_tex").setDepth(50);
       }
     }
 
@@ -2053,11 +2051,11 @@ class GameScene extends Phaser.Scene {
         addPlat(-80, 460, 460, 80);
         addPlat(460, 460, 580, 80);
         addSpike(420, 450);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         addLaser(480, 430, false);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 2) {
         addPlat(-80, 460, 240, 80);
         addPlat(220, 420, 110, 25);
@@ -2066,12 +2064,12 @@ class GameScene extends Phaser.Scene {
         addPlat(560, 350, 110, 25);
         addPlat(730, 340, 310, 200);
         for (var sx = 170; sx < 720; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 317, "door_tex").setDepth(50);
       } else if (lvl === 3) {
         addPlat(-80, 460, width + 150, 80);
         addLaser(340, 430, true);
         addLaser(620, 430, true);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else {
         var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
@@ -2082,7 +2080,7 @@ class GameScene extends Phaser.Scene {
         addFallingPlat(530, 340 - tier * 3, 100, 25);
         addPlat(690, 300, 350, 240);
         for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 277, "door_tex").setDepth(50);
       }
     }
 
@@ -2093,13 +2091,13 @@ class GameScene extends Phaser.Scene {
         addPlat(-80, 0, width + 150, 50);
         addPlat(320, 240, 80, 300);
         addPlat(400, 460, 640, 80);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 1) {
         addPlat(-80, 460, 440, 80);
         addPlat(-80, 0, width + 150, 50);
         addPlat(500, 460, 540, 80);
         for (var sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else {
         addPlat(-80, 460, 260, 80);
         addPlat(-80, 0, width + 150, 50);
@@ -2108,7 +2106,7 @@ class GameScene extends Phaser.Scene {
         addPlat(600, 180, 120, 25);
         addPlat(780, 460, 260, 80);
         for (var sx = 190; sx < 770; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       }
     }
 
@@ -2122,7 +2120,7 @@ class GameScene extends Phaser.Scene {
         addPlat(640, 460, 400, 80);
         addSpike(300, 450);
         addSpike(600, 450);
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else if (lvl === 1) {
         addPlat(-80, 460, width + 150, 80);
         this.customTriggers.push({
@@ -2134,7 +2132,7 @@ class GameScene extends Phaser.Scene {
             sc.showTrollToast("GLITCH! Controls Inverted! 💫");
           }
         });
-        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex").setDepth(50);
       } else {
         var tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(-80, 460, 230, 80);
@@ -2150,7 +2148,7 @@ class GameScene extends Phaser.Scene {
         this.glitchBlocks.push(gb3);
         addPlat(690, 300, 350, 240);
         for (var sx = 160; sx < 680; sx += 35) addSpike(sx, 520);
-        this.exitGate = this.physics.add.sprite(880, 277, "door_tex");
+        this.exitGate = this.physics.add.sprite(880, 277, "door_tex").setDepth(50);
       }
     }
   }
@@ -2248,4 +2246,4 @@ if (document.readyState === "loading") {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with ES2018 Compatibility & Canvas Fallback! Size:", len(code))
+print("game.js generated with Authentic Doorway Entrance! Size:", len(code))
