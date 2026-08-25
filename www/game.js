@@ -1,48 +1,80 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Ultra-Sharp Phaser 3 Edition
-//  Faithfully matched to Reference: Organic World Island Map & Monochromatic Caverns
+//  5 Multiverse Worlds x 30 Levels (150 Handcrafted Stages)
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
-// ─── 1. Save Manager ─────────────────────────────────────────
-const SAVE_KEY = "oops_save_v3";
+// ─── 1. Save Manager (Progress per World) ────────────────────
+const SAVE_KEY = "oops_multiworld_v4";
 
 const SaveManager = {
-  save(levelIndex, totalDeaths) {
-    const prev = this.load() || { level: 0, deaths: 0, maxUnlocked: 0, cleared: [] };
-    const maxUnlocked = Math.max(prev.maxUnlocked || 0, levelIndex);
-    const cleared = prev.cleared || [];
-    if (!cleared.includes(levelIndex - 1) && levelIndex > 0) {
-      cleared.push(levelIndex - 1);
-    }
-    const data = {
-      level: levelIndex,
-      maxUnlocked: maxUnlocked,
-      deaths: totalDeaths,
-      cleared: cleared,
-      savedAt: Date.now(),
+  getInitialState() {
+    return {
+      worlds: {
+        0: { maxUnlocked: 0, cleared: [] },
+        1: { maxUnlocked: 0, cleared: [] },
+        2: { maxUnlocked: 0, cleared: [] },
+        3: { maxUnlocked: 0, cleared: [] },
+        4: { maxUnlocked: 0, cleared: [] }
+      },
+      deaths: 0,
+      currentWorld: 0
     };
-    try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    } catch(e) {}
   },
 
   load() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch(e) { return null; }
+      if (!raw) return this.getInitialState();
+      const data = JSON.parse(raw);
+      if (!data.worlds) return this.getInitialState();
+      return data;
+    } catch(e) {
+      return this.getInitialState();
+    }
   },
 
-  clear() {
-    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+  saveLevelClear(worldIdx, levelIdx, deaths) {
+    const data = this.load();
+    if (!data.worlds[worldIdx]) {
+      data.worlds[worldIdx] = { maxUnlocked: 0, cleared: [] };
+    }
+    const w = data.worlds[worldIdx];
+    if (!w.cleared.includes(levelIdx)) {
+      w.cleared.push(levelIdx);
+    }
+    w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, 29));
+    data.deaths = deaths;
+    data.currentWorld = worldIdx;
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
   },
 
-  getMaxUnlocked() {
-    const d = this.load();
-    return d ? (d.maxUnlocked || d.level || 0) : 0;
+  saveDeaths(deaths) {
+    const data = this.load();
+    data.deaths = deaths;
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
+  },
+
+  getWorldUnlocked(worldIdx) {
+    const data = this.load();
+    const w = data.worlds[worldIdx];
+    return w ? (w.maxUnlocked || 0) : 0;
+  },
+
+  isLevelCleared(worldIdx, levelIdx) {
+    const data = this.load();
+    const w = data.worlds[worldIdx];
+    return w && w.cleared && w.cleared.includes(levelIdx);
+  },
+
+  getTotalDeaths() {
+    const data = this.load();
+    return data.deaths || 0;
   }
 };
 
@@ -147,15 +179,15 @@ const AudioEngine = {
   }
 };
 
-// ─── 3. Video-Reference Multiverse Worlds ────────────────────
+// ─── 3. 5 Multiverse Worlds Configuration ────────────────────
 const WORLD_THEMES = [
   {
     id: 0,
     name: "DESERT RUINS",
     badge: "WORLD 1",
-    subtitle: "Ancient sandstone cavern & crumbling gaps",
-    bg: 0x8a2c14, // Reference warm terracotta
-    platform: 0xe5825b, // Reference warm sand stone
+    subtitle: "Ancient sandstone cavern & crumbling steps",
+    bg: 0x8a2c14,
+    platform: 0xe5825b,
     platformTop: 0xf5a27d,
     spike: 0xcc2200,
     door: 0xffffff,
@@ -168,8 +200,8 @@ const WORLD_THEMES = [
     name: "FROST SPIRE",
     badge: "WORLD 2",
     subtitle: "Glacier floes & plummeting icicles",
-    bg: 0x12364c, // Deep glacial blue
-    platform: 0x5fa8c8, // Ice blue platform
+    bg: 0x12364c,
+    platform: 0x5fa8c8,
     platformTop: 0x82cce8,
     spike: 0x00d2d3,
     door: 0xffffff,
@@ -182,8 +214,8 @@ const WORLD_THEMES = [
     name: "SHADOW CRYPT",
     badge: "WORLD 3",
     subtitle: "Obsidian crypt & phantom spikes",
-    bg: 0x280e3d, // Dark mystic violet
-    platform: 0x8a5ca8, // Purple stone platform
+    bg: 0x280e3d,
+    platform: 0x8a5ca8,
     platformTop: 0xa878c8,
     spike: 0xd63031,
     door: 0xffffff,
@@ -196,8 +228,8 @@ const WORLD_THEMES = [
     name: "GRAVITY NEXUS",
     badge: "WORLD 4",
     subtitle: "Cyberpunk dimension & ceiling walking",
-    bg: 0x0a2f22, // Matrix dark green
-    platform: 0x38b88c, // Cyber emerald platform
+    bg: 0x0a2f22,
+    platform: 0x38b88c,
     platformTop: 0x5cd8ac,
     spike: 0x10ac84,
     door: 0xffffff,
@@ -210,8 +242,8 @@ const WORLD_THEMES = [
     name: "GLITCH CORE",
     badge: "WORLD 5",
     subtitle: "Unstable reality & deceptive finale",
-    bg: 0x3d0a28, // Deep magenta abyss
-    platform: 0xb84a82, // Neon magenta platform
+    bg: 0x3d0a28,
+    platform: 0xb84a82,
     platformTop: 0xd86aa2,
     spike: 0xff4757,
     door: 0xffffff,
@@ -221,12 +253,12 @@ const WORLD_THEMES = [
   }
 ];
 
-function getTheme(levelIndex) {
-  const worldIndex = Math.min(Math.floor(levelIndex / 6), WORLD_THEMES.length - 1);
-  return WORLD_THEMES[worldIndex];
+function getTheme(worldIdx) {
+  const idx = Math.max(0, Math.min(worldIdx, WORLD_THEMES.length - 1));
+  return WORLD_THEMES[idx];
 }
 
-// ─── 4. BootScene: Procedural Cartoon Hero & World Assets ────
+// ─── 4. BootScene: Assets & Animations ───────────────────────
 class BootScene extends Phaser.Scene {
   constructor() {
     super("BootScene");
@@ -237,7 +269,7 @@ class BootScene extends Phaser.Scene {
     this.createWorldAssets();
     this.createAnimations();
 
-    // Proceed to Overworld Island Map on launch
+    // Start in Overworld Island Map
     this.scene.start("WorldSelectScene");
   }
 
@@ -257,7 +289,6 @@ class BootScene extends Phaser.Scene {
       const yOff = bobY;
 
       if (dead) {
-        // Comic dizzy death pose
         g.fillStyle(0x0984e3, 1);
         g.fillRoundedRect(6, 20 + yOff, 20, 10, 3);
         g.fillStyle(0xffdbac, 1);
@@ -301,7 +332,7 @@ class BootScene extends Phaser.Scene {
       g.fillCircle(10, 15 + yOff, 2);
       g.fillCircle(22, 15 + yOff, 2);
 
-      // Expressive Eyes
+      // Eyes
       if (blink) {
         g.lineStyle(2, 0x111111, 1);
         g.lineBetween(11, 12 + yOff, 14, 12 + yOff);
@@ -331,17 +362,17 @@ class BootScene extends Phaser.Scene {
         g.lineBetween(14, 18 + yOff, 18, 18 + yOff);
       }
 
-      // Shirt / Tunic (Vibrant Blue)
+      // Shirt / Tunic
       g.fillStyle(0x0984e3, 1);
       g.fillRoundedRect(8, 20 + yOff, 16, 10, 3);
 
-      // Gold Belt & Buckle
+      // Gold Belt
       g.fillStyle(0xf1c40f, 1);
       g.fillRect(8, 28 + yOff, 16, 3);
       g.fillStyle(0xe67e22, 1);
       g.fillRect(14, 27 + yOff, 4, 5);
 
-      // Arms & Hands
+      // Arms
       if (armsUp) {
         g.fillStyle(0x0984e3, 1);
         g.fillRect(5, 14 + yOff, 4, 8);
@@ -358,7 +389,7 @@ class BootScene extends Phaser.Scene {
         g.fillCircle(25.5, 28 + yOff, 2);
       }
 
-      // Animated Running Legs & Boots
+      // Legs & Boots
       g.fillStyle(0x2d3436, 1);
       const leg1X = 10 + legOffset;
       const leg2X = 18 - legOffset;
@@ -384,7 +415,7 @@ class BootScene extends Phaser.Scene {
   }
 
   createWorldAssets() {
-    // 1. Monochromatic Platform Texture
+    // 1. Platform Texture
     const platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0xffffff, 1);
     platGfx.fillRect(0, 0, 32, 32);
@@ -392,7 +423,7 @@ class BootScene extends Phaser.Scene {
     platGfx.fillRect(0, 0, 32, 3);
     platGfx.generateTexture("plat_tex", 32, 32);
 
-    // 2. Sharp Saw-Tooth Spikes (20x20)
+    // 2. Sharp Spikes
     const spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
     spkGfx.fillStyle(0xffffff, 1);
     spkGfx.beginPath();
@@ -403,7 +434,7 @@ class BootScene extends Phaser.Scene {
     spkGfx.fill();
     spkGfx.generateTexture("spike_up", 20, 20);
 
-    // 3. Menacing Crusher Block
+    // 3. Crusher Block
     const crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
     crushGfx.fillStyle(0x2d3436, 1);
     crushGfx.fillRoundedRect(0, 0, 60, 60, 4);
@@ -418,7 +449,7 @@ class BootScene extends Phaser.Scene {
     crushGfx.fillTriangle(40, 60, 50, 72, 60, 60);
     crushGfx.generateTexture("crusher_tex", 60, 72);
 
-    // 4. White/Grey Arch Exit Door (Reference Video Match)
+    // 4. White/Grey Arch Exit Door
     const doorGfx = this.make.graphics({ x: 0, y: 0, add: false });
     doorGfx.fillStyle(0xffffff, 1);
     doorGfx.fillRoundedRect(0, 0, 32, 46, 10);
@@ -426,15 +457,7 @@ class BootScene extends Phaser.Scene {
     doorGfx.fillRoundedRect(4, 8, 24, 38, 8);
     doorGfx.generateTexture("door_tex", 32, 46);
 
-    // 5. Cave Portal Mound for World Map (44x44)
-    const caveGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    caveGfx.fillStyle(0x3a180c, 1);
-    caveGfx.fillRoundedRect(2, 2, 40, 40, 12);
-    caveGfx.fillStyle(0x110502, 1);
-    caveGfx.fillCircle(22, 22, 14);
-    caveGfx.generateTexture("cave_node", 44, 44);
-
-    // 6. Particle Dot
+    // 5. Particle Dot
     const dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dotGfx.fillStyle(0xffffff, 1);
     dotGfx.fillCircle(4, 4, 4);
@@ -477,36 +500,38 @@ class BootScene extends Phaser.Scene {
   }
 }
 
-// ─── 5. WorldSelectScene: Overworld Island Map ────────────────
+// ─── 5. WorldSelectScene: 30 Levels per World Island Map ─────
 class WorldSelectScene extends Phaser.Scene {
   constructor() {
     super("WorldSelectScene");
     this.currentWorldIdx = 0;
+    this.pageIdx = 0; // 0: Lv 1-10, 1: Lv 11-20, 2: Lv 21-30
+  }
+
+  init(data) {
+    if (typeof data.world === "number") {
+      this.currentWorldIdx = data.world;
+    }
   }
 
   create() {
     const { width, height } = this.scale;
-    const maxUnlocked = SaveManager.getMaxUnlocked();
-
     AudioEngine.init();
 
-    // Multiverse Deep Background
     this.bgGfx = this.add.graphics();
     this.drawBackground();
 
-    // Floating Island Container
     this.islandContainer = this.add.container(0, 0);
     this.renderWorldIsland();
   }
 
   drawBackground() {
     const { width, height } = this.scale;
-    const theme = WORLD_THEMES[this.currentWorldIdx];
+    const theme = getTheme(this.currentWorldIdx);
     this.bgGfx.clear();
     this.bgGfx.fillStyle(theme.bg, 1);
     this.bgGfx.fillRect(0, 0, width, height);
 
-    // Subtle cavern mist particles
     if (this.particles) this.particles.destroy();
     this.particles = this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
@@ -523,14 +548,13 @@ class WorldSelectScene extends Phaser.Scene {
   renderWorldIsland() {
     this.islandContainer.removeAll(true);
     const { width, height } = this.scale;
-    const theme = WORLD_THEMES[this.currentWorldIdx];
-    const maxUnlocked = SaveManager.getMaxUnlocked();
-    const isWorldUnlocked = (this.currentWorldIdx === 0) || (maxUnlocked >= this.currentWorldIdx * 6);
+    const theme = getTheme(this.currentWorldIdx);
+    const maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
 
     // 1. Top Header Title
-    const titleText = this.add.text(width / 2, 40, "Oops! - WORLD MAP", {
+    const titleText = this.add.text(width / 2, 34, "Oops! - WORLD MAP", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "24px",
+      fontSize: "22px",
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 6
@@ -538,7 +562,7 @@ class WorldSelectScene extends Phaser.Scene {
     this.islandContainer.add(titleText);
 
     // Sound Toggle (Top-Right)
-    const sndText = this.add.text(width - 40, 40, AudioEngine.muted ? "🔇" : "🔊", {
+    const sndText = this.add.text(width - 40, 34, AudioEngine.muted ? "🔇" : "🔊", {
       fontSize: "22px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
     sndText.on("pointerdown", () => {
@@ -549,215 +573,239 @@ class WorldSelectScene extends Phaser.Scene {
     this.islandContainer.add(sndText);
 
     // 2. Large Pixel Organic World Island
-    const islandW = 760, islandH = 340;
+    const islandW = 820, islandH = 370;
     const islandX = width / 2, islandY = height / 2 + 25;
 
     const islGfx = this.add.graphics();
-    // Shadow
     islGfx.fillStyle(0x000000, 0.4);
     islGfx.fillRoundedRect(islandX - islandW / 2 + 10, islandY - islandH / 2 + 15, islandW, islandH, 24);
-    // Island Base
-    islGfx.fillStyle(theme.island, isWorldUnlocked ? 1 : 0.4);
+    islGfx.fillStyle(theme.island, 1);
     islGfx.fillRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     islGfx.lineStyle(4, theme.islandBorder, 1);
     islGfx.strokeRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     this.islandContainer.add(islGfx);
 
-    // World Banner on Island
-    const worldBadge = this.add.text(islandX, islandY - islandH / 2 + 35, `${theme.badge}: ${theme.name}`, {
+    // World Banner & Navigation Bar
+    const worldBadge = this.add.text(islandX, islandY - islandH / 2 + 30, `${theme.badge}: ${theme.name}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "14px",
-      color: isWorldUnlocked ? "#ffd32a" : "#888888",
+      color: "#ffd32a",
       stroke: "#000000",
       strokeThickness: 4
     }).setOrigin(0.5);
     this.islandContainer.add(worldBadge);
 
-    const subText = this.add.text(islandX, islandY - islandH / 2 + 60, theme.subtitle, {
+    const subText = this.add.text(islandX, islandY - islandH / 2 + 52, `${theme.subtitle} (30 Levels)`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "8.5px",
       color: "#ffffff"
     }).setOrigin(0.5);
     this.islandContainer.add(subText);
 
-    // 3. Winding Cave Level Nodes (6 Levels for this world: 1 to 6)
-    // Node coordinates along a natural winding trail
-    const nodeCoords = [
-      { x: islandX - 260, y: islandY + 30 },
-      { x: islandX - 160, y: islandY - 20 },
-      { x: islandX - 50,  y: islandY + 40 },
-      { x: islandX + 50,  y: islandY - 20 },
-      { x: islandX + 160, y: islandY + 35 },
-      { x: islandX + 260, y: islandY - 15 }
-    ];
+    // 3. Level Pagination Tabs on Island (1-10 | 11-20 | 21-30)
+    const tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
+    const tabW = 160, tabGap = 12;
+    const tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
+    const tabY = islandY - islandH / 2 + 82;
 
-    // Draw winding trail lines between nodes
-    const trailGfx = this.add.graphics();
-    trailGfx.lineStyle(4, theme.islandBorder, 0.75);
-    for (let i = 0; i < nodeCoords.length - 1; i++) {
-      trailGfx.lineBetween(nodeCoords[i].x, nodeCoords[i].y, nodeCoords[i+1].x, nodeCoords[i+1].y);
-    }
-    this.islandContainer.add(trailGfx);
+    tabLabels.forEach((label, p) => {
+      const tx = tabStartX + p * (tabW + tabGap);
+      const isSelected = (this.pageIdx === p);
 
-    nodeCoords.forEach((pt, c) => {
-      const lvlIdx = this.currentWorldIdx * 6 + c;
-      const isCleared = lvlIdx < maxUnlocked;
-      const isCurrent = lvlIdx === maxUnlocked;
-      const isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
+      const tabGfx = this.add.graphics();
+      tabGfx.fillStyle(isSelected ? 0xffd32a : 0x111111, isSelected ? 1 : 0.6);
+      tabGfx.fillRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
+      tabGfx.lineStyle(2, isSelected ? 0xffffff : theme.islandBorder, 1);
+      tabGfx.strokeRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
 
-      const nodeGfx = this.add.graphics();
-      const fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
-      const borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
-
-      nodeGfx.fillStyle(fillCol, isLocked ? 0.35 : 0.95);
-      nodeGfx.fillCircle(pt.x, pt.y, 28);
-      nodeGfx.lineStyle(3, borderCol, 1);
-      nodeGfx.strokeCircle(pt.x, pt.y, 28);
-
-      const numText = this.add.text(pt.x, pt.y - 4, `${lvlIdx + 1}`, {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "14px",
-        color: isLocked ? "#555555" : isCurrent ? "#000000" : "#ffffff",
-        stroke: "#000000",
-        strokeThickness: isCurrent ? 0 : 3
-      }).setOrigin(0.5);
-
-      const statusText = this.add.text(pt.x, pt.y + 14, isCleared ? "✓" : isCurrent ? "★" : "🔒", {
+      const tText = this.add.text(tx, tabY, label, {
         fontFamily: "'Press Start 2P', monospace",
         fontSize: "8px",
-        color: isCleared ? "#ffffff" : isCurrent ? "#000000" : "#777777"
+        color: isSelected ? "#000000" : "#ffffff"
       }).setOrigin(0.5);
 
-      this.islandContainer.add([nodeGfx, numText, statusText]);
+      const tabZone = this.add.zone(tx, tabY, tabW, 28).setInteractive({ cursor: "pointer" });
+      tabZone.on("pointerdown", () => {
+        AudioEngine.init();
+        AudioEngine.sfxJump();
+        this.pageIdx = p;
+        this.renderWorldIsland();
+      });
 
-      // Active level bouncing arrow cursor
-      if (isCurrent && isWorldUnlocked) {
-        const arrow = this.add.text(pt.x, pt.y - 44, "▼", {
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: "16px",
-          color: "#ffd32a"
-        }).setOrigin(0.5);
-        this.tweens.add({
-          targets: arrow,
-          y: pt.y - 36,
-          duration: 400,
-          yoyo: true,
-          repeat: -1,
-          ease: "Sine.easeInOut"
-        });
-        this.islandContainer.add(arrow);
-      }
-
-      if (!isLocked && isWorldUnlocked) {
-        const hitZone = this.add.zone(pt.x, pt.y, 56, 56).setInteractive({ cursor: "pointer" });
-        hitZone.on("pointerover", () => {
-          nodeGfx.setScale(1.1);
-          numText.setScale(1.1);
-          statusText.setScale(1.1);
-        });
-        hitZone.on("pointerout", () => {
-          nodeGfx.setScale(1);
-          numText.setScale(1);
-          statusText.setScale(1);
-        });
-        hitZone.on("pointerdown", () => {
-          AudioEngine.init();
-          AudioEngine.sfxJump();
-          this.scene.start("GameScene", { level: lvlIdx, deaths: 0 });
-        });
-        this.islandContainer.add(hitZone);
-      }
+      this.islandContainer.add([tabGfx, tText, tabZone]);
     });
 
-    // 4. World Switching Arrows on Island (Left and Right)
+    // 4. 10 Large Circular Level Nodes for Current Page (2 rows of 5 nodes)
+    const pageOffset = this.pageIdx * 10;
+    const nodeSize = 52, gapX = 36, gapY = 24;
+    const gridCols = 5, gridRows = 2;
+    const totalNodesW = gridCols * nodeSize + (gridCols - 1) * gapX;
+    const nodesStartX = islandX - totalNodesW / 2 + nodeSize / 2;
+    const nodesStartY = islandY + 12;
+
+    for (let r = 0; r < gridRows; r++) {
+      for (let c = 0; c < gridCols; c++) {
+        const localIdx = r * gridCols + c;
+        const lvlIdx = pageOffset + localIdx;
+        const nx = nodesStartX + c * (nodeSize + gapX);
+        const ny = nodesStartY + r * (nodeSize + gapY);
+
+        const isCleared = SaveManager.isLevelCleared(this.currentWorldIdx, lvlIdx);
+        const isCurrent = lvlIdx === maxUnlocked;
+        const isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
+
+        // Self-contained container centered at (nx, ny) to fix scale offset bug!
+        const nodeContainer = this.add.container(nx, ny);
+
+        const nodeGfx = this.add.graphics();
+        const fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
+        const borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
+
+        nodeGfx.fillStyle(fillCol, isLocked ? 0.4 : 1);
+        nodeGfx.fillCircle(0, 0, nodeSize / 2);
+        nodeGfx.lineStyle(3, borderCol, 1);
+        nodeGfx.strokeCircle(0, 0, nodeSize / 2);
+
+        const numText = this.add.text(0, -3, `${lvlIdx + 1}`, {
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "12px",
+          color: isLocked ? "#666666" : isCurrent ? "#000000" : "#ffffff",
+          stroke: "#000000",
+          strokeThickness: isCurrent ? 0 : 3
+        }).setOrigin(0.5);
+
+        const statusText = this.add.text(0, 14, isCleared ? "✓" : isCurrent ? "★" : "🔒", {
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "7px",
+          color: isCleared ? "#ffffff" : isCurrent ? "#000000" : "#777777"
+        }).setOrigin(0.5);
+
+        nodeContainer.add([nodeGfx, numText, statusText]);
+
+        // Active level bouncing arrow cursor
+        if (isCurrent) {
+          const arrow = this.add.text(0, -nodeSize / 2 - 14, "▼", {
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: "14px",
+            color: "#ffd32a"
+          }).setOrigin(0.5);
+          this.tweens.add({
+            targets: arrow,
+            y: -nodeSize / 2 - 8,
+            duration: 400,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut"
+          });
+          nodeContainer.add(arrow);
+        }
+
+        if (!isLocked) {
+          const hitZone = this.add.zone(0, 0, nodeSize + 8, nodeSize + 8).setInteractive({ cursor: "pointer" });
+          hitZone.on("pointerover", () => {
+            nodeContainer.setScale(1.12);
+          });
+          hitZone.on("pointerout", () => {
+            nodeContainer.setScale(1);
+          });
+          hitZone.on("pointerdown", () => {
+            AudioEngine.init();
+            AudioEngine.sfxJump();
+            this.scene.start("GameScene", { world: this.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
+          });
+          nodeContainer.add(hitZone);
+        }
+
+        this.islandContainer.add(nodeContainer);
+      }
+    }
+
+    // 5. World Switching Navigation (◀ PREV WORLD / NEXT WORLD ▶)
     if (this.currentWorldIdx > 0) {
-      const prevBtn = this.add.container(islandX - islandW / 2 + 50, islandY + islandH / 2 - 40);
+      const prevBtn = this.add.container(islandX - islandW / 2 + 70, islandY + islandH / 2 - 32);
       const pbGfx = this.add.graphics();
-      pbGfx.fillStyle(0x111111, 0.8);
-      pbGfx.fillRoundedRect(-50, -18, 100, 36, 6);
+      pbGfx.fillStyle(0x111111, 0.85);
+      pbGfx.fillRoundedRect(-55, -16, 110, 32, 6);
       pbGfx.lineStyle(2, 0xffffff, 0.8);
-      pbGfx.strokeRoundedRect(-50, -18, 100, 36, 6);
+      pbGfx.strokeRoundedRect(-55, -16, 110, 32, 6);
       const pbLabel = this.add.text(0, 0, "◀ PREV", {
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: "9px",
+        fontSize: "8.5px",
         color: "#ffffff"
       }).setOrigin(0.5);
-      prevBtn.add([pbGfx, pbLabel]);
-      const pZone = this.add.zone(0, 0, 100, 36).setInteractive({ cursor: "pointer" });
+      const pZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
       pZone.on("pointerdown", () => {
         AudioEngine.init();
         AudioEngine.sfxJump();
         this.currentWorldIdx--;
+        this.pageIdx = 0;
         this.drawBackground();
         this.renderWorldIsland();
       });
-      prevBtn.add(pZone);
+      prevBtn.add([pbGfx, pbLabel, pZone]);
       this.islandContainer.add(prevBtn);
     }
 
     if (this.currentWorldIdx < WORLD_THEMES.length - 1) {
-      const nextBtn = this.add.container(islandX + islandW / 2 - 50, islandY + islandH / 2 - 40);
+      const nextBtn = this.add.container(islandX + islandW / 2 - 70, islandY + islandH / 2 - 32);
       const nbGfx = this.add.graphics();
-      nbGfx.fillStyle(0x111111, 0.8);
-      nbGfx.fillRoundedRect(-50, -18, 100, 36, 6);
+      nbGfx.fillStyle(0x111111, 0.85);
+      nbGfx.fillRoundedRect(-55, -16, 110, 32, 6);
       nbGfx.lineStyle(2, 0xffffff, 0.8);
-      nbGfx.strokeRoundedRect(-50, -18, 100, 36, 6);
+      nbGfx.strokeRoundedRect(-55, -16, 110, 32, 6);
       const nbLabel = this.add.text(0, 0, "NEXT ▶", {
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: "9px",
+        fontSize: "8.5px",
         color: "#ffffff"
       }).setOrigin(0.5);
-      nextBtn.add([nbGfx, nbLabel]);
-      const nZone = this.add.zone(0, 0, 100, 36).setInteractive({ cursor: "pointer" });
+      const nZone = this.add.zone(0, 0, 110, 32).setInteractive({ cursor: "pointer" });
       nZone.on("pointerdown", () => {
         AudioEngine.init();
         AudioEngine.sfxJump();
         this.currentWorldIdx++;
+        this.pageIdx = 0;
         this.drawBackground();
         this.renderWorldIsland();
       });
-      nextBtn.add(nZone);
+      nextBtn.add([nbGfx, nbLabel, nZone]);
       this.islandContainer.add(nextBtn);
     }
 
-    // Direct Play Button for Current World
-    if (isWorldUnlocked) {
-      const playBtn = this.add.container(islandX, islandY + islandH / 2 - 40);
-      const plGfx = this.add.graphics();
-      plGfx.fillStyle(0x2ed573, 1);
-      plGfx.fillRoundedRect(-140, -18, 280, 36, 8);
-      plGfx.lineStyle(2, 0xffffff, 1);
-      plGfx.strokeRoundedRect(-140, -18, 280, 36, 8);
+    // Direct Play Button for Active Level
+    const playBtn = this.add.container(islandX, islandY + islandH / 2 - 32);
+    const plGfx = this.add.graphics();
+    plGfx.fillStyle(0x2ed573, 1);
+    plGfx.fillRoundedRect(-130, -16, 260, 32, 8);
+    plGfx.lineStyle(2, 0xffffff, 1);
+    plGfx.strokeRoundedRect(-130, -16, 260, 32, 8);
 
-      const plLabel = this.add.text(0, 0, `▶ PLAY LEVEL ${Math.min(maxUnlocked + 1, (this.currentWorldIdx + 1) * 6)}`, {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "10px",
-        color: "#ffffff"
-      }).setOrigin(0.5);
-      playBtn.add([plGfx, plLabel]);
+    const plLabel = this.add.text(0, 0, `▶ PLAY LEVEL ${maxUnlocked + 1}`, {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9.5px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
 
-      const plZone = this.add.zone(0, 0, 280, 36).setInteractive({ cursor: "pointer" });
-      plZone.on("pointerdown", () => {
-        AudioEngine.init();
-        AudioEngine.sfxJump();
-        const startLvl = Math.max(this.currentWorldIdx * 6, Math.min(maxUnlocked, (this.currentWorldIdx + 1) * 6 - 1));
-        this.scene.start("GameScene", { level: startLvl, deaths: 0 });
-      });
-      playBtn.add(plZone);
-      this.islandContainer.add(playBtn);
-    }
+    const plZone = this.add.zone(0, 0, 260, 32).setInteractive({ cursor: "pointer" });
+    plZone.on("pointerdown", () => {
+      AudioEngine.init();
+      AudioEngine.sfxJump();
+      this.scene.start("GameScene", { world: this.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
+    });
+    playBtn.add([plGfx, plLabel, plZone]);
+    this.islandContainer.add(playBtn);
   }
 }
 
-// ─── 6. GameScene: Core Platformer & 30 Deceptive Levels ──────
+// ─── 6. GameScene: Core Platformer (30 Levels per World) ─────
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
   }
 
   init(data) {
-    this.currentLevel = data.level || 0;
-    this.deaths = data.deaths || 0;
+    this.currentWorld = (typeof data.world === "number") ? data.world : 0;
+    this.currentLevel = (typeof data.level === "number") ? data.level : 0;
+    this.deaths = (typeof data.deaths === "number") ? data.deaths : SaveManager.getTotalDeaths();
     this.levelTime = 0;
     this.isDead = false;
     this.isComplete = false;
@@ -771,7 +819,7 @@ class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    const theme = getTheme(this.currentLevel);
+    const theme = getTheme(this.currentWorld);
 
     AudioEngine.init();
     AudioEngine.startMusic();
@@ -789,13 +837,12 @@ class GameScene extends Phaser.Scene {
     this.fallingPlatforms = [];
     this.customTriggers = [];
 
-    // 3. Build Level Layout
-    this.buildLevelData(this.currentLevel);
+    // 3. Build Level Layout (1 of 30 in this world)
+    this.buildLevelData(this.currentWorld, this.currentLevel);
 
     // 4. Create Animated Cartoon Hero
     this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "hero_idle_1");
-    // DO NOT enable bottom world bounds so player falls off into pit and dies!
-    this.player.setCollideWorldBounds(false);
+    this.player.setCollideWorldBounds(false); // No bottom collision so pit falls trigger death!
     this.player.body.setSize(22, 34);
     this.player.body.setOffset(5, 4);
     this.player.body.setGravityY(1400);
@@ -832,7 +879,7 @@ class GameScene extends Phaser.Scene {
 
   showLevelBanner() {
     const { width } = this.scale;
-    const theme = getTheme(this.currentLevel);
+    const theme = getTheme(this.currentWorld);
 
     const banner = this.add.text(width / 2, 60, `${theme.badge}: LEVEL ${this.currentLevel + 1}`, {
       fontFamily: "'Press Start 2P', monospace",
@@ -854,27 +901,16 @@ class GameScene extends Phaser.Scene {
 
   createHUD() {
     const { width } = this.scale;
+    const theme = getTheme(this.currentWorld);
 
     // Top-Left: Level Title
-    this.levelText = this.add.text(25, 20, `LEVEL ${this.currentLevel + 1}`, {
+    this.levelText = this.add.text(25, 20, `${theme.badge} · LV ${this.currentLevel + 1}`, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "11px",
+      fontSize: "10px",
       color: "#ffffff"
     }).setDepth(100);
 
-    // Top-Center: Progress Boxes (matching video reference)
-    const worldLevelIdx = this.currentLevel % 6;
-    let progString = "";
-    for (let i = 0; i < 6; i++) {
-      progString += (i === worldLevelIdx) ? "■ " : "□ ";
-    }
-    this.add.text(width / 2 - 60, 20, progString.trim(), {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "12px",
-      color: "#ffffff"
-    }).setDepth(100);
-
-    // Top-Right: Deaths & Map Return
+    // Top-Right: Deaths & World Map Return
     this.deathText = this.add.text(width - 90, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "11px",
@@ -887,7 +923,7 @@ class GameScene extends Phaser.Scene {
 
     mapBtn.on("pointerdown", () => {
       AudioEngine.stopMusic();
-      this.scene.start("WorldSelectScene");
+      this.scene.start("WorldSelectScene", { world: this.currentWorld });
     });
   }
 
@@ -898,7 +934,6 @@ class GameScene extends Phaser.Scene {
 
     const padY = height - 50;
 
-    // Reference matching polygon styled buttons
     const makeTouchBtn = (x, y, w, h, label, onPress, onRelease) => {
       const g = this.add.graphics().setDepth(150);
       g.fillStyle(0x000000, 0.3);
@@ -936,16 +971,13 @@ class GameScene extends Phaser.Scene {
       zone.on("pointerout", release);
     };
 
-    // D-Pad Left / Right (Bottom Left)
     makeTouchBtn(70, padY, 80, 52, "◀", () => { this.touchLeft = true; }, () => { this.touchLeft = false; });
     makeTouchBtn(165, padY, 80, 52, "▶", () => { this.touchRight = true; }, () => { this.touchRight = false; });
 
-    // Jump & Restart (Bottom Right)
     makeTouchBtn(width - 75, padY, 95, 52, "▲", () => { this.touchJump = true; }, () => { this.touchJump = false; });
     makeTouchBtn(width - 160, padY, 50, 42, "↺", () => { this.restartLevel(); }, null);
 
-    // Gravity Flip (World 4 only)
-    if (this.currentLevel >= 18 && this.currentLevel <= 23) {
+    if (this.currentWorld === 3) {
       makeTouchBtn(width - 225, padY, 50, 42, "⇄", () => { this.flipGravity(); }, null);
     }
   }
@@ -956,8 +988,7 @@ class GameScene extends Phaser.Scene {
     this.levelTime += dt;
     const { width, height } = this.scale;
 
-    // ── CRITICAL: OUT OF BOUNDS / FALLING DOWN DEATH CHECK ──
-    // If player falls off the screen into a pit, trigger instant death and restart!
+    // Pit fall death check
     if (this.player.y > height + 25 || this.player.y < -120 || this.player.x < -60 || this.player.x > width + 60) {
       this.onPlayerDie();
       return;
@@ -970,10 +1001,10 @@ class GameScene extends Phaser.Scene {
 
     if (left) {
       this.player.setVelocityX(-walkSpeed);
-      this.player.setFlipX(true); // Face LEFT
+      this.player.setFlipX(true);
     } else if (right) {
       this.player.setVelocityX(walkSpeed);
-      this.player.setFlipX(false); // Face RIGHT
+      this.player.setFlipX(false);
     } else {
       this.player.setVelocityX(0);
     }
@@ -1030,7 +1061,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // 4. Gravity Flip (World 4)
-    if (this.currentLevel >= 18 && this.currentLevel <= 23) {
+    if (this.currentWorld === 3) {
       if (Phaser.Input.Keyboard.JustDown(this.keyShift) || Phaser.Input.Keyboard.JustDown(this.keyF)) {
         this.flipGravity();
       }
@@ -1054,7 +1085,6 @@ class GameScene extends Phaser.Scene {
   }
 
   updateHazards(dt) {
-    // A. Ceiling Crushers
     this.crushers.getChildren().forEach(crusher => {
       const dist = Math.abs(this.player.x - crusher.x);
       if (!crusher.isDropping && !crusher.isRetracting && dist < 75 && this.player.y > crusher.y) {
@@ -1078,24 +1108,22 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // B. Fleeing Exit Door (Level Devil signature mechanic)
     if (this.exitGate && this.exitGate.fleeOnProximity && !this.exitGate.hasFled) {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.exitGate.x, this.exitGate.y);
-      if (dist < 110) {
+      if (dist < 100) {
         this.exitGate.hasFled = true;
         AudioEngine.sfxTrap();
         this.tweens.add({
           targets: this.exitGate,
           x: this.exitGate.targetX || this.exitGate.x,
-          y: this.exitGate.targetY || (this.exitGate.y - 140),
+          y: this.exitGate.targetY || (this.exitGate.y - 70),
           duration: 350,
           ease: "Back.easeOut"
         });
-        this.showTrollToast(this.exitGate.fleeMessage || "Not so fast! 😇");
+        this.showTrollToast(this.exitGate.fleeMessage || "Oops! 😇");
       }
     }
 
-    // C. Falling Platforms
     this.fallingPlatforms.forEach(p => {
       if (p.stepped && !p.hasFallen) {
         p.shakeTimer -= dt;
@@ -1109,7 +1137,6 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // D. Custom Triggers
     this.customTriggers.forEach(t => {
       if (!t.triggered && t.condition(this)) {
         t.triggered = true;
@@ -1163,7 +1190,7 @@ class GameScene extends Phaser.Scene {
     AudioEngine.sfxDie();
     this.cameras.main.shake(260, 0.035);
 
-    SaveManager.save(this.currentLevel, this.deaths);
+    SaveManager.saveDeaths(this.deaths);
 
     this.player.anims.stop();
     this.player.setTexture("hero_dead");
@@ -1183,7 +1210,7 @@ class GameScene extends Phaser.Scene {
   }
 
   restartLevel() {
-    this.scene.restart({ level: this.currentLevel, deaths: this.deaths });
+    this.scene.restart({ world: this.currentWorld, level: this.currentLevel, deaths: this.deaths });
   }
 
   onReachExit() {
@@ -1191,8 +1218,7 @@ class GameScene extends Phaser.Scene {
     this.isComplete = true;
     AudioEngine.sfxWin();
 
-    const nextLvl = this.currentLevel + 1;
-    SaveManager.save(nextLvl, this.deaths);
+    SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
     this.add.particles(this.exitGate.x, this.exitGate.y, "part_dot", {
       speed: { min: 100, max: 320 },
@@ -1203,18 +1229,20 @@ class GameScene extends Phaser.Scene {
     });
 
     this.time.delayedCall(700, () => {
-      if (nextLvl >= 30 || nextLvl % 6 === 0) {
-        this.scene.start("WorldSelectScene");
+      const nextLvl = this.currentLevel + 1;
+      if (nextLvl >= 30) {
+        // World completed!
+        this.scene.start("WorldSelectScene", { world: this.currentWorld });
       } else {
-        this.scene.start("GameScene", { level: nextLvl, deaths: this.deaths });
+        this.scene.start("GameScene", { world: this.currentWorld, level: nextLvl, deaths: this.deaths });
       }
     });
   }
 
-  // ─── 7. 30 Handcrafted Deceptive Levels (Reference Style) ──
-  buildLevelData(lvl) {
+  // ─── 7. 30 Distinct Handcrafted Levels Per World ───────────
+  buildLevelData(wIdx, lvl) {
     const { width, height } = this.scale;
-    const theme = getTheme(lvl);
+    const theme = getTheme(wIdx);
 
     const addPlat = (x, y, w, h) => {
       const p = this.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
@@ -1260,44 +1288,44 @@ class GameScene extends Phaser.Scene {
     this.spawnX = 60;
     this.spawnY = 410;
 
-    // ── LEVEL 1: First Steps (Pit Gaps & Fleeing Door) ───────
+    // ── LEVEL 1 (All Worlds): Fair, Fun Introduction ────────
     if (lvl === 0) {
-      addPlat(0, 460, 240, 80);
-      addPlat(340, 460, 240, 80);
-      addPlat(680, 460, 280, 80);
+      // Solid floor with 2 small, easily jumpable 50px gaps
+      addPlat(0, 460, 260, 80);
+      addPlat(320, 460, 260, 80);
+      addPlat(640, 460, 320, 80);
 
-      // Spikes in the pit gaps
+      // Spikes in bottom of gap
       addSpike(290, 450);
-      addSpike(630, 450);
+      addSpike(610, 450);
 
-      // Elevated escape platform
-      addPlat(800, 310, 160, 25);
+      // Gentle low step next to exit door
+      addPlat(800, 400, 160, 60);
 
-      // Fleeing Exit Door
-      this.exitGate = this.physics.add.sprite(890, 437, "door_tex");
+      // Exit Door starts on lower ground and does a cute 50px hop onto the step!
+      this.exitGate = this.physics.add.sprite(750, 437, "door_tex");
       this.exitGate.fleeOnProximity = true;
-      this.exitGate.targetX = 890;
-      this.exitGate.targetY = 287;
-      this.exitGate.fleeMessage = "Too slow! Jump up! 😜";
+      this.exitGate.targetX = 880;
+      this.exitGate.targetY = 377; // Easily reachable!
+      this.exitGate.fleeMessage = "Oops! Just a little hop! 😃";
     }
 
-    // ── LEVEL 2: Watch Your Head (Desert Crushers) ───────────
+    // ── LEVEL 2: Watch Your Head (Crushers) ─────────────────
     else if (lvl === 1) {
       addPlat(0, 460, width, 80);
-      addCrusher(300, 60);
-      addCrusher(600, 60);
+      addCrusher(320, 60);
+      addCrusher(620, 60);
       this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
     }
 
-    // ── LEVEL 3: Crumbling Trust (Falling Bridges) ───────────
+    // ── LEVEL 3: Crumbling Stepping Stones ───────────────────
     else if (lvl === 2) {
-      addPlat(0, 460, 160, 80);
-      addFallingPlat(220, 460, 120, 25);
-      addFallingPlat(420, 460, 120, 25);
-      addFallingPlat(620, 460, 120, 25);
-      addPlat(800, 460, 160, 80);
-
-      for (let sx = 200; sx <= 780; sx += 40) addSpike(sx, 520);
+      addPlat(0, 460, 180, 80);
+      addFallingPlat(240, 460, 100, 25);
+      addFallingPlat(420, 460, 100, 25);
+      addFallingPlat(600, 460, 100, 25);
+      addPlat(780, 460, 180, 80);
+      for (let sx = 200; sx <= 760; sx += 40) addSpike(sx, 520);
       this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
     }
 
@@ -1323,72 +1351,75 @@ class GameScene extends Phaser.Scene {
     else if (lvl === 4) {
       addPlat(0, 460, 180, 80);
       addTrampoline(130, 452);
-      addPlat(760, 310, 200, 230);
+      addPlat(760, 340, 200, 200);
       for (let sx = 200; sx < 740; sx += 30) addSpike(sx, 520);
-      this.exitGate = this.physics.add.sprite(880, 287, "door_tex");
+      this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
     }
 
-    // ── LEVEL 6: Desert Gauntlet (World 1 Climax) ────────────
+    // ── LEVEL 6: Gauntlet ────────────────────────────────────
     else if (lvl === 5) {
       addPlat(0, 460, 140, 80);
       addFallingPlat(200, 460, 100, 25);
       addCrusher(360, 60);
       addFallingPlat(480, 460, 100, 25);
       addCrusher(640, 60);
-      addPlat(780, 340, 180, 200);
-      this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
-      this.exitGate.fleeOnProximity = true;
-      this.exitGate.targetX = 880;
-      this.exitGate.targetY = 155;
-      addPlat(820, 185, 140, 25);
+      addPlat(780, 380, 180, 160);
+      this.exitGate = this.physics.add.sprite(880, 357, "door_tex");
     }
 
-    // ── LEVELS 7 to 12 (World 2: Frost Spire) ────────────────
-    else if (lvl >= 6 && lvl <= 11) {
-      const sub = lvl - 6;
-      addPlat(0, 460, 160, 80);
-      addPlat(220 + sub * 10, 420 - sub * 20, 120, 25);
-      addFallingPlat(420, 360 - sub * 10, 100, 25);
-      addCrusher(580, 50);
-      addPlat(740, 300 - sub * 15, 220, 240);
-      for (let sx = 180; sx < 720; sx += 40) addSpike(sx, 520);
-      this.exitGate = this.physics.add.sprite(880, 277 - sub * 15, "door_tex");
-    }
-
-    // ── LEVELS 13 to 18 (World 3: Shadow Crypt) ──────────────
-    else if (lvl >= 12 && lvl <= 17) {
-      const sub = lvl - 12;
-      addPlat(0, 460, 180, 80);
-      addPlat(260, 400 - sub * 10, 90, 25);
-      addPlat(440, 340 - sub * 10, 90, 25);
-      addFallingPlat(600, 280 - sub * 10, 90, 25);
-      addCrusher(300 + sub * 30, 50);
-      addPlat(760, 220, 200, 320);
-      this.exitGate = this.physics.add.sprite(880, 197, "door_tex");
-    }
-
-    // ── LEVELS 19 to 24 (World 4: Gravity Nexus) ─────────────
-    else if (lvl >= 18 && lvl <= 23) {
-      addPlat(0, 460, 200, 80);
-      addPlat(0, 0, width, 50);
-      addPlat(300, 460, 120, 80);
-      addPlat(500, 120, 140, 25);
-      addPlat(740, 460, 220, 80);
-
-      for (let sx = 220; sx < 720; sx += 40) addSpike(sx, 520);
-      this.exitGate = this.physics.add.sprite(880, 437, "door_tex");
-    }
-
-    // ── LEVELS 25 to 30 (World 5: Glitch Core & Finale) ──────
+    // ── LEVELS 7 to 30: Escalating Traps & Challenge ─────────
     else {
-      const sub = lvl - 24;
-      addPlat(0, 460, 160, 80);
-      addFallingPlat(220, 400 - sub * 8, 100, 25);
-      addCrusher(360, 50);
-      addFallingPlat(500, 320 - sub * 8, 100, 25);
-      addCrusher(640, 50);
-      addPlat(780, 220, 180, 320);
-      this.exitGate = this.physics.add.sprite(880, 197, "door_tex");
+      const seg = lvl % 5;
+      const tier = Math.floor(lvl / 5);
+
+      if (seg === 1) {
+        // Multi Crusher Alley
+        addPlat(0, 460, width, 80);
+        addCrusher(240, 50);
+        addCrusher(480, 50);
+        addCrusher(720, 50);
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+      } else if (seg === 2) {
+        // Stairway of Falling Tiles
+        addPlat(0, 460, 140, 80);
+        addFallingPlat(190, 420 - tier * 4, 80, 25);
+        addFallingPlat(330, 380 - tier * 4, 80, 25);
+        addFallingPlat(470, 340 - tier * 4, 80, 25);
+        addFallingPlat(610, 300 - tier * 4, 80, 25);
+        addPlat(750, 260 - tier * 4, 210, 300);
+        for (let sx = 160; sx < 740; sx += 40) addSpike(sx, 520);
+        this.exitGate = this.physics.add.sprite(880, 237 - tier * 4, "door_tex");
+      } else if (seg === 3) {
+        // Trampoline over Spikes with Crusher
+        addPlat(0, 460, 160, 80);
+        addTrampoline(120, 452);
+        addCrusher(450, 50);
+        addPlat(740, 360, 220, 180);
+        for (let sx = 180; sx < 720; sx += 35) addSpike(sx, 520);
+        this.exitGate = this.physics.add.sprite(880, 337, "door_tex");
+      } else if (seg === 4) {
+        // Fleeing Gate Maze
+        addPlat(0, 460, 200, 80);
+        addPlat(280, 400, 120, 25);
+        addPlat(480, 340, 120, 25);
+        addPlat(680, 280, 120, 25);
+        addPlat(820, 220, 140, 320);
+        for (let sx = 220; sx < 800; sx += 40) addSpike(sx, 520);
+        this.exitGate = this.physics.add.sprite(880, 197, "door_tex");
+        this.exitGate.fleeOnProximity = true;
+        this.exitGate.targetX = 880;
+        this.exitGate.targetY = 197;
+      } else {
+        // World Climax Chamber
+        addPlat(0, 460, 140, 80);
+        addFallingPlat(190, 460, 90, 25);
+        addCrusher(340, 50);
+        addFallingPlat(460, 460, 90, 25);
+        addCrusher(600, 50);
+        addFallingPlat(710, 460, 90, 25);
+        addPlat(830, 460, 130, 80);
+        this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
+      }
     }
   }
 }

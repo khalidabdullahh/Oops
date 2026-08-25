@@ -1,4 +1,5 @@
-// ═══════════════════════════════════════════════════════════════
+# Generator script for 30 levels per world with fair level 1 and centered node containers
+code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Ultra-Sharp Phaser 3 Edition
 //  5 Multiverse Worlds x 30 Levels (150 Handcrafted Stages)
 // ═══════════════════════════════════════════════════════════════
@@ -1456,3 +1457,9 @@ try {
 } catch (err) {
   console.error("Critical: Failed to launch Phaser Game:", err);
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(code)
+
+print("game.js generated with 30 levels per world and centered node scale! Size:", len(code))
