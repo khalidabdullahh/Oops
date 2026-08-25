@@ -1,13 +1,13 @@
-# Generator script guaranteeing 100% physically beatable levels + Landscape Fullscreen + World Map Feedback Button next to Sound
+# Generator script guaranteeing 100% physically beatable levels + Seamless Edge-to-Edge Theme Backgrounds + Left Boundary Protection
 code = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  Landscape Fullscreen & World Select Feedback Integration
+//  Seamless Edge-to-Edge Backgrounds & Left Spawn Wall Protection
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
 
-// ─── Fullscreen Helper ───────────────────────────────────────
+// ─── Dynamic Fullscreen & Background Sync Helper ─────────────
 function toggleFullScreen() {
   const doc = document.documentElement;
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -27,7 +27,6 @@ function toggleFullScreen() {
   }
 }
 
-// Auto-trigger Fullscreen on touch in landscape orientation on mobile
 function autoLandscapeFullScreen() {
   const isLandscape = window.innerWidth > window.innerHeight;
   const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
@@ -41,6 +40,14 @@ function autoLandscapeFullScreen() {
 }
 window.addEventListener("touchstart", autoLandscapeFullScreen, { passive: true });
 window.addEventListener("pointerdown", autoLandscapeFullScreen, { passive: true });
+
+function syncBodyBackground(hexNumber) {
+  try {
+    const hex = "#" + hexNumber.toString(16).padStart(6, "0");
+    document.body.style.backgroundColor = hex;
+    document.documentElement.style.backgroundColor = hex;
+  } catch(e) {}
+}
 
 // ─── 1. Save Manager ─────────────────────────────────────────
 const SAVE_KEY = "oops_multiverse_v9";
@@ -873,6 +880,9 @@ class WorldSelectScene extends Phaser.Scene {
     AudioEngine.init();
     MobileGamepad.hide();
 
+    const theme = getTheme(this.currentWorldIdx);
+    syncBodyBackground(theme.bg);
+
     this.bgGfx = this.add.graphics();
     this.drawBackground();
 
@@ -883,6 +893,8 @@ class WorldSelectScene extends Phaser.Scene {
   drawBackground() {
     const { width, height } = this.scale;
     const theme = getTheme(this.currentWorldIdx);
+    syncBodyBackground(theme.bg);
+
     this.bgGfx.clear();
     this.bgGfx.fillStyle(theme.bg, 1);
     this.bgGfx.fillRect(0, 0, width, height);
@@ -1209,6 +1221,7 @@ class GameScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
     const theme = getTheme(this.currentWorld);
+    syncBodyBackground(theme.bg);
 
     AudioEngine.init();
     AudioEngine.startMusic();
@@ -1359,7 +1372,17 @@ class GameScene extends Phaser.Scene {
     this.levelTime += dt;
     const { width, height } = this.scale;
 
-    if (this.player.y > height + 25 || this.player.y < -120 || this.player.x < -60 || this.player.x > width + 60) {
+    // ── 🛡️ LEFT BOUNDARY PROTECTION (No unfair deaths walking left at spawn) ──
+    if (this.player.x < 18) {
+      this.player.x = 18;
+      if (this.player.body.velocity.x < 0) {
+        this.player.setVelocityX(0);
+        this.iceVelocityX = 0;
+      }
+    }
+
+    // Death bounds check
+    if (this.player.y > height + 40 || (this.gravityDir === -1 && this.player.y < -40) || this.player.x > width + 70) {
       this.onPlayerDie();
       return;
     }
@@ -1770,7 +1793,7 @@ class GameScene extends Phaser.Scene {
     // ─────────────────────────────────────────────────────────────
     if (wIdx === 0) {
       if (lvl === 0) { // Level 1 (Gentle Intro)
-        addPlat(0, 460, 260, 80);
+        addPlat(-80, 460, 340, 80);
         addPlat(320, 460, 260, 80);
         addPlat(640, 460, 320, 80);
         addSpike(290, 450);
@@ -1783,12 +1806,12 @@ class GameScene extends Phaser.Scene {
         this.exitGate.targetY = 377;
         this.exitGate.fleeMessage = "Oops! Just a little hop! 😃";
       } else if (lvl === 1) { // Level 2: Boulder Crusher
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         addCrusher(360, 60);
         addCrusher(640, 60);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 2) { // Level 3: Crumbling Sandstone Bridge
-        addPlat(0, 460, 180, 80);
+        addPlat(-80, 460, 260, 80);
         addFallingPlat(220, 460, 100, 25);
         addFallingPlat(380, 460, 100, 25);
         addFallingPlat(540, 460, 100, 25);
@@ -1796,7 +1819,7 @@ class GameScene extends Phaser.Scene {
         for (let sx = 190; sx <= 690; sx += 40) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 3) { // Level 4: Pop-Up Sand Spikes
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         this.customTriggers.push({
           triggered: false,
           condition: (sc) => sc.player.x > 380,
@@ -1811,7 +1834,7 @@ class GameScene extends Phaser.Scene {
         });
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 4) { // Level 5: Spring Trampoline & Stepping Pillars
-        addPlat(0, 460, 160, 80);
+        addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
         addPlat(270, 390, 120, 25);
         addPlat(450, 360, 120, 25);
@@ -1822,7 +1845,7 @@ class GameScene extends Phaser.Scene {
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       } else { // Levels 6 - 30: Progressive Escalating Desert Gauntlets
         const tier = Math.min(Math.floor(lvl / 5), 4);
-        addPlat(0, 460, 150, 80);
+        addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 440 - tier * 4, 100, 25);
         if (lvl % 2 === 0) addCrusher(360, 60);
         addFallingPlat(370, 400 - tier * 4, 100, 25);
@@ -1839,17 +1862,17 @@ class GameScene extends Phaser.Scene {
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 1) {
       if (lvl === 0) { // Level 1 (Ice Intro)
-        addPlat(0, 460, 400, 80);
+        addPlat(-80, 460, 480, 80);
         addPlat(480, 460, 480, 80);
         addSpike(440, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Falling Icicles
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         addIcicle(320, 120);
         addIcicle(580, 120);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 2) { // Level 3: Glacier Floes & Icicle Drop
-        addPlat(0, 460, 160, 80);
+        addPlat(-80, 460, 240, 80);
         addPlat(220, 430, 120, 25);
         addIcicle(280, 100);
         addPlat(400, 390, 120, 25);
@@ -1859,13 +1882,13 @@ class GameScene extends Phaser.Scene {
         for (let sx = 170; sx < 750; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
       } else if (lvl === 3) { // Level 4: Ice Avalanche Row
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         for (let ix = 240; ix <= 760; ix += 130) {
           addIcicle(ix, 80);
         }
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 4) { // Level 5: Trampoline Glacier Leap
-        addPlat(0, 460, 160, 80);
+        addPlat(-80, 460, 240, 80);
         addTrampoline(130, 452);
         addPlat(270, 390, 120, 25);
         addIcicle(330, 90);
@@ -1877,7 +1900,7 @@ class GameScene extends Phaser.Scene {
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       } else { // Levels 6 - 30: Blizzard Chasm & Ice Spires
         const tier = Math.min(Math.floor(lvl / 5), 4);
-        addPlat(0, 460, 150, 80);
+        addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 430 - tier * 3, 100, 25);
         addIcicle(260, 80);
         addFallingPlat(370, 390 - tier * 3, 100, 25);
@@ -1894,16 +1917,16 @@ class GameScene extends Phaser.Scene {
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 2) {
       if (lvl === 0) { // Level 1 (Obsidian Crypt Intro)
-        addPlat(0, 460, 380, 80);
+        addPlat(-80, 460, 460, 80);
         addPlat(460, 460, 500, 80);
         addSpike(420, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Laser Tripwire Beam
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         addLaser(480, 430, false);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 2) { // Level 3: Crypt Stepping Stones & Laser
-        addPlat(0, 460, 160, 80);
+        addPlat(-80, 460, 240, 80);
         addPlat(220, 420, 110, 25);
         addPlat(390, 380, 110, 25);
         addLaser(445, 350, true);
@@ -1912,13 +1935,13 @@ class GameScene extends Phaser.Scene {
         for (let sx = 170; sx < 720; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 317, "door_tex");
       } else if (lvl === 3) { // Level 4: Dual Pulsing Lasers
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         addLaser(340, 430, true);
         addLaser(620, 430, true);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else { // Levels 5 - 30: Pulsing Lasers & Shadow Crypt Labyrinth
         const tier = Math.min(Math.floor(lvl / 5), 4);
-        addPlat(0, 460, 150, 80);
+        addPlat(-80, 460, 230, 80);
         addFallingPlat(210, 420 - tier * 3, 100, 25);
         if (lvl % 2 === 0) addLaser(330, 390 - tier * 3, true);
         addFallingPlat(370, 380 - tier * 3, 100, 25);
@@ -1935,20 +1958,20 @@ class GameScene extends Phaser.Scene {
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 3) {
       if (lvl === 0) { // Level 1 (Gravity Intro)
-        addPlat(0, 460, 320, 80);
-        addPlat(0, 0, width, 50);
+        addPlat(-80, 460, 400, 80);
+        addPlat(-80, 0, width + 100, 50);
         addPlat(320, 240, 80, 300);
         addPlat(400, 460, 560, 80);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Inverted Spikes on Floor & Ceiling
-        addPlat(0, 460, 360, 80);
-        addPlat(0, 0, width, 50);
+        addPlat(-80, 460, 440, 80);
+        addPlat(-80, 0, width + 100, 50);
         addPlat(500, 460, 460, 80);
         for (let sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else { // Levels 3 - 30: Gravity Maze Chambers
-        addPlat(0, 460, 180, 80);
-        addPlat(0, 0, width, 50);
+        addPlat(-80, 460, 260, 80);
+        addPlat(-80, 0, width + 100, 50);
         addPlat(240, 180, 120, 25);
         addPlat(420, 360, 120, 25);
         addPlat(600, 180, 120, 25);
@@ -1963,7 +1986,7 @@ class GameScene extends Phaser.Scene {
     // ─────────────────────────────────────────────────────────────
     else {
       if (lvl === 0) { // Level 1 (Glitch Intro - Flickering Platform)
-        addPlat(0, 460, 280, 80);
+        addPlat(-80, 460, 360, 80);
         const gb = addPlat(340, 460, 240, 80);
         gb.period = 1.6;
         this.glitchBlocks.push(gb);
@@ -1972,7 +1995,7 @@ class GameScene extends Phaser.Scene {
         addSpike(600, 450);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else if (lvl === 1) { // Level 2: Control Flip Zone!
-        addPlat(0, 460, width, 80);
+        addPlat(-80, 460, width + 100, 80);
         this.customTriggers.push({
           triggered: false,
           condition: (sc) => sc.player.x > 320,
@@ -1985,7 +2008,7 @@ class GameScene extends Phaser.Scene {
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
       } else { // Levels 3 - 30: Singularity Finale
         const tier = Math.min(Math.floor(lvl / 5), 4);
-        addPlat(0, 460, 150, 80);
+        addPlat(-80, 460, 230, 80);
         const gb1 = addFallingPlat(210, 420 - tier * 3, 100, 25);
         gb1.period = 1.8;
         this.glitchBlocks.push(gb1);
@@ -2065,4 +2088,4 @@ try {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with Landscape Fullscreen & World Select Feedback button! Size:", len(code))
+print("game.js generated with Edge-to-Edge Theme Backgrounds & Left Spawn Wall Protection! Size:", len(code))
