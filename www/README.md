@@ -19,6 +19,8 @@
 
 *(Playable on PC, Mac, Android, and iOS browsers directly with zero installations!)*
 
+📋 **[View 150-Level Quality Assurance Audit Report](AUDIT_REPORT.md)**
+
 ---
 
 ## 📸 In-Game Screenshots & Conceptual Previews
