@@ -37,6 +37,53 @@
   100% { opacity: 0; transform: scale(1.15); }
 }
 
+/* ── Rotate Device Overlay for Mobile Portrait Mode ───────── */
+#rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999998;
+  background: #0d0f17;
+  background: radial-gradient(ellipse at center, #1b1e2e 0%, #08090f 100%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  gap: 18px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rotate-phone-anim {
+  font-size: 54px;
+  animation: phoneRotate 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+.rotate-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(14px, 4vw, 20px);
+  color: #ffd32a;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 15px rgba(255, 211, 42, 0.6);
+}
+.rotate-desc {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(9px, 2.5vw, 11px);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  max-width: 320px;
+}
+@keyframes phoneRotate {
+  0%, 15% { transform: rotate(0deg); }
+  50%, 75% { transform: rotate(-90deg) scale(1.1); }
+  100% { transform: rotate(0deg); }
+}
+@media (orientation: portrait) and (max-width: 900px) {
+  #rotate-prompt {
+    display: flex !important;
+  }
+}
+
 /* ── Instant Game Loader Splash ────────────────────────── */
 #game-loader {
   position: fixed;
