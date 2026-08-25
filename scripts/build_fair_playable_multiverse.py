@@ -1,8 +1,8 @@
-# Generator script with SafeStorage (In-App WebView Safe), WebGL/Canvas Fallbacks, and iOS Safari Safety
+# Generator script with Arcade Bezel, Theme Ambient Glow, SafeStorage, and Failover Scripting
 code = r'''// ═══════════════════════════════════════════════════════════════
-//  Oops! – Multiverse Platformer Edition (v5.1.0 Bulletproof)
+//  Oops! – Multiverse Platformer Edition (v5.2.0 Arcade Edition)
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  In-App WebView Safe, Cross-Browser Fullscreen & SafeStorage
+//  Sleek Arcade Bezel & Theme Glow, SafeStorage & Fast Direct Boot
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -69,11 +69,14 @@ function autoLandscapeFullScreen() {
 window.addEventListener("touchstart", autoLandscapeFullScreen, { passive: true });
 window.addEventListener("pointerdown", autoLandscapeFullScreen, { passive: true });
 
-function syncBodyBackground(hexNumber) {
+function syncBodyBackground(theme) {
   try {
-    const hex = "#" + hexNumber.toString(16).padStart(6, "0");
-    document.body.style.backgroundColor = hex;
-    document.documentElement.style.backgroundColor = hex;
+    const canvas = document.querySelector("canvas");
+    if (canvas && theme) {
+      const accentHex = "#" + (theme.accent || 0xffd32a).toString(16).padStart(6, "0");
+      canvas.style.borderColor = `rgba(255, 255, 255, 0.22)`;
+      canvas.style.boxShadow = `0 0 0 1px rgba(0, 0, 0, 0.95), 0 12px 45px rgba(0, 0, 0, 0.88), 0 0 30px ${accentHex}40`;
+    }
   } catch(e) {}
 }
 
@@ -960,7 +963,7 @@ class WorldSelectScene extends Phaser.Scene {
     removeLoaderSplash();
 
     const theme = getTheme(this.currentWorldIdx);
-    syncBodyBackground(theme.bg);
+    syncBodyBackground(theme);
 
     this.bgGfx = this.add.graphics();
     this.drawBackground();
@@ -972,7 +975,7 @@ class WorldSelectScene extends Phaser.Scene {
   drawBackground() {
     const { width, height } = this.scale;
     const theme = getTheme(this.currentWorldIdx);
-    syncBodyBackground(theme.bg);
+    syncBodyBackground(theme);
 
     this.bgGfx.clear();
     this.bgGfx.fillStyle(theme.bg, 1);
@@ -1300,7 +1303,7 @@ class GameScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
     const theme = getTheme(this.currentWorld);
-    syncBodyBackground(theme.bg);
+    syncBodyBackground(theme);
 
     AudioEngine.init();
     AudioEngine.startMusic();
@@ -2222,4 +2225,4 @@ if (document.readyState === "loading") {
 with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
     f.write(code)
 
-print("game.js generated with SafeStorage & iOS WebView fixes! Size:", len(code))
+print("game.js generated with Arcade Bezel & Theme Glow! Size:", len(code))
