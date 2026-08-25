@@ -210,85 +210,69 @@ const PALETTE = {
 };
 
 // ─── World Themes ────────────────────────────────────────────
-const WORLD_THEMES = {
-  classic: [
-    { name:"DESERT", bg1:"#7a2000", bg2:"#b03800",
-      ground:"#c8601a", groundTop:"#e07820",
-      platform:"#c8601a", platformTop:"#d87020", fake:"#a04018",
-      danger:"#cc2200", spike:"#cc2200", saw:"#ff6600",
-      exit:"#e8c060", exitGlow:"rgba(232,192,96,0.5)",
-      portal1:"#ff8800", portal2:"#cc4400",
-      fog:"rgba(120,32,0,0.15)", crackColor:"rgba(0,0,0,0.18)" },
-    { name:"SHADOW", bg1:"#180c06", bg2:"#2a1508",
-      ground:"#58301e", groundTop:"#7a4028",
-      platform:"#58301e", platformTop:"#6a3820", fake:"#381808",
-      danger:"#882200", spike:"#aa3300", saw:"#cc4400",
-      exit:"#c8a030", exitGlow:"rgba(200,160,48,0.5)",
-      portal1:"#c04000", portal2:"#802000",
-      fog:"rgba(24,12,6,0.28)", crackColor:"rgba(0,0,0,0.3)" },
-    { name:"VOID", bg1:"#180540", bg2:"#2a0f60",
-      ground:"#5a3898", groundTop:"#6a48a8",
-      platform:"#5a3898", platformTop:"#6848a0", fake:"#3a1870",
-      danger:"#8820c0", spike:"#9030d0", saw:"#a040e0",
-      exit:"#e0a000", exitGlow:"rgba(224,160,0,0.5)",
-      portal1:"#a040e0", portal2:"#6020a0",
-      fog:"rgba(24,5,64,0.25)", crackColor:"rgba(80,40,160,0.12)" },
-  ],
-  gravity: [
-    { name:"FROST", bg1:"#0b3040", bg2:"#144c66",
-      ground:"#237294", groundTop:"#358cb8",
-      platform:"#237294", platformTop:"#358cb8", fake:"#154c66",
-      danger:"#e74c3c", spike:"#e74c3c", saw:"#e67e22",
-      exit:"#f1c40f", exitGlow:"rgba(241,196,15,0.5)",
-      portal1:"#00d2d3", portal2:"#01a3a4",
-      fog:"rgba(11,48,64,0.22)", crackColor:"rgba(255,255,255,0.06)" },
-    { name:"MATRIX", bg1:"#050a05", bg2:"#0c150c",
-      ground:"#1b331b", groundTop:"#264d26",
-      platform:"#1b331b", platformTop:"#264d26", fake:"#0f1f0f",
-      danger:"#ff3333", spike:"#ff3333", saw:"#00ff00",
-      exit:"#00ff00", exitGlow:"rgba(0,255,0,0.5)",
-      portal1:"#2edd0d", portal2:"#198c06",
-      fog:"rgba(5,10,5,0.3)", crackColor:"rgba(0,255,0,0.07)" },
-    { name:"OBSIDIAN", bg1:"#101520", bg2:"#172030",
-      ground:"#283b52", groundTop:"#384e68",
-      platform:"#283b52", platformTop:"#384e68", fake:"#192434",
-      danger:"#ff3e3e", spike:"#ff3e3e", saw:"#00d2d3",
-      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
-      portal1:"#341f97", portal2:"#222f3e",
-      fog:"rgba(16,21,32,0.25)", crackColor:"rgba(0,210,211,0.06)" },
-  ],
-  glitch: [
-    { name:"SUNRISE", bg1:"#30122e", bg2:"#501c40",
-      ground:"#80325d", groundTop:"#9c4475",
-      platform:"#80325d", platformTop:"#9c4475", fake:"#5c2045",
-      danger:"#ff3838", spike:"#ff3838", saw:"#ffd32a",
-      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
-      portal1:"#ff9ff3", portal2:"#fec107",
-      fog:"rgba(48,18,46,0.2)", crackColor:"rgba(255,211,42,0.08)" },
-    { name:"LAVA", bg1:"#140606", bg2:"#240a0a",
-      ground:"#4d1515", groundTop:"#662020",
-      platform:"#4d1515", platformTop:"#662020", fake:"#330e0e",
-      danger:"#ff2200", spike:"#ff2200", saw:"#ff9f43",
-      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
-      portal1:"#ff5252", portal2:"#ff7675",
-      fog:"rgba(20,6,6,0.3)", crackColor:"rgba(255,0,0,0.1)" },
-    { name:"TWILIGHT", bg1:"#1d0e32", bg2:"#2d164d",
-      ground:"#61318a", groundTop:"#753fa6",
-      platform:"#61318a", platformTop:"#753fa6", fake:"#452263",
-      danger:"#ff3f34", spike:"#ff3f34", saw:"#ef5777",
-      exit:"#ffd32a", exitGlow:"rgba(255,211,42,0.5)",
-      portal1:"#f53b57", portal2:"#3c40c6",
-      fog:"rgba(29,14,50,0.22)", crackColor:"rgba(125,95,255,0.08)" },
-  ]
-};
-
-let activeMultiverse = localStorage.getItem("oops_last_multiverse") || "classic"; // 'classic', 'gravity', 'glitch'
+const WORLD_THEMES = [
+  { // World 1: Desert Ruins (Levels 1-6)
+    name: "DESERT RUINS",
+    bg1: "#7a2000", bg2: "#b03800",
+    bgCrack: "rgba(0,0,0,0.18)",
+    ground: "#c8601a", groundTop: "#e07820",
+    platform: "#c8601a", platformTop: "#d87020", fake: "#a04018",
+    danger: "#cc2200", spike: "#cc2200", saw: "#ff6600",
+    exit: "#e8c060", exitGlow: "rgba(232,192,96,0.5)",
+    portal1: "#ff8800", portal2: "#cc4400",
+    fog: "rgba(120,32,0,0.15)", crackColor: "rgba(0,0,0,0.18)"
+  },
+  { // World 2: Frost Spire (Levels 7-12)
+    name: "FROST SPIRE",
+    bg1: "#0b3040", bg2: "#144c66",
+    bgCrack: "rgba(255,255,255,0.06)",
+    ground: "#237294", groundTop: "#358cb8",
+    platform: "#237294", platformTop: "#358cb8", fake: "#154c66",
+    danger: "#e74c3c", spike: "#e74c3c", saw: "#00d2d3",
+    exit: "#f1c40f", exitGlow: "rgba(241,196,15,0.5)",
+    portal1: "#00d2d3", portal2: "#01a3a4",
+    fog: "rgba(11,48,64,0.22)", crackColor: "rgba(255,255,255,0.08)"
+  },
+  { // World 3: Shadow Crypt (Levels 13-18)
+    name: "SHADOW CRYPT",
+    bg1: "#180c06", bg2: "#2a1508",
+    bgCrack: "rgba(0,0,0,0.3)",
+    ground: "#58301e", groundTop: "#7a4028",
+    platform: "#58301e", platformTop: "#6a3820", fake: "#381808",
+    danger: "#882200", spike: "#aa3300", saw: "#cc4400",
+    exit: "#c8a030", exitGlow: "rgba(200,160,48,0.5)",
+    portal1: "#c04000", portal2: "#802000",
+    fog: "rgba(24,12,6,0.28)", crackColor: "rgba(0,0,0,0.3)"
+  },
+  { // World 4: Gravity Nexus (Levels 19-24)
+    name: "GRAVITY NEXUS",
+    bg1: "#050a05", bg2: "#0c150c",
+    bgCrack: "rgba(0,255,0,0.07)",
+    ground: "#1b331b", groundTop: "#264d26",
+    platform: "#1b331b", platformTop: "#264d26", fake: "#0f1f0f",
+    danger: "#ff3333", spike: "#ff3333", saw: "#00ff00",
+    exit: "#00ff00", exitGlow: "rgba(0,255,0,0.5)",
+    portal1: "#2edd0d", portal2: "#198c06",
+    fog: "rgba(5,10,5,0.3)", crackColor: "rgba(0,255,0,0.07)"
+  },
+  { // World 5: Glitch Core (Levels 25-30)
+    name: "GLITCH CORE",
+    bg1: "#1d0e32", bg2: "#2d164d",
+    bgCrack: "rgba(125,95,255,0.08)",
+    ground: "#61318a", groundTop: "#753fa6",
+    platform: "#61318a", platformTop: "#753fa6", fake: "#452263",
+    danger: "#ff3f34", spike: "#ff3f34", saw: "#ef5777",
+    exit: "#ffd32a", exitGlow: "rgba(255,211,42,0.5)",
+    portal1: "#f53b57", portal2: "#3c40c6",
+    fog: "rgba(29,14,50,0.22)", crackColor: "rgba(125,95,255,0.08)"
+  }
+];
 
 function getTheme(idx) {
-  const mvThemes = WORLD_THEMES[activeMultiverse] || WORLD_THEMES.classic;
-  return idx <= 2 ? mvThemes[0] : idx <= 5 ? mvThemes[1] : mvThemes[2];
+  const worldIndex = Math.floor(idx / 6);
+  return WORLD_THEMES[Math.min(worldIndex, WORLD_THEMES.length - 1)];
 }
-let activeTheme = WORLD_THEMES.classic[0];
+let activeTheme = WORLD_THEMES[0];
 
 // ─── Particle System ────────────────────────────────────────
 class Particle {
@@ -1151,11 +1135,23 @@ class Portal {
 }
 
 class Exit {
-  constructor(x, y) {
-    this.x=x; this.y=y;
-    this.w=40; this.h=50;
-    this.phase=0;
-    this.reached=false;
+  constructor(x, y, opts = {}) {
+    this.x = x;
+    this.y = y;
+    this.startX = x;
+    this.startY = y;
+    this.w = 40;
+    this.h = 50;
+    this.phase = 0;
+    this.reached = false;
+    // Fleeing Exit troll mechanics (inspired by Level Devil)
+    this.fleeOnProximity = opts.fleeOnProximity || false;
+    this.fleeDist = opts.fleeDist || 90;
+    this.targetX = opts.targetX ?? x;
+    this.targetY = opts.targetY ?? y;
+    this.fleeSpeed = opts.fleeSpeed || 8;
+    this.hasFled = false;
+    this.fleeMessage = opts.fleeMessage || null;
   }
 
   get left()   { return this.x; }
@@ -1163,7 +1159,28 @@ class Exit {
   get top()    { return this.y; }
   get bottom() { return this.y+this.h; }
 
-  update(dt) { this.phase+=dt*2; }
+  update(dt, player, runtime) {
+    this.phase += dt * 2;
+    if (this.fleeOnProximity && !this.hasFled && player && player.alive) {
+      const dx = player.cx - (this.x + this.w / 2);
+      const dy = player.cy - (this.y + this.h / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < this.fleeDist) {
+        this.hasFled = true;
+        SFX.portal();
+        shake(5, 0.25);
+        spawnParticles(this.x + this.w / 2, this.y + this.h / 2, activeTheme.portal1 || "#ff8800", 14, 160);
+        if (runtime && this.fleeMessage) {
+          runtime.flashMsg = this.fleeMessage;
+          runtime.flashMsgTimer = 2.2;
+        }
+      }
+    }
+    if (this.hasFled) {
+      this.x = lerp(this.x, this.targetX, dt * this.fleeSpeed);
+      this.y = lerp(this.y, this.targetY, dt * this.fleeSpeed);
+    }
+  }
 
   draw(ctx) {
     const theme = activeTheme;
@@ -1244,457 +1261,809 @@ class Exit {
   }
 }
 
-// ─── Level Definitions ────────────────────────────────────────
-// Each level is a function that returns a fresh level object
-function buildLevel(index) {
-  const mv = activeMultiverse;
-  if (mv === "gravity") {
-    switch(index) {
-      case 0: return gravity_lvl0(); // simple gravity flip Intro
-      case 1: return gravity_lvl1(); // inverted ceiling hops
-      case 2: return gravity_lvl2(); // flipping saws dodging
-      case 3: return gravity_lvl3(); // portal gravity loops
-      case 4: return gravity_lvl4(); // matrix spikes maze
-      default: return gravity_lvl0();
+// ─── Interactive Hazard Classes ──────────────────────────────
+
+class Crusher {
+  constructor(x, y, w, h, groundY, opts = {}) {
+    this.startX = x;
+    this.startY = y;
+    this.x = x;
+    this.y = y;
+    this.w = w || 54;
+    this.h = h || 54;
+    this.groundY = groundY || (VH - 70);
+    this.triggerX1 = opts.triggerX1 ?? (x - 45);
+    this.triggerX2 = opts.triggerX2 ?? (x + this.w + 45);
+    this.slamSpeed = opts.slamSpeed || 780;
+    this.retractSpeed = opts.retractSpeed || 110;
+    this.state = "idle"; // idle, slamming, ground, retracting
+    this.groundTimer = 0;
+    this.groundWait = opts.groundWait || 0.65;
+  }
+
+  get left()   { return this.x; }
+  get right()  { return this.x + this.w; }
+  get top()    { return this.y; }
+  get bottom() { return this.y + this.h; }
+
+  update(dt, player) {
+    if (this.state === "idle") {
+      if (player && player.alive && player.cx >= this.triggerX1 && player.cx <= this.triggerX2 && player.y >= this.startY) {
+        this.state = "slamming";
+        SFX.trap();
+      }
+    } else if (this.state === "slamming") {
+      this.y += this.slamSpeed * dt;
+      if (this.y + this.h >= this.groundY) {
+        this.y = this.groundY - this.h;
+        this.state = "ground";
+        this.groundTimer = this.groundWait;
+        shake(7, 0.22);
+        SFX.land();
+        spawnParticles(this.x + this.w / 2, this.y + this.h, activeTheme.ground || "#888", 12, 150);
+      }
+    } else if (this.state === "ground") {
+      this.groundTimer -= dt;
+      if (this.groundTimer <= 0) {
+        this.state = "retracting";
+      }
+    } else if (this.state === "retracting") {
+      this.y -= this.retractSpeed * dt;
+      if (this.y <= this.startY) {
+        this.y = this.startY;
+        this.state = "idle";
+      }
     }
-  } else if (mv === "glitch") {
-    switch(index) {
-      case 0: return glitch_lvl0(); // double jump intro
-      case 1: return glitch_lvl1(); // glitching stepping stones
-      case 2: return glitch_lvl2(); // high speed saw speedruns
-      case 3: return glitch_lvl3(); // vanishing trampoline bounce
-      case 4: return glitch_lvl4(); // teleporting hazard run
-      default: return glitch_lvl0();
+  }
+
+  draw(ctx) {
+    const th = activeTheme;
+    ctx.save();
+
+    // Chains from ceiling
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(this.x + 10, 0);
+    ctx.lineTo(this.x + 10, this.y);
+    ctx.moveTo(this.x + this.w - 10, 0);
+    ctx.lineTo(this.x + this.w - 10, this.y);
+    ctx.stroke();
+
+    // Crusher Block Body
+    ctx.fillStyle = th.platformTop || "#555";
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+
+    ctx.fillStyle = th.platform || "#333";
+    ctx.fillRect(this.x + 4, this.y + 4, this.w - 8, this.h - 8);
+
+    // Spikes on the bottom edge
+    ctx.fillStyle = th.spike || "#e74c3c";
+    const teeth = Math.floor(this.w / 14);
+    for (let i = 0; i < teeth; i++) {
+      ctx.beginPath();
+      ctx.moveTo(this.x + i * 14, this.y + this.h);
+      ctx.lineTo(this.x + i * 14 + 7, this.y + this.h + 9);
+      ctx.lineTo(this.x + i * 14 + 14, this.y + this.h);
+      ctx.closePath();
+      ctx.fill();
     }
-  } else {
-    // Classic/Standard multiverse: our existing levels!
-    switch(index) {
-      case 0: return level_tutorial();
-      case 1: return level_vanishing();
-      case 2: return level_saws();
-      case 3: return level_iceAge();
-      case 4: return level_portalMadness();
-      case 5: return level_trampolineTrap();
-      case 6: return level_fakePlatforms();
-      case 7: return level_movingMayhem();
-      case 8: return level_spikeGauntlet();
-      case 9: return level_chaosRealm();
-      default: return level_tutorial();
-    }
+
+    // Glowing menacing eyes
+    const eyeY = this.y + this.h * 0.42;
+    ctx.fillStyle = this.state === "slamming" ? "#ff0000" : (th.danger || "#ff5252");
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = th.danger || "#ff0000";
+    ctx.fillRect(this.x + 10, eyeY, 6, 6);
+    ctx.fillRect(this.x + this.w - 16, eyeY, 6, 6);
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
   }
 }
 
+class FallingPlatform extends Platform {
+  constructor(x, y, w, h, opts = {}) {
+    super(x, y, w, h, TILE.SOLID, opts);
+    this.shakeTimer = 0;
+    this.fallTimer = opts.fallDelay || 0.28;
+    this.falling = false;
+    this.vy = 0;
+    this.steppedOn = false;
+    this.respawnTimer = 0;
+    this.respawnDelay = opts.respawnDelay || 3.2;
+    this.shakeOffsetX = 0;
+  }
+
+  update(dt) {
+    super.update(dt);
+    if (this.steppedOn && !this.falling) {
+      this.shakeTimer += dt;
+      this.shakeOffsetX = Math.sin(this.shakeTimer * 50) * 3.5;
+      this.fallTimer -= dt;
+      if (this.fallTimer <= 0) {
+        this.falling = true;
+        this.shakeOffsetX = 0;
+        SFX.trap();
+        spawnParticles(this.x + this.w / 2, this.y + this.h, activeTheme.ground || "#ff8800", 8, 100);
+      }
+    }
+    if (this.falling) {
+      this.vy += 1300 * dt;
+      this.y += this.vy * dt;
+      if (this.y > VH + 200) {
+        if (this.respawnDelay > 0) {
+          this.respawnTimer += dt;
+          if (this.respawnTimer >= this.respawnDelay) {
+            this.y = this.startY;
+            this.vy = 0;
+            this.falling = false;
+            this.steppedOn = false;
+            this.shakeTimer = 0;
+            this.fallTimer = 0.28;
+            this.respawnTimer = 0;
+          }
+        }
+      }
+    }
+  }
+
+  draw(ctx, time) {
+    if (this.y > VH + 100) return;
+    ctx.save();
+    ctx.translate(this.shakeOffsetX, 0);
+    super.draw(ctx, time);
+    ctx.restore();
+  }
+}
+
+class PopSpike extends Spike {
+  constructor(x, y, dir = "up", triggerX1, triggerX2, opts = {}) {
+    super(x, y, dir, { ...opts, hidden: true });
+    this.triggerX1 = triggerX1 ?? (x - 55);
+    this.triggerX2 = triggerX2 ?? (x + 75);
+    this.popped = false;
+    this.extension = 0;
+  }
+
+  update(dt, playerX, playerY) {
+    if (!this.popped && playerX >= this.triggerX1 && playerX <= this.triggerX2) {
+      this.popped = true;
+      this.revealed = true;
+      SFX.trap();
+      shake(3, 0.12);
+    }
+    if (this.popped && this.extension < 1) {
+      this.extension = Math.min(1, this.extension + dt * 12);
+    }
+  }
+
+  draw(ctx) {
+    if (!this.revealed) return;
+    ctx.save();
+    ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
+    const rotMap = { up: 0, down: Math.PI, left: -Math.PI / 2, right: Math.PI / 2 };
+    ctx.rotate(rotMap[this.dir] || 0);
+
+    ctx.fillStyle = activeTheme.spike || "#e74c3c";
+    ctx.beginPath();
+    ctx.moveTo(-this.w / 2, this.h / 2);
+    ctx.lineTo(0, this.h / 2 - this.h * this.extension);
+    ctx.lineTo(this.w / 2, this.h / 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = activeTheme.danger || "#ff0000";
+    ctx.restore();
+  }
+}
+
+class LaserHazard {
+  constructor(x1, y1, x2, y2, opts = {}) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+    this.cycle = opts.cycle || 2.4;
+    this.onDuration = opts.onDuration || 1.1;
+    this.offset = opts.offset || 0;
+    this.time = this.offset;
+    this.active = true;
+    this.warning = false;
+  }
+
+  update(dt) {
+    this.time = (this.time + dt) % this.cycle;
+    const progress = this.time / this.cycle;
+    this.warning = progress > (1 - (this.onDuration / this.cycle) - 0.16) && progress <= (1 - (this.onDuration / this.cycle));
+    this.active = progress > (1 - (this.onDuration / this.cycle));
+  }
+
+  collides(player) {
+    if (!this.active) return false;
+    const px = player.cx, py = player.cy;
+    const dx = this.x2 - this.x1, dy = this.y2 - this.y1;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return false;
+    const t = Math.max(0, Math.min(1, ((px - this.x1) * dx + (py - this.y1) * dy) / lenSq));
+    const nearX = this.x1 + t * dx, nearY = this.y1 + t * dy;
+    const distSq = (px - nearX) * (px - nearX) + (py - nearY) * (py - nearY);
+    return distSq < (player.w / 2 + 3) * (player.w / 2 + 3);
+  }
+
+  draw(ctx) {
+    ctx.save();
+    // Terminals
+    ctx.fillStyle = "#333";
+    ctx.beginPath(); ctx.arc(this.x1, this.y1, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(this.x2, this.y2, 6, 0, Math.PI * 2); ctx.fill();
+// ─── Level Definitions (30 Handcrafted Levels across 5 Worlds) ──
+function buildLevel(index) {
+  const levels = [
+    // 🏜️ World 1: Desert Ruins (Levels 0 - 5)
+    lvl0_firstSteps,
+    lvl1_crushingWelcome,
+    lvl2_crumblingPath,
+    lvl3_spikeAmbush,
+    lvl4_bouncerTrick,
+    lvl5_fleeingGateway,
+
+    // ❄️ World 2: Frost Spire (Levels 6 - 11)
+    lvl6_slipperySlope,
+    lvl7_icicleSmash,
+    lvl8_vanishingGlacier,
+    lvl9_laserGridAlpha,
+    lvl10_frozenSpring,
+    lvl11_frostbiteChase,
+
+    // 🏰 World 3: Shadow Crypt (Levels 12 - 17)
+    lvl12_darkAmbush,
+    lvl13_crushCrawl,
+    lvl14_falseHope,
+    lvl15_crossfireLasers,
+    lvl16_collapsingStairs,
+    lvl17_cryptMaster,
+
+    // 🌀 World 4: Gravity Nexus (Levels 18 - 23)
+    lvl18_ceilingWalker,
+    lvl19_invertedSaws,
+    lvl20_gravityFlipMaze,
+    lvl21_invertedCrushers,
+    lvl22_dualGravityLoops,
+    lvl23_nexusCore,
+
+    // ⚡ World 5: Glitch Core (Levels 24 - 29)
+    lvl24_chromaticSteps,
+    lvl25_hyperspeedBouncer,
+    lvl26_glitchLaserRun,
+    lvl27_teleportChaos,
+    lvl28_matrixTrial,
+    lvl29_grandFinale,
+  ];
+
+  const fn = levels[Math.max(0, Math.min(index, levels.length - 1))];
+  return fn ? fn() : lvl0_firstSteps();
+}
+
 function getMaxLevels() {
-  if (activeMultiverse === "gravity") return 5;
-  if (activeMultiverse === "glitch") return 5;
-  return 10;
+  return 30;
 }
 
-function mkSolid(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.SOLID,opts); }
-function mkVanish(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.VANISH,opts); }
-function mkFake(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.FAKE,opts); }
-function mkTrampo(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.TRAMPOLINE,opts); }
-function mkIce(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.ICE,opts); }
-function mkLava(x,y,w,h,opts={}) { return new Platform(x,y,w,h,TILE.LAVA,opts); }
-function mkMoving(x,y,w,h,axis,range,speed,opts={}) {
-  return new Platform(x,y,w,h,TILE.SOLID,{...opts,
-    moveX: axis==="x"?1:0, moveY: axis==="y"?1:0,
-    moveRange: range, moveSpeed: speed
-  });
-}
+// ═══════════════════════════════════════════════════════════════
+// 🏜️ WORLD 1: DESERT RUINS (Levels 1 - 6)
+// ═══════════════════════════════════════════════════════════════
 
-function level_tutorial() {
+function lvl0_firstSteps() {
   return {
-    name: "Welcome :)",
-    bg: ["#1a0533","#2d1b69"],
-    playerStart: [60, 430],
+    name: "First Steps :)",
+    playerStart: [60, 420],
     platforms: [
-      // Ground
-      mkSolid(0, 480, 960, 60),
-      // Stepping stones
-      mkSolid(200, 380, 120, 20),
-      mkSolid(380, 310, 120, 20),
-      mkSolid(560, 380, 120, 20),
-      // Deception: this platform drops out
-      mkVanish(700, 290, 100, 20, {vanishDelay:0.6}),
-      mkSolid(820, 240, 140, 20),
-    ],
-    hazards: [],
-    saws:    [],
-    spikes:  [
-      new Spike(220,464,"up"),new Spike(236,464,"up"),new Spike(252,464,"up"),
-    ],
-    portals: [],
-    exit: new Exit(870, 190),
-    trapMessage: "The floor won't always be there for you.",
-  };
-}
-
-function level_vanishing() {
-  return {
-    name: "Now You See It",
-    bg: ["#0d1b2a","#1b3a5c"],
-    playerStart: [30, 420],
-    platforms: [
-      mkSolid(0,460,120,60),
-      mkVanish(150,390,100,16,{vanishDelay:0.5}),
-      mkVanish(290,330,80,16,{vanishDelay:0.4}),
-      mkSolid(420,350,30,16),
-      mkVanish(500,290,120,16,{vanishDelay:0.7}),
-      mkVanish(660,240,80,16,{vanishDelay:0.3}),
-      mkSolid(790,200,40,16),
-      mkVanish(870,160,90,16,{vanishDelay:0.6}),
-      // Safe island at end
-      mkSolid(850, 400, 110, 16),
-    ],
-    hazards: [],
-    saws: [],
-    spikes: [
-      new Spike(420,344,"up"),
-    ],
-    portals: [],
-    exit: new Exit(900, 350),
-    trapMessage: "Trust the dashed platforms? Brave.",
-  };
-}
-
-function level_saws() {
-  return {
-    name: "Buzzsaw Ballet",
-    bg: ["#1a0f00","#3d2000"],
-    playerStart: [30, 420],
-    platforms: [
-      mkSolid(0,460,200,60),
-      mkSolid(240,380,160,20),
-      mkSolid(460,300,160,20),
-      mkSolid(680,220,160,20),
-      mkSolid(850,380,110,20),
-      mkSolid(0,240,120,20),
-      mkSolid(850,140,110,60),
-    ],
-    hazards: [],
-    saws: [
-      new Saw(320, 440, {speed:4, pathX:1, pathRange:80, pathSpeed:100}),
-      new Saw(550, 260, {speed:-5, pathY:1, pathRange:60, pathSpeed:70}),
-      new Saw(770, 180, {speed:3, pathX:1, pathRange:100, pathSpeed:120}),
-      new Saw(100, 200, {speed:-4, pathY:1, pathRange:80, pathSpeed:90}),
+      mkSolid(0, 470, 320, 70),
+      mkSolid(400, 470, 560, 70),
+      mkSolid(220, 370, 120, 20),
+      mkSolid(460, 320, 120, 20),
     ],
     spikes: [
-      new Spike(460,284,"up"), new Spike(476,284,"up"),
-      new Spike(600,284,"up"), new Spike(616,284,"up"),
+      new Spike(320, 520, "up"), new Spike(340, 520, "up"), new Spike(360, 520, "up"), new Spike(380, 520, "up"),
     ],
-    portals: [],
-    exit: new Exit(870, 90),
-    trapMessage: "The saws are hungry.",
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(850, 420, {
+      fleeOnProximity: true,
+      fleeDist: 100,
+      targetX: 850,
+      targetY: 260,
+      fleeMessage: "Not so fast! 😇"
+    }),
+    triggers: [
+      mkTrigger(
+        r => r.exit.hasFled && !r.data._platformAdded,
+        r => {
+          r.platforms.push(mkSolid(780, 310, 160, 20));
+          r.data._platformAdded = true;
+        }
+      )
+    ],
   };
 }
 
-function level_iceAge() {
+function lvl1_crushingWelcome() {
   return {
-    name: "Slippery Slope",
-    bg: ["#0d1f3c","#1a4080"],
-    playerStart: [30, 410],
-    platforms: [
-      mkSolid(0,450,200,60),
-      mkIce(180,370,200,16),
-      mkIce(360,310,160,16),
-      mkSolid(500,330,30,16),
-      mkIce(580,260,180,16),
-      mkIce(750,200,200,16),
-      mkSolid(900,220,60,16),
-    ],
-    hazards: [],
-    saws: [
-      new Saw(500, 290, {speed:3}),
-    ],
-    spikes: [
-      new Spike(360,294,"up"),new Spike(376,294,"up"),
-      new Spike(700,184,"up"),new Spike(716,184,"up"),new Spike(732,184,"up"),
-    ],
-    portals: [],
-    exit: new Exit(900, 170),
-    trapMessage: "Ice is slippery. Who knew?",
-  };
-}
-
-function level_portalMadness() {
-  return {
-    name: "Portal Problems",
-    bg: ["#1a0040","#3d008f"],
-    playerStart: [30, 430],
-    platforms: [
-      mkSolid(0,460,200,60),
-      mkSolid(270,380,120,20),
-      mkSolid(500,300,120,20),
-      mkSolid(730,380,120,20),
-      mkSolid(850,200,110,20),
-      mkSolid(0,200,120,20),
-    ],
-    hazards: [],
-    saws: [new Saw(620,260,{speed:4})],
-    spikes: [new Spike(500,284,"up"),new Spike(516,284,"up"),
-             new Spike(596,284,"up"),new Spike(612,284,"up")],
-    portals: [
-      // Portal that looks like it helps but dumps you near spikes
-      new Portal(420,350,510,400,{color:"#a855f7"}),
-      // Helpful portal
-      new Portal(740,350,60,170,{color:"#ec4899"}),
-    ],
-    exit: new Exit(60, 150),
-    trapMessage: "Where does this portal go? One way to find out.",
-  };
-}
-
-function level_trampolineTrap() {
-  return {
-    name: "Bounce House of Pain",
-    bg: ["#1a001a","#400040"],
-    playerStart: [30, 430],
-    platforms: [
-      mkSolid(0,460,200,60),
-      mkTrampo(240,420,80,20,{bounceVel:-950}),
-      mkSolid(380,320,120,20),
-      mkTrampo(560,310,80,20,{bounceVel:-1100}),
-      // The trampoline that launches you into spikes
-      mkTrampo(740,420,100,20,{bounceVel:-1050}),
-      mkSolid(860,280,100,20),
-    ],
-    hazards: [],
-    saws:[new Saw(380,300,{speed:3,pathX:1,pathRange:80,pathSpeed:100})],
-    spikes:[
-      // Ceiling spikes above the last trampoline
-      new Spike(730,100,"down"),new Spike(746,100,"down"),
-      new Spike(762,100,"down"),new Spike(778,100,"down"),
-      new Spike(794,100,"down"),new Spike(810,100,"down"),
-      new Spike(826,100,"down"),
-    ],
-    portals:[],
-    exit: new Exit(880,230),
-    trapMessage: "Trampolines are fun! (They're not.)",
-  };
-}
-
-function level_fakePlatforms() {
-  return {
-    name: "Trust Issues",
-    bg: ["#001a00","#003300"],
-    playerStart: [30, 430],
-    platforms: [
-      mkSolid(0,460,200,60),
-      // Row of platforms — some fake
-      mkSolid(240,370,80,16),
-      mkFake(360,370,80,16),
-      mkSolid(480,370,80,16),
-      mkFake(600,370,80,16),
-      mkFake(720,370,80,16),
-      mkSolid(820,370,80,16),
-      // Upper row
-      mkFake(240,280,80,16),
-      mkSolid(360,280,80,16),
-      mkFake(480,280,80,16),
-      mkSolid(600,280,80,16),
-      mkSolid(720,280,80,16),
-    ],
-    hazards: [],
-    saws: [],
-    spikes:[
-      new Spike(360,444,"up"),new Spike(376,444,"up"),
-      new Spike(600,444,"up"),new Spike(616,444,"up"),
-      new Spike(720,444,"up"),new Spike(736,444,"up"),
-    ],
-    portals:[],
-    exit: new Exit(720,230),
-    trapMessage: "Not every platform is what it seems.",
-  };
-}
-
-function level_movingMayhem() {
-  return {
-    name: "Everything Moves",
-    bg: ["#001a1a","#003344"],
-    playerStart: [30, 420],
-    platforms: [
-      mkSolid(0,460,130,60),
-      mkMoving(200,380,100,16,"x",120,90),
-      mkMoving(420,300,90,16,"y",80,70),
-      mkMoving(600,360,100,16,"x",150,110),
-      mkMoving(760,260,80,16,"y",100,85),
-      mkSolid(880,160,80,20),
-    ],
-    hazards:[],
-    saws:[
-      new Saw(350,430,{speed:4,pathX:1,pathRange:100,pathSpeed:100}),
-      new Saw(640,440,{speed:-4,pathX:1,pathRange:120,pathSpeed:110}),
-    ],
-    spikes:[
-      new Spike(0,444,"up"),new Spike(16,444,"up"),
-    ],
-    portals:[],
-    exit: new Exit(890,110),
-    trapMessage: "Nothing stays still. Neither should you.",
-  };
-}
-
-function level_spikeGauntlet() {
-  return {
-    name: "The Gauntlet",
-    bg: ["#1a0000","#330000"],
-    playerStart: [30, 410],
-    platforms: [
-      mkSolid(0,450,100,60),
-      // Long corridor with spikes overhead
-      mkSolid(100,450,700,30),
-      mkSolid(800,380,160,20),
-      mkSolid(880,280,80,20),
-    ],
-    hazards:[],
-    saws:[
-      new Saw(280,420,{speed:3,pathX:1,pathRange:60,pathSpeed:80}),
-      new Saw(500,420,{speed:-4,pathX:1,pathRange:50,pathSpeed:100}),
-      new Saw(700,420,{speed:5,pathX:1,pathRange:40,pathSpeed:90}),
-    ],
-    spikes:[
-      // Floor spikes in corridor
-      new Spike(160,434,"up"),new Spike(176,434,"up"),
-      new Spike(240,434,"up"),new Spike(256,434,"up"),
-      new Spike(340,434,"up"),new Spike(356,434,"up"),
-      new Spike(440,434,"up"),new Spike(456,434,"up"),
-      new Spike(560,434,"up"),new Spike(576,434,"up"),
-      new Spike(640,434,"up"),new Spike(656,434,"up"),
-      // Ceiling spikes
-      new Spike(200,330,"down"),new Spike(216,330,"down"),
-      new Spike(300,330,"down"),new Spike(316,330,"down"),
-      new Spike(400,330,"down"),new Spike(416,330,"down"),
-      new Spike(500,330,"down"),new Spike(516,330,"down"),
-      new Spike(600,330,"down"),new Spike(616,330,"down"),
-    ],
-    portals:[],
-    exit: new Exit(900,230),
-    trapMessage: "Precision or death.",
-  };
-}
-
-function level_chaosRealm() {
-  return {
-    name: "CHAOS REALM",
-    bg: ["#0f0000","#1a0020"],
-    playerStart: [30, 420],
-    platforms: [
-      mkSolid(0,460,120,60),
-      mkVanish(160,390,80,16,{vanishDelay:0.4}),
-      mkFake(280,340,80,16),
-      mkIce(400,300,120,16),
-      mkMoving(560,280,80,16,"x",100,100),
-      mkMoving(720,240,80,16,"y",80,90),
-      mkTrampo(860,420,80,16,{bounceVel:-1000}),
-      mkSolid(880,100,80,20),
-      // Hidden safe path
-      mkSolid(200,200,60,16),
-      mkSolid(300,160,60,16),
-      mkSolid(400,120,60,16),
-    ],
-    hazards:[],
-    saws:[
-      new Saw(350,430,{speed:5,pathX:1,pathRange:80,pathSpeed:110}),
-      new Saw(600,440,{speed:-5,pathX:1,pathRange:60,pathSpeed:100}),
-      new Saw(200,260,{speed:4,pathY:1,pathRange:40,pathSpeed:80}),
-    ],
-    spikes:[
-      new Spike(160,374,"up"),new Spike(176,374,"up"),
-      new Spike(560,444,"up"),new Spike(576,444,"up"),
-      // Ceiling traps
-      new Spike(860,130,"down",{hidden:true, revealTimer:0}),
-      new Spike(876,130,"down",{hidden:true, revealTimer:0}),
-      new Spike(892,130,"down",{hidden:true, revealTimer:0}),
-    ],
-    portals:[
-      new Portal(280,300,210,170,{color:"#a855f7"}),
-    ],
-    exit: new Exit(890,50),
-    trapMessage: "CHAOS. WELCOMES. YOU.",
-  };
-}
-
-// ─── Gravity Nexus Level Definitions (Gravity inversion) ──────
-function gravity_lvl0() {
-  return {
-    name: "Ceiling Walker",
-    bg: ["#0b3040","#144c66"],
+    name: "Crushing Welcome",
     playerStart: [60, 420],
     platforms: [
       mkSolid(0, 470, 240, 70),
-      mkSolid(320, 470, 640, 70), // Spike gap in middle
-      mkSolid(400, 120, 200, 20), // Floating ceiling platform
-      mkSolid(800, 250, 160, 20), // Exit platform
+      mkSolid(240, 470, 480, 70),
+      mkSolid(720, 470, 240, 70),
     ],
-    hazards: [], saws: [],
+    spikes: [], saws: [], portals: [], lasers: [],
+    crushers: [
+      mkCrusher(340, 60, 64, 64, 470, { triggerX1: 290, triggerX2: 440, slamSpeed: 820 }),
+      mkCrusher(520, 60, 64, 64, 470, { triggerX1: 470, triggerX2: 620, slamSpeed: 820 }),
+    ],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl2_crumblingPath() {
+  return {
+    name: "Crumbling Path",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 140, 70),
+      mkFalling(180, 450, 80, 20),
+      mkFalling(300, 410, 80, 20),
+      mkFalling(420, 370, 80, 20),
+      mkFalling(540, 330, 80, 20),
+      mkFalling(660, 370, 80, 20),
+      mkSolid(780, 470, 180, 70),
+    ],
+    spikes: [
+      new Spike(180, 520, "up"), new Spike(300, 520, "up"), new Spike(420, 520, "up"),
+      new Spike(540, 520, "up"), new Spike(660, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl3_spikeAmbush() {
+  return {
+    name: "Spike Ambush",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 960, 70),
+      mkSolid(300, 340, 160, 20),
+      mkSolid(600, 260, 160, 20),
+    ],
+    spikes: [
+      mkPopSpike(260, 454, "up", 200, 290),
+      mkPopSpike(520, 454, "up", 460, 550),
+      mkPopSpike(740, 454, "up", 680, 770),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(870, 420),
+  };
+}
+
+function lvl4_bouncerTrick() {
+  return {
+    name: "Bouncer Trouble",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 150, 70),
+      mkTrampo(220, 450, 70, 20, { bounceVel: -620 }),
+      mkSolid(420, 270, 140, 20),
+      mkTrampo(630, 450, 70, 20, { bounceVel: -620 }),
+      mkSolid(780, 470, 180, 70),
+    ],
+    spikes: [
+      new Spike(320, 520, "up"), new Spike(520, 520, "up"),
+    ],
+    saws: [
+      new Saw(340, 180, { speed: 4, pathY: 1, pathRange: 50, pathSpeed: 100 }),
+    ],
+    portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl5_fleeingGateway() {
+  return {
+    name: "The Fleeing Gate",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 180, 70),
+      mkSolid(260, 400, 140, 20),
+      mkSolid(480, 320, 140, 20),
+      mkSolid(700, 400, 140, 20),
+      mkSolid(850, 470, 110, 70),
+    ],
+    spikes: [
+      new Spike(200, 520, "up"), new Spike(420, 520, "up"), new Spike(640, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(320, 350, {
+      fleeOnProximity: true,
+      fleeDist: 85,
+      targetX: 740,
+      targetY: 350,
+      fleeMessage: "Catch me if you can! 🏃"
+    }),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ❄️ WORLD 2: FROST SPIRE (Levels 7 - 12)
+// ═══════════════════════════════════════════════════════════════
+
+function lvl6_slipperySlope() {
+  return {
+    name: "Slippery Slope",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 140, 70),
+      mkIce(140, 470, 500, 70),
+      mkSolid(780, 470, 180, 70),
+    ],
+    spikes: [
+      new Spike(640, 454, "up"), new Spike(656, 454, "up"), new Spike(672, 454, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl7_icicleSmash() {
+  return {
+    name: "Icicle Smash",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 200, 70),
+      mkIce(200, 470, 500, 70),
+      mkSolid(700, 470, 260, 70),
+    ],
+    spikes: [], saws: [], portals: [], lasers: [],
+    crushers: [
+      mkCrusher(280, 50, 60, 60, 470, { triggerX1: 220, triggerX2: 360, slamSpeed: 850 }),
+      mkCrusher(450, 50, 60, 60, 470, { triggerX1: 390, triggerX2: 530, slamSpeed: 850 }),
+      mkCrusher(600, 50, 60, 60, 470, { triggerX1: 540, triggerX2: 680, slamSpeed: 850 }),
+    ],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl8_vanishingGlacier() {
+  return {
+    name: "Vanishing Glacier",
+    playerStart: [40, 420],
+    platforms: [
+      mkSolid(0, 470, 120, 70),
+      mkVanish(160, 410, 90, 18, { vanishDelay: 0.5 }),
+      mkVanish(290, 350, 90, 18, { vanishDelay: 0.4 }),
+      mkVanish(420, 290, 90, 18, { vanishDelay: 0.4 }),
+      mkVanish(550, 350, 90, 18, { vanishDelay: 0.5 }),
+      mkVanish(680, 410, 90, 18, { vanishDelay: 0.6 }),
+      mkSolid(810, 470, 150, 70),
+    ],
+    spikes: [
+      new Spike(200, 520, "up"), new Spike(400, 520, "up"), new Spike(600, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(870, 420),
+  };
+}
+
+function lvl9_laserGridAlpha() {
+  return {
+    name: "Laser Grid Alpha",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 200, 70),
+      mkSolid(280, 470, 200, 70),
+      mkSolid(560, 470, 200, 70),
+      mkSolid(820, 470, 140, 70),
+    ],
+    spikes: [
+      new Spike(200, 520, "up"), new Spike(480, 520, "up"), new Spike(760, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [],
+    lasers: [
+      mkLaser(240, 200, 240, 520, { cycle: 2.2, onDuration: 1.0, offset: 0 }),
+      mkLaser(520, 200, 520, 520, { cycle: 2.2, onDuration: 1.0, offset: 1.1 }),
+    ],
+    exit: new Exit(870, 420),
+  };
+}
+
+function lvl10_frozenSpring() {
+  return {
+    name: "Frozen Spring",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 120, 70),
+      mkIce(120, 470, 200, 70),
+      mkTrampo(320, 450, 70, 20, { bounceVel: -680 }),
+      mkSolid(460, 240, 160, 20),
+      mkSolid(760, 320, 200, 220),
+    ],
+    spikes: [
+      new Spike(400, 520, "up"), new Spike(600, 520, "up"),
+    ],
+    saws: [],
+    portals: [
+      new Portal(560, 190, 800, 270, { color: "#00d2d3" }),
+    ],
+    crushers: [], lasers: [],
+    exit: new Exit(880, 270),
+  };
+}
+
+function lvl11_frostbiteChase() {
+  return {
+    name: "Frostbite Chase",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 140, 70),
+      mkIce(140, 470, 480, 70),
+      mkFalling(640, 390, 90, 20),
+      mkSolid(780, 470, 180, 70),
+    ],
+    spikes: [
+      mkPopSpike(360, 454, "up", 280, 400),
+      mkPopSpike(520, 454, "up", 440, 560),
+    ],
+    saws: [
+      new Saw(300, 440, { speed: 5, pathX: 1, pathRange: 120, pathSpeed: 160 }),
+    ],
+    portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 420),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🏰 WORLD 3: SHADOW CRYPT (Levels 13 - 18)
+// ═══════════════════════════════════════════════════════════════
+
+function lvl12_darkAmbush() {
+  return {
+    name: "Dark Ambush",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 300, 70),
+      mkSolid(380, 470, 200, 70),
+      mkSolid(660, 470, 300, 70),
+      mkSolid(420, 320, 120, 20),
+    ],
+    spikes: [
+      new Spike(300, 520, "up"), new Spike(580, 520, "up"),
+    ],
+    saws: [
+      new Saw(500, 160, { speed: 4, pathY: 1, pathRange: 80, pathSpeed: 140 }),
+    ],
+    portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl13_crushCrawl() {
+  return {
+    name: "Crush Crawl",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 200, 70),
+      mkSolid(200, 470, 560, 70),
+      mkSolid(760, 470, 200, 70),
+    ],
+    spikes: [], saws: [], portals: [], lasers: [],
+    crushers: [
+      mkCrusher(300, 40, 120, 64, 470, { triggerX1: 240, triggerX2: 440, slamSpeed: 880 }),
+      mkCrusher(520, 40, 120, 64, 470, { triggerX1: 460, triggerX2: 660, slamSpeed: 880 }),
+    ],
+    exit: new Exit(870, 420),
+  };
+}
+
+function lvl14_falseHope() {
+  return {
+    name: "False Hope",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 220, 70),
+      mkSolid(300, 470, 360, 70),
+      mkSolid(740, 470, 220, 70),
+      mkSolid(400, 260, 160, 20),
+    ],
+    spikes: [
+      mkPopSpike(800, 454, "up", 740, 860),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(480, 210), // Real exit elevated!
+  };
+}
+
+function lvl15_crossfireLasers() {
+  return {
+    name: "Crossfire Lasers",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 160, 70),
+      mkSolid(240, 400, 120, 20),
+      mkSolid(440, 300, 120, 20),
+      mkSolid(640, 400, 120, 20),
+      mkSolid(800, 470, 160, 70),
+    ],
+    spikes: [
+      new Spike(160, 520, "up"), new Spike(360, 520, "up"), new Spike(560, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [],
+    lasers: [
+      mkLaser(300, 100, 300, 500, { cycle: 2.2, onDuration: 1.1, offset: 0 }),
+      mkLaser(500, 100, 500, 500, { cycle: 2.2, onDuration: 1.1, offset: 1.1 }),
+      mkLaser(150, 350, 750, 350, { cycle: 2.8, onDuration: 1.0, offset: 0.5 }),
+    ],
+    exit: new Exit(860, 420),
+  };
+}
+
+function lvl16_collapsingStairs() {
+  return {
+    name: "Collapsing Stairs",
+    playerStart: [40, 420],
+    platforms: [
+      mkSolid(0, 470, 120, 70),
+      mkFalling(160, 440, 90, 20),
+      mkFalling(280, 380, 90, 20),
+      mkFalling(400, 320, 90, 20),
+      mkFalling(520, 260, 90, 20),
+      mkFalling(640, 200, 90, 20),
+      mkSolid(780, 240, 180, 300),
+    ],
+    spikes: [
+      new Spike(150, 520, "up"), new Spike(300, 520, "up"), new Spike(450, 520, "up"), new Spike(600, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 190),
+  };
+}
+
+function lvl17_cryptMaster() {
+  return {
+    name: "Crypt Master",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 160, 70),
+      mkFalling(220, 420, 100, 20),
+      mkSolid(380, 340, 120, 20),
+      mkFalling(560, 340, 100, 20),
+      mkSolid(740, 470, 220, 70),
+    ],
+    spikes: [
+      new Spike(160, 520, "up"), new Spike(480, 520, "up"),
+    ],
+    saws: [
+      new Saw(300, 240, { speed: 4, pathY: 1, pathRange: 60, pathSpeed: 120 }),
+    ],
+    crushers: [
+      mkCrusher(440, 50, 64, 64, 340, { triggerX1: 380, triggerX2: 500, slamSpeed: 850 }),
+    ],
+    lasers: [
+      mkLaser(680, 150, 680, 500, { cycle: 2.4, onDuration: 1.1, offset: 0 }),
+    ],
+    portals: [],
+    exit: new Exit(860, 420, {
+      fleeOnProximity: true,
+      fleeDist: 85,
+      targetX: 860,
+      targetY: 280,
+      fleeMessage: "Crypt Master says: NOPE! 😈"
+    }),
+    triggers: [
+      mkTrigger(
+        r => r.exit.hasFled && !r.data._platformAdded,
+        r => {
+          r.platforms.push(mkSolid(800, 330, 140, 20));
+          r.data._platformAdded = true;
+        }
+      )
+    ],
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🌀 WORLD 4: GRAVITY NEXUS (Levels 19 - 24)
+// ═══════════════════════════════════════════════════════════════
+
+function lvl18_ceilingWalker() {
+  return {
+    name: "Ceiling Walker",
+    playerStart: [60, 420],
+    platforms: [
+      mkSolid(0, 470, 240, 70),
+      mkSolid(320, 470, 640, 70),
+      mkSolid(400, 120, 200, 20),
+      mkSolid(800, 250, 160, 20),
+    ],
     spikes: [
       new Spike(240, 470, "up"), new Spike(256, 470, "up"), new Spike(272, 470, "up"), new Spike(288, 470, "up"), new Spike(304, 470, "up"),
     ],
-    portals: [],
+    saws: [], portals: [], crushers: [], lasers: [],
     exit: new Exit(860, 200),
     trapMessage: "PC: Shift | Mobile: Tap FLIP to walk on ceilings!",
   };
 }
 
-function gravity_lvl1() {
+function lvl19_invertedSaws() {
   return {
-    name: "Upside Down Hops",
-    bg: ["#0b3040","#144c66"],
-    playerStart: [50, 420],
-    platforms: [
-      mkSolid(0, 460, 120, 80),
-      // Ceiling stepping stones
-      mkSolid(220, 160, 100, 20),
-      mkSolid(420, 120, 100, 20),
-      mkSolid(620, 160, 100, 20),
-      mkSolid(800, 420, 160, 120),
-    ],
-    hazards: [], saws: [],
-    spikes: [
-      // Floor is entirely spikes!
-      new Spike(140, 520, "up"), new Spike(240, 520, "up"), new Spike(340, 520, "up"),
-      new Spike(440, 520, "up"), new Spike(540, 520, "up"), new Spike(640, 520, "up"),
-      new Spike(740, 520, "up"),
-    ],
-    portals: [],
-    exit: new Exit(860, 370),
-    trapMessage: "Stand on the ceiling and jump DOWNWARD!",
-  };
-}
-
-function gravity_lvl2() {
-  return {
-    name: "Ceiling Saws",
-    bg: ["#050a05","#0c150c"],
+    name: "Inverted Saws",
     playerStart: [50, 410],
     platforms: [
       mkSolid(0, 450, 200, 90),
       mkSolid(250, 450, 400, 90),
       mkSolid(700, 450, 260, 90),
-      // Ceiling safe zone
       mkSolid(350, 100, 250, 20),
-    ],
-    hazards: [],
-    saws: [
-      // Saws sliding on floor
-      new Saw(350, 435, {speed:4, pathX:1, pathRange:120, pathSpeed:200}),
-      new Saw(550, 435, {speed:5, pathX:1, pathRange:100, pathSpeed:180}),
     ],
     spikes: [
       new Spike(210, 450, "up"), new Spike(226, 450, "up"),
       new Spike(660, 450, "up"), new Spike(676, 450, "up"),
     ],
-    portals: [],
+    saws: [
+      new Saw(350, 435, { speed: 4, pathX: 1, pathRange: 120, pathSpeed: 200 }),
+      new Saw(550, 435, { speed: 5, pathX: 1, pathRange: 100, pathSpeed: 180 }),
+    ],
+    portals: [], crushers: [], lasers: [],
     exit: new Exit(850, 400),
     trapMessage: "Floor is a buzzsaw ballet. Use the ceiling!",
   };
 }
 
-function gravity_lvl3() {
+function lvl20_gravityFlipMaze() {
   return {
-    name: "Gravity Portal Loop",
-    bg: ["#050a05","#0c150c"],
+    name: "Gravity Flip Maze",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 460, 120, 80),
+      mkSolid(220, 160, 100, 20),
+      mkSolid(420, 120, 100, 20),
+      mkSolid(620, 160, 100, 20),
+      mkSolid(800, 420, 160, 120),
+    ],
+    spikes: [
+      new Spike(140, 520, "up"), new Spike(240, 520, "up"), new Spike(340, 520, "up"),
+      new Spike(440, 520, "up"), new Spike(540, 520, "up"), new Spike(640, 520, "up"),
+      new Spike(740, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+    exit: new Exit(860, 370),
+    trapMessage: "Stand on the ceiling and jump DOWNWARD!",
+  };
+}
+
+function lvl21_invertedCrushers() {
+  return {
+    name: "Inverted Crushers",
+    playerStart: [50, 410],
+    platforms: [
+      mkSolid(0, 450, 150, 90),
+      mkSolid(150, 100, 660, 20), // Ceiling walking track
+      mkSolid(810, 450, 150, 90),
+    ],
+    spikes: [
+      new Spike(150, 520, "up"), new Spike(300, 520, "up"), new Spike(500, 520, "up"), new Spike(700, 520, "up"),
+    ],
+    crushers: [
+      mkCrusher(300, 400, 60, 60, 120, { triggerX1: 240, triggerX2: 360, slamSpeed: 800 }),
+      mkCrusher(550, 400, 60, 60, 120, { triggerX1: 490, triggerX2: 610, slamSpeed: 800 }),
+    ],
+    saws: [], portals: [], lasers: [],
+    exit: new Exit(870, 400),
+    trapMessage: "Flip gravity to ceiling, but watch the floor slammers!",
+  };
+}
+
+function lvl22_dualGravityLoops() {
+  return {
+    name: "Dual Gravity Loops",
     playerStart: [50, 410],
     platforms: [
       mkSolid(0, 450, 150, 90),
@@ -1703,172 +2072,207 @@ function gravity_lvl3() {
       mkSolid(620, 150, 120, 20),
       mkSolid(800, 450, 160, 90),
     ],
-    hazards: [], saws: [],
     spikes: [
       new Spike(160, 520, "up"), new Spike(300, 520, "up"), new Spike(500, 520, "up"),
     ],
     portals: [
-      // Floor portal launches you to ceiling
-      new Portal(300, 190, 680, 140, {color: "#2edd0d"}),
+      new Portal(300, 190, 680, 140, { color: "#2edd0d" }),
     ],
+    saws: [], crushers: [], lasers: [],
     exit: new Exit(860, 400),
     trapMessage: "Teleport and flip gravity instantly mid-air!",
   };
 }
 
-function gravity_lvl4() {
+function lvl23_nexusCore() {
   return {
-    name: "Obsidian Spikes Maze",
-    bg: ["#101520","#172030"],
+    name: "Nexus Core",
     playerStart: [50, 410],
     platforms: [
       mkSolid(0, 450, 180, 90),
-      mkSolid(220, 340, 140, 20), // Mid platform
-      mkSolid(420, 200, 140, 20), // High platform
-      mkSolid(620, 340, 140, 20), // Mid right platform
+      mkSolid(220, 340, 140, 20),
+      mkSolid(420, 200, 140, 20),
+      mkSolid(620, 340, 140, 20),
       mkSolid(800, 450, 160, 90),
-      // Ceiling blocks
       mkSolid(150, 120, 80, 20),
       mkSolid(550, 120, 80, 20),
     ],
-    hazards: [],
     saws: [
-      new Saw(500, 185, {speed:4, pathY:1, pathRange:60, pathSpeed:120}),
+      new Saw(500, 185, { speed: 4, pathY: 1, pathRange: 60, pathSpeed: 120 }),
     ],
     spikes: [
-      // Alternating spikes on floor/ceilings
       new Spike(250, 340, "up"),
       new Spike(450, 200, "down"),
       new Spike(650, 340, "up"),
       new Spike(170, 140, "down"),
       new Spike(570, 140, "down"),
     ],
-    portals: [],
+    portals: [], crushers: [], lasers: [],
     exit: new Exit(860, 400),
     trapMessage: "Flipping at the exact right millisecond is key.",
   };
 }
 
-// ─── Glitch Realm Level Definitions (Double Jump & Flickers) ──
-function glitch_lvl0() {
-  return {
-    name: "Jump Pad Jumpstart",
-    bg: ["#30122e","#501c40"],
-    playerStart: [60, 430],
-    platforms: [
-      mkSolid(0, 470, 200, 70),
-      // Bouncer trampoline block
-      mkTrampo(280, 440, 80, 20, {bounceVel: -620}), // Launches super high!
-      mkSolid(480, 280, 160, 20),
-      mkSolid(760, 280, 200, 260),
-    ],
-    hazards: [], saws: [],
-    spikes: [
-      new Spike(220, 520, "up"), new Spike(240, 520, "up"),
-      new Spike(400, 520, "up"), new Spike(420, 520, "up"),
-    ],
-    portals: [],
-    exit: new Exit(860, 230),
-    trapMessage: "TRAMPOLINES are customized for high velocity in this realm!",
-  };
-}
+// ═══════════════════════════════════════════════════════════════
+// ⚡ WORLD 5: GLITCH CORE (Levels 25 - 30)
+// ═══════════════════════════════════════════════════════════════
 
-function glitch_lvl1() {
+function lvl24_chromaticSteps() {
   return {
-    name: "Glitchy Steps",
-    bg: ["#30122e","#501c40"],
+    name: "Chromatic Steps",
     playerStart: [50, 430],
     platforms: [
       mkSolid(0, 470, 120, 70),
-      // Glitch platforms cycle on/off every 1.5 seconds!
-      mkSolid(220, 380, 100, 18, {glitchInterval: 1.4}),
-      mkSolid(420, 300, 100, 18, {glitchInterval: 1.4}),
-      mkSolid(620, 380, 100, 18, {glitchInterval: 1.4}),
+      mkSolid(220, 380, 100, 18, { glitchInterval: 1.4 }),
+      mkSolid(420, 300, 100, 18, { glitchInterval: 1.4 }),
+      mkSolid(620, 380, 100, 18, { glitchInterval: 1.4 }),
       mkSolid(820, 470, 140, 70),
     ],
-    hazards: [], saws: [],
     spikes: [
       new Spike(150, 520, "up"), new Spike(350, 520, "up"), new Spike(550, 520, "up"),
     ],
-    portals: [],
+    saws: [], portals: [], crushers: [], lasers: [],
     exit: new Exit(870, 420),
     trapMessage: "Dashed chromatic outlines indicate GLITCH platforms!",
   };
 }
 
-function glitch_lvl2() {
+function lvl25_hyperspeedBouncer() {
   return {
-    name: "Glitch Speedrun",
-    bg: ["#140606","#240a0a"],
+    name: "Hyperspeed Bouncer",
+    playerStart: [60, 430],
+    platforms: [
+      mkSolid(0, 470, 200, 70),
+      mkTrampo(280, 440, 80, 20, { bounceVel: -650 }),
+      mkSolid(480, 280, 160, 20),
+      mkSolid(760, 280, 200, 260),
+    ],
+    spikes: [
+      new Spike(220, 520, "up"), new Spike(240, 520, "up"),
+      new Spike(400, 520, "up"), new Spike(420, 520, "up"),
+    ],
+    saws: [], portals: [], crushers: [], lasers: [],
+  };
+}
+
+function lvl26_glitchLaserRun() {
+  return {
+    name: "Glitch Laser Run",
     playerStart: [50, 430],
     platforms: [
       mkSolid(0, 470, 140, 70),
-      mkTrampo(200, 450, 60, 20, {bounceVel: -650}),
-      mkSolid(360, 280, 200, 20),
-      mkTrampo(640, 450, 60, 20, {bounceVel: -650}),
-      mkSolid(780, 470, 180, 70),
-    ],
-    hazards: [],
-    saws: [
-      // High speed saw sweeps
-      new Saw(460, 265, {speed:6, pathX:1, pathRange:70, pathSpeed:260}),
-    ],
-    spikes: [
-      new Spike(300, 520, "up"), new Spike(580, 520, "up"),
-    ],
-    portals: [],
-    exit: new Exit(860, 420),
-    trapMessage: "Bounce high and slide fast under the buzzsaw!",
-  };
-}
-
-function glitch_lvl3() {
-  return {
-    name: "Flicker Trampoline",
-    bg: ["#140606","#240a0a"],
-    playerStart: [50, 430],
-    platforms: [
-      mkSolid(0, 470, 120, 70),
-      // Timed bouncer platform
-      mkTrampo(220, 360, 80, 18, {bounceVel: -620, glitchInterval: 1.3}),
-      mkSolid(420, 250, 100, 20),
-      mkSolid(620, 250, 100, 20, {glitchInterval: 1.3}),
+      mkSolid(220, 380, 100, 18, { glitchInterval: 1.3 }),
+      mkSolid(420, 280, 100, 18),
+      mkSolid(620, 380, 100, 18, { glitchInterval: 1.3 }),
       mkSolid(800, 470, 160, 70),
     ],
-    hazards: [], saws: [],
     spikes: [
-      new Spike(150, 520, "up"), new Spike(350, 520, "up"), new Spike(550, 520, "up"),
+      new Spike(160, 520, "up"), new Spike(360, 520, "up"), new Spike(560, 520, "up"),
     ],
-    portals: [],
+    saws: [], portals: [], crushers: [],
+    lasers: [
+      mkLaser(320, 150, 320, 500, { cycle: 2.2, onDuration: 1.0, offset: 0 }),
+      mkLaser(520, 150, 520, 500, { cycle: 2.2, onDuration: 1.0, offset: 1.1 }),
+    ],
     exit: new Exit(860, 420),
-    trapMessage: "Both the trampolines and safety blocks are flickering!",
   };
 }
 
-function glitch_lvl4() {
+function lvl27_teleportChaos() {
   return {
-    name: "The Glitch Core",
-    bg: ["#1d0e32","#2d164d"],
-    playerStart: [50, 420],
+    name: "Teleport Chaos",
+    playerStart: [50, 430],
     platforms: [
-      mkSolid(0, 470, 150, 70),
-      mkSolid(220, 370, 100, 18, {glitchInterval: 1.2}),
-      mkTrampo(400, 450, 80, 20, {bounceVel: -680}),
-      mkSolid(550, 250, 120, 18, {glitchInterval: 1.2}),
-      mkSolid(760, 470, 200, 70),
-    ],
-    hazards: [],
-    saws: [
-      new Saw(350, 200, {speed:4, pathY:1, pathRange:80, pathSpeed:180}),
-      new Saw(680, 350, {speed:5, pathX:1, pathRange:60, pathSpeed:160}),
+      mkSolid(0, 470, 140, 70),
+      mkSolid(240, 470, 100, 70),
+      mkSolid(440, 470, 100, 70),
+      mkSolid(640, 470, 100, 70),
+      mkSolid(820, 470, 140, 70),
+      mkSolid(400, 240, 160, 20),
     ],
     spikes: [
-      new Spike(180, 470, "up"),
-      new Spike(720, 470, "up"),
+      new Spike(150, 520, "up"), new Spike(350, 520, "up"), new Spike(550, 520, "up"), new Spike(750, 520, "up"),
+    ],
+    saws: [],
+    portals: [
+      new Portal(270, 420, 480, 190, { color: "#ff007f" }),
+      new Portal(470, 420, 880, 420, { color: "#00d2d3" }),
+      new Portal(670, 420, 350, 500, { color: "#ffd32a" }),
+    ],
+    crushers: [], lasers: [],
+    exit: new Exit(880, 420),
+  };
+}
+
+function lvl28_matrixTrial() {
+  return {
+    name: "The Matrix Trial",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 140, 70),
+      mkFalling(180, 420, 80, 20),
+      mkSolid(300, 340, 90, 18, { glitchInterval: 1.2 }),
+      mkTrampo(440, 450, 70, 20, { bounceVel: -670 }),
+      mkSolid(580, 250, 100, 18, { glitchInterval: 1.2 }),
+      mkSolid(760, 470, 200, 70),
+    ],
+    spikes: [
+      new Spike(270, 520, "up"), new Spike(520, 520, "up"),
+      mkPopSpike(840, 454, "up", 780, 880),
+    ],
+    saws: [
+      new Saw(350, 200, { speed: 4, pathY: 1, pathRange: 80, pathSpeed: 180 }),
+    ],
+    crushers: [
+      mkCrusher(640, 50, 60, 60, 250, { triggerX1: 580, triggerX2: 680, slamSpeed: 900 }),
+    ],
+    lasers: [],
+    portals: [],
+    exit: new Exit(880, 420),
+  };
+}
+
+function lvl29_grandFinale() {
+  return {
+    name: "The Grand Finale: OOPS!",
+    playerStart: [50, 420],
+    platforms: [
+      mkSolid(0, 470, 160, 70),
+      mkFalling(200, 400, 90, 20),
+      mkSolid(340, 320, 100, 18, { glitchInterval: 1.3 }),
+      mkTrampo(480, 450, 70, 20, { bounceVel: -700 }),
+      mkSolid(620, 240, 110, 18, { glitchInterval: 1.3 }),
+      mkSolid(790, 470, 170, 70),
+    ],
+    spikes: [
+      new Spike(170, 520, "up"), new Spike(400, 520, "up"), new Spike(560, 520, "up"),
+    ],
+    saws: [
+      new Saw(500, 160, { speed: 5, pathX: 1, pathRange: 80, pathSpeed: 180 }),
+    ],
+    crushers: [
+      mkCrusher(240, 40, 60, 60, 400, { triggerX1: 180, triggerX2: 300, slamSpeed: 920 }),
+    ],
+    lasers: [
+      mkLaser(720, 150, 720, 500, { cycle: 2.0, onDuration: 0.9, offset: 0 }),
     ],
     portals: [],
-    exit: new Exit(860, 420),
-    trapMessage: "You have conquered the glitch core. Legend status achieved.",
+    exit: new Exit(860, 420, {
+      fleeOnProximity: true,
+      fleeDist: 90,
+      targetX: 860,
+      targetY: 260,
+      fleeMessage: "One final leap to glory! 🏆"
+    }),
+    triggers: [
+      mkTrigger(
+        r => r.exit.hasFled && !r.data._platformAdded,
+        r => {
+          r.platforms.push(mkSolid(800, 310, 150, 20));
+          r.data._platformAdded = true;
+        }
+      )
+    ],
   };
 }
 
@@ -1882,55 +2286,136 @@ function lighten(hex, amt) {
 }
 
 // ─── Background Renderer ─────────────────────────────────────
+// ─── Background Renderer ─────────────────────────────────────
 class Background {
   constructor(col1, col2) {
-    this.col1=col1; this.col2=col2;
-    this.stars = Array.from({length:80},()=>({
-      x:rand(0,VW), y:rand(0,VH),
-      r:rand(0.5,2), twinkle:rand(0,Math.PI*2)
-    }));
-    this.clouds = Array.from({length:5},()=>({
-      x:rand(0,VW), y:rand(20,150),
-      w:rand(60,180), spd:rand(8,20)
+    this.col1 = col1;
+    this.col2 = col2;
+    // Parallax mountain silhouettes
+    this.mountainOffset = 0;
+    // Ambient atmospheric particles (50 particles)
+    this.ambientParticles = Array.from({ length: 50 }, () => ({
+      x: rand(0, VW),
+      y: rand(0, VH),
+      r: rand(1, 3.5),
+      speedX: rand(-15, 25),
+      speedY: rand(10, 35),
+      alpha: rand(0.2, 0.8),
+      pulse: rand(0, Math.PI * 2),
+      char: String.fromCharCode(randInt(65, 90)), // For matrix effect
     }));
   }
 
   update(dt) {
-    this.clouds.forEach(c => {
-      c.x += c.spd*dt;
-      if (c.x > VW+200) c.x = -200;
+    const thName = activeTheme.name || "DESERT";
+    this.mountainOffset = (this.mountainOffset + dt * 4) % VW;
+
+    this.ambientParticles.forEach(p => {
+      p.pulse += dt * 3;
+      if (thName === "FROST") {
+        // Snowflakes gently drifting down and swaying
+        p.y += p.speedY * dt * 1.5;
+        p.x += Math.sin(p.pulse) * 20 * dt;
+      } else if (thName === "LAVA" || thName === "SHADOW") {
+        // Rising glowing embers
+        p.y -= p.speedY * dt * 1.8;
+        p.x += Math.cos(p.pulse) * 15 * dt;
+      } else if (thName === "MATRIX") {
+        // Matrix digital rain streams
+        p.y += p.speedY * dt * 3.5;
+      } else {
+        // Desert / Void dust motes floating gently
+        p.x += p.speedX * dt * 1.2;
+        p.y += Math.sin(p.pulse) * 12 * dt;
+      }
+
+      // Wrap around
+      if (p.x < -20) p.x = VW + 20;
+      if (p.x > VW + 20) p.x = -20;
+      if (p.y < -20) p.y = VH + 20;
+      if (p.y > VH + 20) p.y = -20;
     });
   }
 
   draw(ctx, time) {
-    // Sky gradient — use current world theme
     const th = activeTheme;
-    const grad = ctx.createLinearGradient(0,0,0,VH);
+    // 1. Sky gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, VH);
     grad.addColorStop(0, th.bg1);
     grad.addColorStop(1, th.bg2);
     ctx.fillStyle = grad;
-    ctx.fillRect(0,0,VW,VH);
+    ctx.fillRect(0, 0, VW, VH);
 
-    // Background crack decorations (like Level Devil)
-    ctx.strokeStyle = th.crackColor;
+    // 2. Distant Parallax Cavern / Mountain Silhouettes
+    ctx.save();
+    ctx.fillStyle = th.bgCrack || "rgba(0, 0, 0, 0.18)";
+    // Far layer peaks
+    ctx.beginPath();
+    ctx.moveTo(0, VH);
+    for (let x = 0; x <= VW; x += 120) {
+      const py = VH * 0.55 + Math.sin((x + 80) * 0.008) * 45 + Math.cos(x * 0.02) * 20;
+      ctx.lineTo(x, py);
+    }
+    ctx.lineTo(VW, VH);
+    ctx.closePath();
+    ctx.fill();
+
+    // Mid layer ridges
+    ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
+    ctx.beginPath();
+    ctx.moveTo(0, VH);
+    for (let x = 0; x <= VW; x += 90) {
+      const py = VH * 0.68 + Math.sin(x * 0.015) * 35 + Math.sin((x + 200) * 0.03) * 15;
+      ctx.lineTo(x, py);
+    }
+    ctx.lineTo(VW, VH);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 3. Ambient atmospheric particles
+    ctx.save();
+    const thName = th.name || "DESERT";
+    this.ambientParticles.forEach(p => {
+      ctx.globalAlpha = p.alpha * (0.6 + Math.sin(p.pulse) * 0.4);
+      if (thName === "FROST") {
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      } else if (thName === "LAVA") {
+        ctx.fillStyle = "#ff6b35";
+        ctx.shadowBlur = 6; ctx.shadowColor = "#ff4757";
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 1.2, 0, Math.PI * 2); ctx.fill();
+      } else if (thName === "MATRIX") {
+        ctx.fillStyle = "#00ff66";
+        ctx.font = "9px monospace";
+        ctx.fillText(p.char, p.x, p.y);
+      } else {
+        ctx.fillStyle = th.exit || "#ffd32a";
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.8, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+    ctx.restore();
+
+    // 4. Background structural cracks (Level Devil style)
+    ctx.save();
+    ctx.strokeStyle = th.crackColor || "rgba(255, 255, 255, 0.08)";
     ctx.lineWidth = 1;
-    for (let i = 0; i < 8; i++) {
-      const x = (VW * (i+1)) / 9;
-      const len = 30 + (i*37) % 60;
+    for (let i = 0; i < 7; i++) {
+      const x = (VW * (i + 1)) / 8;
+      const len = 25 + (i * 37) % 50;
       ctx.beginPath();
-      ctx.moveTo(x, 60 + (i*47)%120);
-      ctx.lineTo(x + 8*(i%2?1:-1), 60 + (i*47)%120 + len);
+      ctx.moveTo(x, 50 + (i * 47) % 100);
+      ctx.lineTo(x + 8 * (i % 2 ? 1 : -1), 50 + (i * 47) % 100 + len);
       ctx.stroke();
     }
+    ctx.restore();
 
-    // Bottom fog
-    const fog = ctx.createLinearGradient(0, VH-80, 0, VH);
+    // 5. Bottom atmospheric fog
+    const fog = ctx.createLinearGradient(0, VH - 90, 0, VH);
     fog.addColorStop(0, "rgba(0,0,0,0)");
-    fog.addColorStop(1, th.fog);
+    fog.addColorStop(1, th.fog || "rgba(0,0,0,0.3)");
     ctx.fillStyle = fog;
-    ctx.fillRect(0, VH-80, VW, 80);
-
-    ctx.globalAlpha=1;
+    ctx.fillRect(0, VH - 90, VW, 90);
   }
 }
 
@@ -1938,38 +2423,34 @@ class Background {
 class LevelRuntime {
   constructor(levelData) {
     this.data = levelData;
-    this.bg = new Background(...levelData.bg);
+    this.bg = new Background(...(levelData.bg || ["#1a0533", "#2d1b69"]));
     this.player = new Player(...levelData.playerStart);
-    this.platforms = [...levelData.platforms];
-    this.spikes = [...levelData.spikes];
-    this.saws = [...levelData.saws];
-    this.portals = [...levelData.portals];
+    this.platforms = [...(levelData.platforms || [])];
+    this.spikes = [...(levelData.spikes || [])];
+    this.saws = [...(levelData.saws || [])];
+    this.portals = [...(levelData.portals || [])];
+    this.crushers = [...(levelData.crushers || [])];
+    this.lasers = [...(levelData.lasers || [])];
+    this.triggers = [...(levelData.triggers || [])];
     this.exit = levelData.exit;
     this.time = 0;
-    // Trap state
-    this.playerWasOnPlatform = new Map();
     this.portalCooldown = 0;
-    // Level complete
     this.complete = false;
-    // Death
     this.dead = false;
     this.deathTimer = 0;
-    // Exit suction properties
     this.exitPhase = false;
     this.exitTimer = 0;
-    // Flash
     this.flashColor = null;
-    this.flashTimer  = 0;
-    // Message
-    this.msgTimer = 0;
-    this.showMsg = false;
+    this.flashTimer = 0;
+    this.flashMsg = null;
+    this.flashMsgTimer = 0;
   }
 
-  flash(color, dur=0.4) { this.flashColor=color; this.flashTimer=dur; }
+  flash(color, dur = 0.4) { this.flashColor = color; this.flashTimer = dur; }
 
   resolveX(player) {
     for (const p of this.platforms) {
-      if (p.type===TILE.FAKE || p.vanished || !p.active) continue;
+      if (p.type === TILE.FAKE || p.vanished || !p.active) continue;
       if (player.right > p.left && player.left < p.right &&
           player.bottom > p.top && player.top < p.bottom) {
         if (player.vx > 0) player.x = p.left - player.w;
@@ -1977,7 +2458,6 @@ class LevelRuntime {
         player.vx = 0;
       }
     }
-    // Clamp to screen
     player.x = clamp(player.x, 0, VW - player.w);
   }
 
@@ -1985,21 +2465,20 @@ class LevelRuntime {
     const isNormal = (player.gravityDir === 1);
     
     for (const p of this.platforms) {
-      if (p.type===TILE.FAKE || p.vanished || !p.active) continue;
+      if (p.type === TILE.FAKE || p.vanished || !p.active) continue;
 
       // One-way platform bypass checks
-      if (p.type===TILE.PLATFORM) {
+      if (p.type === TILE.PLATFORM) {
         if (isNormal && player.vy < 0) continue;
         if (!isNormal && player.vy > 0) continue;
       }
 
-      if (player.right > p.left+2 && player.left < p.right-2 &&
+      if (player.right > p.left + 2 && player.left < p.right - 2 &&
           player.bottom > p.top && player.top < p.bottom) {
 
         const isLanding = isNormal ? (player.vy >= 0) : (player.vy <= 0);
 
         if (isLanding) {
-          // Land on active surface
           if (isNormal) {
             player.y = p.top - player.h;
             player.onGround = true;
@@ -2009,8 +2488,13 @@ class LevelRuntime {
           }
           player.vy = 0;
 
+          // Falling platform step trigger
+          if (p instanceof FallingPlatform) {
+            p.steppedOn = true;
+          }
+
           // Trampoline
-          if (p.type===TILE.TRAMPOLINE) {
+          if (p.type === TILE.TRAMPOLINE) {
             player.vy = isNormal ? p.bounceVel : -p.bounceVel;
             player.onGround = false;
             spawnParticles(player.cx, isNormal ? player.bottom : player.top, "#ff6b35", 8, 150);
@@ -2018,22 +2502,22 @@ class LevelRuntime {
           }
 
           // Vanish trigger
-          if (p.type===TILE.VANISH && p.vanishTimer<=0 && !p.vanished) {
+          if (p.type === TILE.VANISH && p.vanishTimer <= 0 && !p.vanished) {
             p.vanishTimer = p.vanishDelay;
           }
 
           // Ice friction
-          if (p.type===TILE.ICE) {
+          if (p.type === TILE.ICE) {
             player.vx *= 0.98;
           }
 
           // Lava kill
-          if (p.type===TILE.LAVA) {
+          if (p.type === TILE.LAVA) {
             player.die("lava");
           }
 
           // Moving platform carry
-          if (p.moveRange>0 && p.moveX!==0) {
+          if (p.moveRange > 0 && p.moveX !== 0) {
             player.x += p.moveDir * p.moveSpeed * dt;
           }
         } else {
@@ -2055,28 +2539,24 @@ class LevelRuntime {
     if (this.exitPhase) {
       this.exitTimer -= dt;
       
-      // Pull player smoothly toward portal center
       const ex = this.exit;
-      const targetX = ex.x + ex.w/2 - this.player.w/2;
+      const targetX = ex.x + ex.w / 2 - this.player.w / 2;
       const targetY = ex.y + ex.h - this.player.h;
       this.player.x = lerp(this.player.x, targetX, dt * 6);
       this.player.y = lerp(this.player.y, targetY, dt * 6);
       
-      // Spin and shrink player
       this.player.exitRotation += dt * 8;
       this.player.squishX = lerp(this.player.squishX, 0, dt * 6);
       this.player.squishY = lerp(this.player.squishY, 0, dt * 6);
       
-      // Spawn small sparkly trail particles
       if (Math.random() < 0.3) {
-        spawnParticles(this.player.cx, this.player.cy, activeTheme.exit, 2, 70);
+        spawnParticles(this.player.cx, this.player.cy, activeTheme.exit || "#ffd32a", 2, 70);
       }
       
       if (this.exitTimer <= 0) {
         this.complete = true;
       }
       
-      // Update particles during transition
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(dt);
         if (particles[i].life <= 0) particles.splice(i, 1);
@@ -2086,7 +2566,8 @@ class LevelRuntime {
 
     this.time += dt;
     levelTimer += dt;
-    if (this.portalCooldown>0) this.portalCooldown-=dt;
+    if (this.portalCooldown > 0) this.portalCooldown -= dt;
+    if (this.flashMsgTimer > 0) this.flashMsgTimer -= dt;
 
     this.bg.update(dt);
 
@@ -2094,15 +2575,23 @@ class LevelRuntime {
     this.spikes.forEach(s => s.update(dt, this.player.cx, this.player.cy));
     this.saws.forEach(s => s.update(dt));
     this.portals.forEach(p => p.update(dt));
-    this.exit.update(dt);
+    this.crushers.forEach(c => c.update(dt, this.player));
+    this.lasers.forEach(l => l.update(dt));
+    this.triggers.forEach(t => t.update(this));
+    this.exit.update(dt, this.player, this);
+
+    // Custom level scripted actions
+    if (this.data.onUpdate) {
+      this.data.onUpdate(this, dt);
+    }
 
     // Flash
-    if (this.flashTimer>0) this.flashTimer-=dt;
+    if (this.flashTimer > 0) this.flashTimer -= dt;
 
     // Shake decay
-    if (shakeDur>0) {
+    if (shakeDur > 0) {
       shakeDur -= dt;
-      if (shakeDur<=0) { shakeAmt=0; }
+      if (shakeDur <= 0) { shakeAmt = 0; }
     }
 
     this.player.update(dt, this);
@@ -2115,8 +2604,8 @@ class LevelRuntime {
     // Spike collisions
     for (const s of this.spikes) {
       if (!s.revealed || !s.active) continue;
-      if (this.player.right > s.left+2 && this.player.left < s.right-2 &&
-          this.player.bottom > s.top+2 && this.player.top < s.bottom-2) {
+      if (this.player.right > s.left + 2 && this.player.left < s.right - 2 &&
+          this.player.bottom > s.top + 2 && this.player.top < s.bottom - 2) {
         this.player.die("spike");
         this.dead = true;
         return;
@@ -2126,24 +2615,42 @@ class LevelRuntime {
     // Saw collisions
     for (const s of this.saws) {
       const dx = this.player.cx - s.x, dy = this.player.cy - s.y;
-      if (Math.sqrt(dx*dx+dy*dy) < s.r + 8) {
+      if (Math.sqrt(dx * dx + dy * dy) < s.r + 8) {
         this.player.die("saw");
         this.dead = true;
         return;
       }
     }
 
+    // Crusher collisions
+    for (const c of this.crushers) {
+      if (this.player.right > c.left + 4 && this.player.left < c.right - 4 &&
+          this.player.bottom > c.top + 4 && this.player.top < c.bottom - 4) {
+        this.player.die("crush");
+        this.dead = true;
+        return;
+      }
+    }
+
+    // Laser collisions
+    for (const l of this.lasers) {
+      if (l.collides(this.player)) {
+        this.player.die("laser");
+        this.dead = true;
+        return;
+      }
+    }
+
     // Portal collisions
-    if (this.portalCooldown<=0) {
+    if (this.portalCooldown <= 0) {
       for (const p of this.portals) {
         if (this.player.right > p.left && this.player.left < p.right &&
             this.player.bottom > p.top && this.player.top < p.bottom) {
-          // Teleport!
-          this.player.x = p.tx - this.player.w/2;
+          this.player.x = p.tx - this.player.w / 2;
           this.player.y = p.ty - this.player.h;
           this.player.vy = -100;
           this.portalCooldown = 0.8;
-          spawnParticles(p.x+p.w/2, p.y+p.h/2, p.color, 16, 200);
+          spawnParticles(p.x + p.w / 2, p.y + p.h / 2, p.color, 16, 200);
           spawnParticles(p.tx, p.ty, p.color, 16, 200);
           SFX.portal();
           shake(5, 0.2);
@@ -2154,7 +2661,7 @@ class LevelRuntime {
 
     // Fake platform — reveal on overlap
     for (const p of this.platforms) {
-      if (p.type!==TILE.FAKE) continue;
+      if (p.type !== TILE.FAKE) continue;
       if (this.player.right > p.left && this.player.left < p.right &&
           this.player.bottom > p.top && this.player.top < p.bottom) {
         p.revealed = true;
@@ -2162,31 +2669,30 @@ class LevelRuntime {
     }
 
     // Exit collision
-    const ex=this.exit;
+    const ex = this.exit;
     if (!this.exitPhase && this.player.right > ex.left && this.player.left < ex.right &&
         this.player.bottom > ex.top && this.player.top < ex.bottom) {
       this.exitPhase = true;
       this.exitTimer = 0.85;
       this.player.exitingPortal = true;
       this.player.exitRotation = 0;
-      spawnConfetti(ex.x+ex.w/2, ex.y+ex.h/2, 45);
+      spawnConfetti(ex.x + ex.w / 2, ex.y + ex.h / 2, 45);
       shake(6, 0.3);
       SFX.win();
     }
 
     // Update particles
-    for (let i=particles.length-1;i>=0;i--) {
+    for (let i = particles.length - 1; i >= 0; i--) {
       particles[i].update(dt);
-      if (particles[i].life<=0) particles.splice(i,1);
+      if (particles[i].life <= 0) particles.splice(i, 1);
     }
   }
 
   draw(ctx, time) {
-    // Shake transform
-    let sx=0, sy=0;
-    if (shakeDur>0) {
-      sx = rand(-shakeAmt,shakeAmt);
-      sy = rand(-shakeAmt,shakeAmt);
+    let sx = 0, sy = 0;
+    if (shakeDur > 0) {
+      sx = rand(-shakeAmt, shakeAmt);
+      sy = rand(-shakeAmt, shakeAmt);
     }
 
     ctx.save();
@@ -2198,11 +2704,17 @@ class LevelRuntime {
     // Platforms
     this.platforms.forEach(p => p.draw(ctx, time));
 
+    // Lasers
+    this.lasers.forEach(l => l.draw(ctx));
+
     // Spikes
     this.spikes.forEach(s => s.draw(ctx));
 
     // Saws
     this.saws.forEach(s => s.draw(ctx));
+
+    // Crushers
+    this.crushers.forEach(c => c.draw(ctx));
 
     // Portals
     this.portals.forEach(p => p.draw(ctx));
@@ -2217,20 +2729,39 @@ class LevelRuntime {
     particles.forEach(p => p.draw(ctx));
 
     // Screen flash
-    if (this.flashTimer>0) {
-      ctx.globalAlpha = (this.flashTimer/0.4)*0.4;
+    if (this.flashTimer > 0) {
+      ctx.globalAlpha = (this.flashTimer / 0.4) * 0.4;
       ctx.fillStyle = this.flashColor || "#ff0000";
-      ctx.fillRect(0,0,VW,VH);
-      ctx.globalAlpha=1;
+      ctx.fillRect(0, 0, VW, VH);
+      ctx.globalAlpha = 1;
+    }
+
+    // Flash message pill (troll notifications)
+    if (this.flashMsgTimer > 0 && this.flashMsg) {
+      ctx.save();
+      ctx.fillStyle = "rgba(12, 10, 20, 0.88)";
+      ctx.strokeStyle = activeTheme.danger || "#ff4757";
+      ctx.lineWidth = 2;
+      ctx.font = "11px 'Press Start 2P', monospace";
+      const tw = ctx.measureText(this.flashMsg).width;
+      const bw = tw + 36, bh = 32;
+      const bx = (VW - bw) / 2, by = 48;
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeRect(bx, by, bw, bh);
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.flashMsg, VW / 2, by + bh / 2);
+      ctx.restore();
     }
 
     // Level name watermark
     ctx.save();
-    ctx.globalAlpha=0.12;
-    ctx.fillStyle="#fff";
-    ctx.font="bold 48px monospace";
-    ctx.textAlign="center";
-    ctx.fillText(this.data.name, VW/2, VH/2+20);
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 44px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(this.data.name, VW / 2, VH / 2 + 20);
     ctx.restore();
 
     ctx.restore();
@@ -2238,31 +2769,24 @@ class LevelRuntime {
 }
 
 // ─── Save Manager (localStorage) ────────────────────────────
-const SAVE_KEY = "oops_multiverse_save_v2";
+const SAVE_KEY = "oops_game_save_v3";
 
 const SaveManager = {
-  // Save current progress of a specific multiverse
-  save(mvId, levelIndex, totalDeaths) {
-    const allSaves = this.loadAll() || {};
-    allSaves[mvId] = {
-      level: levelIndex,          // highest unlocked level index
+  save(levelIndex, totalDeaths) {
+    const prev = this.load() || { level: 0, deaths: 0, maxUnlocked: 0 };
+    const maxUnlocked = Math.max(prev.maxUnlocked || 0, levelIndex);
+    const data = {
+      level: levelIndex,
+      maxUnlocked: maxUnlocked,
       deaths: totalDeaths,
       savedAt: Date.now(),
     };
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(allSaves));
-    } catch(e) { /* private/incognito mode may block */ }
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
   },
 
-  // Load progress for a specific multiverse
-  load(mvId) {
-    const allSaves = this.loadAll();
-    if (!allSaves || !allSaves[mvId]) return null;
-    return allSaves[mvId];
-  },
-
-  // Load all multiverse saves
-  loadAll() {
+  load() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return null;
@@ -2270,24 +2794,19 @@ const SaveManager = {
     } catch(e) { return null; }
   },
 
-  // Wipe progress for a multiverse (or all if none specified)
-  clear(mvId) {
-    if (mvId) {
-      const allSaves = this.loadAll() || {};
-      delete allSaves[mvId];
-      try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(allSaves));
-      } catch(e) {}
-    } else {
-      try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
-    }
+  clear() {
+    try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
   },
 
-  // Check if saved data exists and is valid
-  hasSave(mvId) {
-    const d = this.load(mvId);
+  hasSave() {
+    const d = this.load();
     return d !== null && d.level >= 0;
   },
+
+  getMaxUnlocked() {
+    const d = this.load();
+    return d ? (d.maxUnlocked || d.level || 0) : 0;
+  }
 };
 
 // ─── UI Controller ───────────────────────────────────────────
@@ -2321,8 +2840,8 @@ function refreshStartScreen() {
   const savedLvlTxt  = document.getElementById("saved-level-text");
   const savedDthTxt  = document.getElementById("saved-deaths-text");
 
-  if (SaveManager.hasSave(activeMultiverse)) {
-    const d = SaveManager.load(activeMultiverse);
+  if (SaveManager.hasSave()) {
+    const d = SaveManager.load();
     const lvl = Math.min(d.level, getMaxLevels() - 1);
     const levelData = buildLevel(lvl);
     savedLvlTxt.textContent = `Level ${lvl + 1} – ${levelData.name}`;
@@ -2377,9 +2896,7 @@ function showWorldTitle(name) {
 function startLevel(idx) {
   particles.length = 0;
   levelTimer = 0;
-
-  // Save active multiverse as the last played universe
-  localStorage.setItem("oops_last_multiverse", activeMultiverse);
+  currentLevel = idx;
 
   // Update world theme
   const prevTheme = activeTheme;
@@ -2391,11 +2908,9 @@ function startLevel(idx) {
   const wrapper = document.getElementById("game-wrapper");
   if (wrapper) wrapper.style.background = bgGrad;
 
-  // Show world title when entering a new world
-  if (idx === 0 || idx === 3 || idx === 6) {
-    if (idx > 0 || prevTheme !== activeTheme) {
-      showWorldTitle(activeTheme.name);
-    }
+  // Show world title when entering a new world (every 6 levels)
+  if (idx % 6 === 0) {
+    showWorldTitle(activeTheme.name);
   }
 
   const data = buildLevel(idx);
@@ -2406,11 +2921,11 @@ function startLevel(idx) {
   runtime.player.exitRotation = 0;
   runtime.player.exitingPortal = false;
 
-  // Toggle on-screen touch FLIP button visibility for mobile
+  // Toggle on-screen touch FLIP button for Gravity Nexus (levels 18 to 23)
   const flipBtn = document.getElementById("btn-flip");
   if (flipBtn) {
-    if (activeMultiverse === "gravity") flipBtn.classList.remove("hidden");
-    else                                flipBtn.classList.add("hidden");
+    if (idx >= 18 && idx <= 23) flipBtn.classList.remove("hidden");
+    else                         flipBtn.classList.add("hidden");
   }
 
   gameState = "playing";
@@ -2450,14 +2965,13 @@ function loop(ts) {
       stopMusic();
       deaths++;
       gameState = "dead";
-      // Save progress even on death so death count is persisted
       SaveManager.save(currentLevel, deaths);
       const msg = DEATH_COMMENTARIES[deaths] || DEATH_MSGS[Math.floor(Math.random() * DEATH_MSGS.length)];
       document.getElementById("death-title").textContent = "Oops!";
       document.getElementById("death-msg").textContent   = msg;
       document.getElementById("death-big").textContent   = deaths;
       document.getElementById("death-count").textContent = deaths;
-      setTimeout(() => showScreen("death"), 600);
+      setTimeout(() => showScreen("death"), 450);
     }
 
     if (runtime.complete) {
@@ -2468,13 +2982,13 @@ function loop(ts) {
       const stars = t < 5 ? "⭐⭐⭐" : t < 12 ? "⭐⭐" : "⭐";
       document.getElementById("win-rating").textContent = stars;
 
-      // ✅ SAVE PROGRESS — next level unlocked
+      // Save next unlocked level
       const nextLevel = currentLevel + 1;
       if (nextLevel < getMaxLevels()) {
-        SaveManager.save(activeMultiverse, nextLevel, deaths);
+        SaveManager.save(nextLevel, deaths);
       }
 
-      setTimeout(() => showScreen("levelComplete"), 800);
+      setTimeout(() => showScreen("levelComplete"), 750);
     }
   } else {
     // Draw background during menus
@@ -2485,7 +2999,7 @@ function loop(ts) {
   // R to restart current level
   if (keys["KeyR"] && gameState !== "start") {
     deaths++;
-    SaveManager.save(activeMultiverse, currentLevel, deaths);
+    SaveManager.save(currentLevel, deaths);
     startLevel(currentLevel);
     showScreen("playing");
   }
@@ -2506,17 +3020,17 @@ if (logoSpan) {
   });
 }
 
-// NEW GAME — open Multiverse Select Screen
+// NEW GAME — open Multiverse & Level Select Map Screen
 document.getElementById("start-btn").addEventListener("click", () => {
   initAudio();
   refreshMultiverseSelector();
   showScreen("multiverse");
 });
 
-// CONTINUE — load saved level for last played multiverse
+// CONTINUE — load saved level
 document.getElementById("continue-btn")?.addEventListener("click", () => {
   initAudio();
-  const saved = SaveManager.load(activeMultiverse);
+  const saved = SaveManager.load();
   if (saved) {
     deaths       = saved.deaths || 0;
     currentLevel = Math.min(saved.level, getMaxLevels() - 1);
@@ -2526,15 +3040,16 @@ document.getElementById("continue-btn")?.addEventListener("click", () => {
 
 // START OVER link inside continue section
 document.getElementById("new-game-link")?.addEventListener("click", () => {
-  if (confirm("Start over? Your saved progress will be deleted for this universe.")) {
-    SaveManager.clear(activeMultiverse);
+  if (confirm("Start over? Your saved progress will be deleted.")) {
+    SaveManager.clear();
+    deaths = 0;
+    currentLevel = 0;
     refreshStartScreen();
     refreshMultiverseSelector();
   }
 });
 
-
-// Click anywhere on death screen to retry
+// Click anywhere on death screen to instant retry
 document.getElementById("death-screen").addEventListener("click", () => {
   initAudio();
   startLevel(currentLevel);
@@ -2545,8 +3060,6 @@ document.getElementById("next-btn").addEventListener("click", () => {
   initAudio();
   currentLevel++;
   if (currentLevel >= getMaxLevels()) {
-    // Game complete — clear save for this multiverse
-    SaveManager.clear(activeMultiverse);
     gameState = "gamecomplete";
     document.getElementById("final-deaths").textContent = deaths;
     showScreen("gameComplete");
@@ -2558,7 +3071,6 @@ document.getElementById("next-btn").addEventListener("click", () => {
 // PLAY AGAIN after game complete — full reset
 document.getElementById("play-again-btn").addEventListener("click", () => {
   initAudio();
-  SaveManager.clear();
   deaths = 0;
   currentLevel = 0;
   startLevel(0);
@@ -2571,7 +3083,7 @@ function runOpeningAnimation(onDone) {
 
   function frame(now) {
     const elapsed = now - startTime;
-    const t = elapsed / TOTAL; // 0 to 1
+    const t = elapsed / TOTAL;
 
     ctx.clearRect(0, 0, VW, VH);
 
@@ -2588,14 +3100,12 @@ function runOpeningAnimation(onDone) {
 
     // Phase 2: evil eyes open (1400 - 3000ms)
     if (elapsed < 3000) {
-      const eyeT = Math.min((elapsed - 1400) / 1000, 1); // 0..1 eye open
-      const ease = eyeT * eyeT * (3 - 2 * eyeT); // smoothstep
+      const eyeT = Math.min((elapsed - 1400) / 1000, 1);
+      const ease = eyeT * eyeT * (3 - 2 * eyeT);
 
-      // Background
       ctx.fillStyle = "#0a0000";
       ctx.fillRect(0, 0, VW, VH);
 
-      // Draw two eyes
       const eyeY = VH * 0.42;
       const eyeGap = 110;
       const eyeW = 90;
@@ -2603,16 +3113,13 @@ function runOpeningAnimation(onDone) {
 
       ctx.save();
       ctx.fillStyle = "#c84010";
-      // Left eye
       ctx.beginPath();
       ctx.ellipse(VW/2 - eyeGap, eyeY, eyeW/2, eyeH, 0, 0, Math.PI*2);
       ctx.fill();
-      // Right eye  
       ctx.beginPath();
       ctx.ellipse(VW/2 + eyeGap, eyeY, eyeW/2, eyeH, 0, 0, Math.PI*2);
       ctx.fill();
 
-      // Dark pupils
       if (ease > 0.3) {
         const pupilA = (ease - 0.3) / 0.7;
         ctx.globalAlpha = pupilA;
@@ -2637,14 +3144,12 @@ function runOpeningAnimation(onDone) {
         : 1 + Math.sin((titleT - 0.6) * Math.PI / 0.4) * 0.04 * (1 - (titleT - 0.6) / 0.4);
       const subT = Math.max(0, (elapsed - 3600) / 600);
 
-      // Background
       const grad = ctx.createLinearGradient(0, 0, 0, VH);
       grad.addColorStop(0, "#0a0000");
       grad.addColorStop(1, "#1a0500");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, VW, VH);
 
-      // Title
       ctx.save();
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -2653,7 +3158,6 @@ function runOpeningAnimation(onDone) {
       ctx.fillStyle = "#cc3300";
       ctx.fillText("Oops!", VW/2, VH/2 - 20);
 
-      // Subtitle
       if (subT > 0) {
         ctx.globalAlpha = Math.min(subT, 1);
         ctx.font = `14px 'Press Start 2P', monospace`;
@@ -2669,14 +3173,12 @@ function runOpeningAnimation(onDone) {
     {
       const fadeT = Math.min((elapsed - 4500) / 700, 1);
 
-      // Background stays
       const grad = ctx.createLinearGradient(0, 0, 0, VH);
       grad.addColorStop(0, "#0a0000");
       grad.addColorStop(1, "#1a0500");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, VW, VH);
 
-      // Title fades
       ctx.save();
       ctx.globalAlpha = 1 - fadeT;
       ctx.textAlign = "center";
@@ -2689,7 +3191,6 @@ function runOpeningAnimation(onDone) {
       ctx.fillText("a totally fair game", VW/2, VH/2 + 65);
       ctx.restore();
 
-      // Black overlay fades in
       ctx.globalAlpha = fadeT;
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, VW, VH);
@@ -2704,7 +3205,7 @@ function runOpeningAnimation(onDone) {
   requestAnimationFrame(frame);
 }
 
-// ─── Start ───────────────────────────────────────────────────
+// ─── Start Game ───────────────────────────────────────────────
 gameState = "intro";
 runOpeningAnimation(() => {
   gameState = "start";
@@ -2714,41 +3215,46 @@ runOpeningAnimation(() => {
   requestAnimationFrame(loop);
 });
 
-// ─── Multiverse Selector Screen Logic ────────────────────────
+// ─── Multiverse & Level Select Map Screen Logic ───────────────
 function refreshMultiverseSelector() {
-  const ids = ["classic", "gravity", "glitch"];
-  ids.forEach(mv => {
-    const statsEl = document.getElementById(`stats-${mv}`);
-    if (!statsEl) return;
-    if (SaveManager.hasSave(mv)) {
-      const d = SaveManager.load(mv);
-      statsEl.textContent = `📁 Unlocked: Level ${d.level + 1} · 💀 ${d.deaths} deaths`;
-    } else {
-      statsEl.textContent = `📁 Unlocked: Level 1 · 💀 0 deaths`;
+  const maxUnlocked = SaveManager.getMaxUnlocked();
+
+  // Populate interactive level nodes grid (1 to 30)
+  const container = document.getElementById("level-nodes-container");
+  if (container) {
+    container.innerHTML = "";
+    for (let i = 0; i < 30; i++) {
+      const btn = document.createElement("button");
+      btn.className = "level-node-btn";
+      btn.textContent = (i + 1);
+      if (i < maxUnlocked) {
+        btn.classList.add("cleared");
+        btn.title = `Level ${i + 1} (Cleared)`;
+      } else if (i === maxUnlocked) {
+        btn.classList.add("current");
+        btn.title = `Level ${i + 1} (Current)`;
+      } else {
+        btn.classList.add("locked");
+        btn.title = `Level ${i + 1} (Locked)`;
+      }
+      btn.addEventListener("click", () => {
+        if (i <= maxUnlocked) {
+          initAudio();
+          startLevel(i);
+        }
+      });
+      container.appendChild(btn);
     }
-  });
+  }
 }
 
-// Bind clicks to enter dimensions
-document.querySelectorAll(".mv-btn").forEach(btn => {
+// Bind World buttons to jump directly to world starting levels
+document.querySelectorAll("[data-world]").forEach(btn => {
   btn.addEventListener("click", (e) => {
     initAudio();
-    const mvId = e.currentTarget.getAttribute("data-mv");
-    activeMultiverse = mvId;
-    
-    let targetLevel = 0;
-    let targetDeaths = 0;
-    
-    if (SaveManager.hasSave(mvId)) {
-      const saved = SaveManager.load(mvId);
-      targetLevel = saved.level;
-      targetDeaths = saved.deaths;
-    }
-    
-    deaths = targetDeaths;
-    currentLevel = targetLevel;
-    
-    startLevel(currentLevel);
+    const wIdx = parseInt(e.currentTarget.getAttribute("data-world") || "0", 10);
+    const startLvl = wIdx * 6;
+    startLevel(startLvl);
   });
 });
 
@@ -2759,10 +3265,9 @@ document.getElementById("mv-back-btn").addEventListener("click", () => {
   showScreen("start");
 });
 
-// HUD Home button (exit to multiverse select)
+// HUD Home button (exit to world & level select)
 document.getElementById("btn-home").addEventListener("click", () => {
   initAudio();
-  // Stop background music arpeggios
   if (musicInterval) {
     clearInterval(musicInterval);
     musicInterval = null;
