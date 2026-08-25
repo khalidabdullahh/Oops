@@ -29,6 +29,22 @@
 <body>
   <div id="game-container"></div>
 
+  <!-- Responsive On-Screen Mobile Gamepad -->
+  <div id="mobile-gamepad" class="hidden">
+    <div class="touch-cluster-left">
+      <button type="button" id="btn-left" class="gamepad-btn gamepad-btn-dir" aria-label="Move Left">◀</button>
+      <button type="button" id="btn-right" class="gamepad-btn gamepad-btn-dir" aria-label="Move Right">▶</button>
+    </div>
+    <div class="touch-cluster-right">
+      <button type="button" id="btn-restart" class="gamepad-btn gamepad-btn-restart" aria-label="Restart Level">↺</button>
+      <button type="button" id="btn-flip" class="gamepad-btn gamepad-btn-flip hidden" aria-label="Flip Gravity">⇄</button>
+      <button type="button" id="btn-jump" class="gamepad-btn gamepad-btn-jump" aria-label="Jump">
+        <span>▲</span>
+        <span class="btn-subtext">JUMP</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Offline Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {

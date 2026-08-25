@@ -49,25 +49,31 @@
 html, body {
   width: 100%; 
   height: 100%;
+  height: 100dvh;
   background: var(--bg);
   overflow: hidden;
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
   font-family: 'Press Start 2P', monospace;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  -webkit-touch-callout: none;
 }
 
 #game-container {
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 canvas {
@@ -75,6 +81,9 @@ canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
 }
 
 /* ── UI Overlay ─────────────────────────────────────────── */
@@ -141,187 +150,109 @@ canvas {
 }
 
 
-/* ── Mobile On-Screen Gamepad Controls ──────────────────── */
-#mobile-controls {
-  position: absolute;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
+/* ── Mobile On-Screen Gamepad Controls (Anchored & Touch Friendly) ──── */
+#mobile-gamepad {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
-  pointer-events: none;
-  z-index: 60;
+  padding: 0 max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
 }
 
-/* D-Pad cluster */
-#dpad {
+#mobile-gamepad.hidden {
+  display: none !important;
+}
+
+.touch-cluster-left {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
   pointer-events: auto;
 }
 
-/* Action buttons cluster */
-#action-buttons {
+.touch-cluster-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.gamepad-btn {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  pointer-events: auto;
-}
-
-/* Base circular button */
-.touch-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   cursor: pointer;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.06s ease;
   font-family: 'Press Start 2P', monospace;
+  border: 2.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.05s ease, background 0.05s ease, border-color 0.05s ease;
 }
 
-/* ← ► Directional buttons */
-.dpad-btn {
-  width: clamp(64px, 16vw, 78px);
-  height: clamp(64px, 16vw, 78px);
-  font-size: clamp(20px, 5vw, 28px);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(255,255,255,0.18) 0%,
-    rgba(30,30,60,0.82) 70%
-  );
-  border: 2.5px solid rgba(255,255,255,0.22);
-  box-shadow:
-    0 6px 18px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -2px 0 rgba(0,0,0,0.4);
+.gamepad-btn-dir {
+  width: clamp(68px, 16vw, 84px);
+  height: clamp(68px, 16vw, 84px);
+  font-size: clamp(22px, 5vw, 28px);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.2) 0%, rgba(30, 30, 50, 0.88) 75%);
 }
 
-.dpad-btn:active,
-.dpad-btn.active {
-  transform: scale(0.88) translateY(2px);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(255,100,100,0.5) 0%,
-    rgba(200,30,60,0.9) 70%
-  );
-  border-color: #ff4757;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.5),
-    0 0 22px rgba(255,71,87,0.7),
-    inset 0 2px 4px rgba(0,0,0,0.4);
+.gamepad-btn-jump {
+  width: clamp(82px, 20vw, 102px);
+  height: clamp(82px, 20vw, 102px);
+  font-size: clamp(18px, 4vw, 22px);
+  background: radial-gradient(circle at 35% 35%, rgba(46, 213, 115, 0.45) 0%, rgba(16, 120, 55, 0.92) 75%);
+  border-color: rgba(46, 213, 115, 0.7);
+  gap: 2px;
 }
 
-/* ⇄ FLIP button — medium size */
-.flip-btn {
-  width:  clamp(62px, 15vw, 74px);
-  height: clamp(62px, 15vw, 74px);
-  font-size: clamp(8px, 1.8vw, 10px);
-  letter-spacing: 0.5px;
-  background: radial-gradient(circle at 40% 35%,
-    rgba(100,200,255,0.3) 0%,
-    rgba(20,100,180,0.85) 75%
-  );
-  border: 2.5px solid rgba(100,200,255,0.5);
-  box-shadow:
-    0 5px 15px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -2px 0 rgba(0,0,0,0.4);
-}
-.flip-btn:active, .flip-btn.active {
-  transform: scale(0.9) translateY(2px);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(100,200,255,0.55) 0%,
-    rgba(20,100,180,0.95) 75%
-  );
-  border-color: #00d2d3;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.4),
-    0 0 15px rgba(0,210,211,0.6),
-    inset 0 2px 4px rgba(0,0,0,0.4);
-}
-
-/* ▲ JUMP button — big and round */
-.jump-btn {
-  width:  clamp(80px, 20vw, 100px);
-  height: clamp(80px, 20vw, 100px);
-  font-size: clamp(9px, 2.2vw, 12px);
-  letter-spacing: 1px;
-  background: radial-gradient(circle at 40% 35%,
-    rgba(100,255,160,0.35) 0%,
-    rgba(20,160,80,0.88) 75%
-  );
-  border: 2.5px solid rgba(46,213,115,0.6);
-  box-shadow:
-    0 6px 20px rgba(0,0,0,0.55),
-    0 0 18px rgba(46,213,115,0.3),
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    inset 0 -2px 0 rgba(0,0,0,0.35);
-}
-
-.jump-btn::before {
-  content: "▲";
-  position: absolute;
-  top: 18%;
-  font-size: clamp(18px, 5vw, 26px);
-  opacity: 0.8;
-}
-
-.jump-btn::after {
-  content: "JUMP";
-  position: absolute;
-  bottom: 18%;
+.btn-subtext {
   font-size: clamp(6px, 1.5vw, 8px);
-  opacity: 0.7;
-  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 1px;
 }
 
-.jump-btn:active,
-.jump-btn.active {
-  transform: scale(0.88) translateY(3px);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(180,255,220,0.5) 0%,
-    rgba(46,213,115,0.95) 75%
-  );
-  border-color: #fff;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.4),
-    0 0 30px rgba(46,213,115,0.9),
-    inset 0 2px 6px rgba(0,0,0,0.3);
+.gamepad-btn-flip {
+  width: clamp(62px, 14vw, 76px);
+  height: clamp(62px, 14vw, 76px);
+  font-size: clamp(11px, 2.4vw, 13px);
+  background: radial-gradient(circle at 35% 35%, rgba(100, 200, 255, 0.4) 0%, rgba(20, 100, 180, 0.9) 75%);
+  border-color: rgba(100, 200, 255, 0.7);
 }
 
-/* ↺ Restart mini button */
-.restart-btn {
-  width:  clamp(48px, 11vw, 58px);
-  height: clamp(48px, 11vw, 58px);
-  font-size: clamp(8px, 1.8vw, 10px);
-  color: var(--accent2);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(255,211,42,0.2) 0%,
-    rgba(40,30,10,0.85) 75%
-  );
-  border: 2px solid rgba(255,211,42,0.35);
-  box-shadow:
-    0 4px 12px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+.gamepad-btn-restart {
+  width: clamp(52px, 12vw, 64px);
+  height: clamp(52px, 12vw, 64px);
+  font-size: clamp(14px, 3vw, 18px);
+  color: #ffd32a;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 211, 42, 0.3) 0%, rgba(70, 50, 10, 0.88) 75%);
+  border-color: rgba(255, 211, 42, 0.6);
 }
 
-.restart-btn:active,
-.restart-btn.active {
-  transform: scale(0.88) translateY(2px);
-  background: radial-gradient(circle at 40% 35%,
-    rgba(255,211,42,0.5) 0%,
-    rgba(180,130,0,0.95) 75%
-  );
-  color: #000;
-  box-shadow: 0 0 20px rgba(255,211,42,0.8);
+.gamepad-btn:active, .gamepad-btn.pressed {
+  transform: scale(0.9) translateY(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.5);
+  border-color: #ffffff;
+}
+
+.gamepad-btn-dir:active, .gamepad-btn-dir.pressed {
+  background: radial-gradient(circle at 35% 35%, rgba(255, 100, 100, 0.5) 0%, rgba(200, 30, 60, 0.95) 75%);
+  border-color: #ff4757;
+}
+
+.gamepad-btn-jump:active, .gamepad-btn-jump.pressed {
+  background: radial-gradient(circle at 35% 35%, rgba(180, 255, 220, 0.6) 0%, rgba(46, 213, 115, 0.98) 75%);
+  border-color: #ffffff;
 }
 
 

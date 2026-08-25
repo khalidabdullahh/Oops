@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  100% Guaranteed Beatable & Fair Level Physics
+//  100% Responsive Viewport & Ergonomic Mobile Touch Gamepad
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
@@ -193,7 +193,85 @@ const AudioEngine = {
   }
 };
 
-// ─── 3. 5 Multiverse Worlds Configuration ────────────────────
+// ─── 3. Mobile Gamepad Controller Bridge (Ergonomic & Anchored)
+const MobileGamepad = {
+  initialized: false,
+  activeScene: null,
+
+  init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    const btnLeft = document.getElementById("btn-left");
+    const btnRight = document.getElementById("btn-right");
+    const btnJump = document.getElementById("btn-jump");
+    const btnFlip = document.getElementById("btn-flip");
+    const btnRestart = document.getElementById("btn-restart");
+
+    const bindButton = (el, onDown, onUp) => {
+      if (!el) return;
+
+      const press = (e) => {
+        if (e.cancelable) e.preventDefault();
+        el.classList.add("pressed");
+        AudioEngine.init();
+        if (onDown && this.activeScene) onDown(this.activeScene);
+      };
+
+      const release = (e) => {
+        if (e.cancelable) e.preventDefault();
+        el.classList.remove("pressed");
+        if (onUp && this.activeScene) onUp(this.activeScene);
+      };
+
+      el.addEventListener("pointerdown", press, { passive: false });
+      el.addEventListener("pointerup", release, { passive: false });
+      el.addEventListener("pointercancel", release, { passive: false });
+      el.addEventListener("pointerleave", release, { passive: false });
+
+      el.addEventListener("touchstart", press, { passive: false });
+      el.addEventListener("touchend", release, { passive: false });
+      el.addEventListener("touchcancel", release, { passive: false });
+    };
+
+    bindButton(btnLeft, (s) => { s.touchLeft = true; }, (s) => { s.touchLeft = false; });
+    bindButton(btnRight, (s) => { s.touchRight = true; }, (s) => { s.touchRight = false; });
+    bindButton(btnJump, (s) => { s.touchJump = true; }, (s) => { s.touchJump = false; });
+    bindButton(btnFlip, (s) => { s.touchFlip = true; }, (s) => { s.touchFlip = false; });
+    bindButton(btnRestart, (s) => { s.touchRestart = true; }, (s) => { s.touchRestart = false; });
+  },
+
+  show(scene) {
+    this.init();
+    this.activeScene = scene;
+    const gamepad = document.getElementById("mobile-gamepad");
+    if (!gamepad) return;
+
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+    if (isTouch) {
+      gamepad.classList.remove("hidden");
+    } else {
+      gamepad.classList.add("hidden");
+    }
+
+    const btnFlip = document.getElementById("btn-flip");
+    if (btnFlip) {
+      if (scene && scene.currentWorld === 3) {
+        btnFlip.classList.remove("hidden");
+      } else {
+        btnFlip.classList.add("hidden");
+      }
+    }
+  },
+
+  hide() {
+    this.activeScene = null;
+    const gamepad = document.getElementById("mobile-gamepad");
+    if (gamepad) gamepad.classList.add("hidden");
+  }
+};
+
+// ─── 4. 5 Multiverse Worlds Configuration ────────────────────
 const WORLD_THEMES = [
   {
     id: 0,
@@ -277,7 +355,7 @@ function getTheme(worldIdx) {
   return WORLD_THEMES[idx];
 }
 
-// ─── 4. BootScene: Assets & Animations ───────────────────────
+// ─── 5. BootScene: Assets & Animations ───────────────────────
 class BootScene extends Phaser.Scene {
   constructor() {
     super("BootScene");
@@ -530,7 +608,7 @@ class BootScene extends Phaser.Scene {
   }
 }
 
-// ─── 5. WorldSelectScene: 30 Levels per World Island Map ─────
+// ─── 6. WorldSelectScene: 30 Levels per World Island Map ─────
 class WorldSelectScene extends Phaser.Scene {
   constructor() {
     super("WorldSelectScene");
@@ -547,6 +625,7 @@ class WorldSelectScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
     AudioEngine.init();
+    MobileGamepad.hide();
 
     this.bgGfx = this.add.graphics();
     this.drawBackground();
@@ -816,7 +895,7 @@ class WorldSelectScene extends Phaser.Scene {
   }
 }
 
-// ─── 6. GameScene: Core Platformer & 5 World Engines ─────────
+// ─── 7. GameScene: Core Platformer & 5 World Engines ─────────
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
@@ -835,6 +914,8 @@ class GameScene extends Phaser.Scene {
     this.touchLeft = false;
     this.touchRight = false;
     this.touchJump = false;
+    this.touchFlip = false;
+    this.touchRestart = false;
     this.controlsInverted = false;
     this.iceVelocityX = 0;
   }
@@ -845,6 +926,7 @@ class GameScene extends Phaser.Scene {
 
     AudioEngine.init();
     AudioEngine.startMusic();
+    MobileGamepad.show(this);
 
     this.bgGfx = this.add.graphics();
     this.bgGfx.fillStyle(theme.bg, 1);
@@ -897,7 +979,6 @@ class GameScene extends Phaser.Scene {
     }
 
     this.createHUD();
-    this.createMobileGamepad();
     this.showLevelBanner();
   }
 
@@ -974,63 +1055,9 @@ class GameScene extends Phaser.Scene {
 
     mapBtn.on("pointerdown", () => {
       AudioEngine.stopMusic();
+      MobileGamepad.hide();
       this.scene.start("WorldSelectScene", { world: this.currentWorld });
     });
-  }
-
-  createMobileGamepad() {
-    const { width, height } = this.scale;
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
-    if (!isTouch) return;
-
-    const padY = height - 50;
-
-    const makeTouchBtn = (x, y, w, h, label, onPress, onRelease) => {
-      const g = this.add.graphics().setDepth(250);
-      g.fillStyle(0x000000, 0.35);
-      g.fillRoundedRect(x - w/2, y - h/2, w, h, 8);
-      g.lineStyle(2.5, 0xffa502, 0.85);
-      g.strokeRoundedRect(x - w/2, y - h/2, w, h, 8);
-
-      this.add.text(x, y, label, {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "14px",
-        color: "#ffffff"
-      }).setOrigin(0.5).setDepth(251);
-
-      const zone = this.add.zone(x, y, w, h).setDepth(252).setInteractive();
-
-      zone.on("pointerdown", () => {
-        g.clear();
-        g.fillStyle(0xff4757, 0.7);
-        g.fillRoundedRect(x - w/2, y - h/2, w, h, 8);
-        g.lineStyle(2.5, 0xffffff, 1);
-        g.strokeRoundedRect(x - w/2, y - h/2, w, h, 8);
-        if (onPress) onPress();
-      });
-
-      const release = () => {
-        g.clear();
-        g.fillStyle(0x000000, 0.35);
-        g.fillRoundedRect(x - w/2, y - h/2, w, h, 8);
-        g.lineStyle(2.5, 0xffa502, 0.85);
-        g.strokeRoundedRect(x - w/2, y - h/2, w, h, 8);
-        if (onRelease) onRelease();
-      };
-
-      zone.on("pointerup", release);
-      zone.on("pointerout", release);
-    };
-
-    makeTouchBtn(70, padY, 80, 52, "◀", () => { this.touchLeft = true; }, () => { this.touchLeft = false; });
-    makeTouchBtn(165, padY, 80, 52, "▶", () => { this.touchRight = true; }, () => { this.touchRight = false; });
-
-    makeTouchBtn(width - 75, padY, 95, 52, "▲", () => { this.touchJump = true; }, () => { this.touchJump = false; });
-    makeTouchBtn(width - 160, padY, 50, 42, "↺", () => { this.restartLevel(); }, null);
-
-    if (this.currentWorld === 3) {
-      makeTouchBtn(width - 225, padY, 50, 42, "⇄", () => { this.flipGravity(); }, null);
-    }
   }
 
   update(time, delta) {
@@ -1127,12 +1154,14 @@ class GameScene extends Phaser.Scene {
     }
 
     if (this.currentWorld === 3) {
-      if (Phaser.Input.Keyboard.JustDown(this.keyShift) || Phaser.Input.Keyboard.JustDown(this.keyF)) {
+      if (Phaser.Input.Keyboard.JustDown(this.keyShift) || Phaser.Input.Keyboard.JustDown(this.keyF) || this.touchFlip) {
+        this.touchFlip = false;
         this.flipGravity();
       }
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.keyR)) {
+    if (Phaser.Input.Keyboard.JustDown(this.keyR) || this.touchRestart) {
+      this.touchRestart = false;
       this.restartLevel();
     }
 
@@ -1278,7 +1307,6 @@ class GameScene extends Phaser.Scene {
   }
 
   onTrampolineCollide(player, tramp) {
-    // Powerful bounce with forward leap boost
     player.setVelocityY(-760 * this.gravityDir);
     AudioEngine.sfxBounce();
     this.tweens.add({
@@ -1369,6 +1397,7 @@ class GameScene extends Phaser.Scene {
         this.time.delayedCall(450, () => {
           const nextLvl = this.currentLevel + 1;
           if (nextLvl >= 30) {
+            MobileGamepad.hide();
             this.scene.start("WorldSelectScene", { world: this.currentWorld });
           } else {
             this.scene.restart({ world: this.currentWorld, level: nextLvl, deaths: this.deaths });
@@ -1378,7 +1407,7 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // ─── 7. Handcrafted & Guaranteed Beatable Level Layouts ───────
+  // ─── 8. Handcrafted & Guaranteed Beatable Level Layouts ───────
   buildWorldLevel(wIdx, lvl) {
     const { width, height } = this.scale;
     const theme = getTheme(wIdx);
@@ -1488,14 +1517,14 @@ class GameScene extends Phaser.Scene {
           }
         });
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 4) { // Level 5: Spring Trampoline & Stepping Pillars (100% Reachable & Fair!)
+      } else if (lvl === 4) { // Level 5: Spring Trampoline & Stepping Pillars
         addPlat(0, 460, 160, 80);
-        addTrampoline(130, 452); // Trampoline on spawn ledge
-        addPlat(270, 390, 120, 25); // Mid stepping stone 1
-        addPlat(450, 360, 120, 25); // Mid stepping stone 2 with trampoline
+        addTrampoline(130, 452);
+        addPlat(270, 390, 120, 25);
+        addPlat(450, 360, 120, 25);
         addTrampoline(510, 352);
-        addPlat(630, 340, 100, 25); // Mid stepping stone 3
-        addPlat(780, 320, 180, 220); // Goal fortress
+        addPlat(630, 340, 100, 25);
+        addPlat(780, 320, 180, 220);
         for (let sx = 170; sx < 770; sx += 35) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(880, 297, "door_tex");
       } else { // Levels 6 - 30: Progressive Escalating Desert Gauntlets
@@ -1542,7 +1571,7 @@ class GameScene extends Phaser.Scene {
           addIcicle(ix, 80);
         }
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else if (lvl === 4) { // Level 5: Trampoline Glacier Leap (100% Reachable!)
+      } else if (lvl === 4) { // Level 5: Trampoline Glacier Leap
         addPlat(0, 460, 160, 80);
         addTrampoline(130, 452);
         addPlat(270, 390, 120, 25);
@@ -1612,7 +1641,7 @@ class GameScene extends Phaser.Scene {
     // ⚡ WORLD 4: GRAVITY NEXUS (Ceiling Walking & Inversion Mazes)
     // ─────────────────────────────────────────────────────────────
     else if (wIdx === 3) {
-      if (lvl === 0) { // Level 1 (Gravity Intro - Flip onto ceiling to pass wall!)
+      if (lvl === 0) { // Level 1 (Gravity Intro)
         addPlat(0, 460, 320, 80);
         addPlat(0, 0, width, 50);
         addPlat(320, 240, 80, 300);
@@ -1624,7 +1653,7 @@ class GameScene extends Phaser.Scene {
         addPlat(500, 460, 460, 80);
         for (let sx = 360; sx < 500; sx += 30) addSpike(sx, 520);
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else { // Levels 3 - 30: Gravity Maze Chambers (Evenly spaced & beatable!)
+      } else { // Levels 3 - 30: Gravity Maze Chambers
         addPlat(0, 460, 180, 80);
         addPlat(0, 0, width, 50);
         addPlat(240, 180, 120, 25);
@@ -1661,7 +1690,7 @@ class GameScene extends Phaser.Scene {
           }
         });
         this.exitGate = this.physics.add.sprite(900, 437, "door_tex");
-      } else { // Levels 3 - 30: Singularity Finale (100% Reachable & Fair!)
+      } else { // Levels 3 - 30: Singularity Finale
         const tier = Math.min(Math.floor(lvl / 5), 4);
         addPlat(0, 460, 150, 80);
         const gb1 = addFallingPlat(210, 420 - tier * 3, 100, 25);
@@ -1682,7 +1711,7 @@ class GameScene extends Phaser.Scene {
   }
 }
 
-// ─── 8. Phaser Game Configuration ────────────────────────────
+// ─── 9. Phaser Game Configuration & Dynamic Scale Manager ────
 const config = {
   type: Phaser.AUTO,
   parent: "game-container",
@@ -1696,7 +1725,9 @@ const config = {
   },
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 960,
+    height: 540
   },
   physics: {
     default: "arcade",
@@ -1708,7 +1739,28 @@ const config = {
   scene: [BootScene, WorldSelectScene, GameScene]
 };
 
-// Start the game instance
+// Global Orientation & Resize Listeners
+window.addEventListener("resize", () => {
+  if (window.game && window.game.scale) {
+    window.game.scale.refresh();
+  }
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+  const gamepad = document.getElementById("mobile-gamepad");
+  if (gamepad && window.game && window.game.scene.isActive("GameScene")) {
+    if (isTouch) gamepad.classList.remove("hidden");
+    else gamepad.classList.add("hidden");
+  }
+});
+
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    if (window.game && window.game.scale) {
+      window.game.scale.refresh();
+    }
+  }, 200);
+});
+
+// Launch Game Instance
 try {
   window.game = new Phaser.Game(config);
 } catch (err) {
