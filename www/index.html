@@ -24,15 +24,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css?v=4.3.0"/>
+  <link rel="stylesheet" href="style.css?v=4.4.0"/>
 </head>
 <body>
   <div id="game-container"></div>
-
-  <!-- Feedback & Report Trigger Button (Compact, Top-Right) -->
-  <button type="button" id="btn-open-feedback" class="feedback-trigger-btn" aria-label="Submit Feedback or Report">
-    💬 Feedback
-  </button>
 
   <!-- In-Game Player Feedback & Bug Report Modal -->
   <div id="feedback-modal" class="modal-overlay hidden">
@@ -119,7 +114,7 @@
   <!-- Offline Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=4.3.0').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=4.4.0').then(reg => {
         reg.update();
       }).catch(()=>{});
     }
@@ -131,6 +126,6 @@
       document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\\/script>');
     }
   </script>
-  <script src="game.js?v=4.3.0"></script>
+  <script src="game.js?v=4.4.0"></script>
 </body>
 </html>

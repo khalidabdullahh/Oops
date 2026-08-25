@@ -694,35 +694,26 @@ canvas {
   color: #ccc !important;
 }
 
-/* ── In-Game Feedback & Bug Report Modal ──────────────────── */
-.feedback-trigger-btn {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top));
-  right: max(10px, env(safe-area-inset-right));
-  z-index: 99999 !important;
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(7px, 1.4vw, 8.5px);
-  color: #ffffff;
-  background: rgba(25, 25, 35, 0.88);
-  border: 1.5px solid rgba(255, 71, 87, 0.8);
-  border-radius: 12px;
-  padding: 5px 9px;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 71, 87, 0.3);
-  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
-  pointer-events: auto !important;
-  user-select: none;
-  -webkit-user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+/* ── Landscape Full-Screen Optimization ───────────────────── */
+@media (orientation: landscape) {
+  html, body, #game-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #game-container canvas {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    object-fit: contain !important;
+  }
 }
 
-.feedback-trigger-btn:hover, .feedback-trigger-btn:active {
-  transform: scale(1.06);
-  background: rgba(255, 71, 87, 0.35);
-  border-color: #ff4757;
-  box-shadow: 0 4px 14px rgba(255, 71, 87, 0.5);
+/* ── In-Game Feedback & Bug Report Modal ──────────────────── */
+.feedback-trigger-btn {
+  display: none !important;
 }
 
 .fb-attach-row {

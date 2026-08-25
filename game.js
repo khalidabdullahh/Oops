@@ -1,10 +1,45 @@
 // ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition
 //  5 Unique Worlds x 30 Handcrafted Stages (150 Total)
-//  100% Responsive Viewport & In-Game GitHub Feedback System
+//  Landscape Fullscreen & World Select Feedback Integration
 // ═══════════════════════════════════════════════════════════════
 
 "use strict";
+
+// ─── Fullscreen Helper ───────────────────────────────────────
+function toggleFullScreen() {
+  const doc = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (doc.requestFullscreen) {
+      doc.requestFullscreen().catch(()=>{});
+    } else if (doc.webkitRequestFullscreen) {
+      doc.webkitRequestFullscreen();
+    } else if (doc.msRequestFullscreen) {
+      doc.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(()=>{});
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+}
+
+// Auto-trigger Fullscreen on touch in landscape orientation on mobile
+function autoLandscapeFullScreen() {
+  const isLandscape = window.innerWidth > window.innerHeight;
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+  if (isLandscape && isMobile) {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      const doc = document.documentElement;
+      if (doc.requestFullscreen) doc.requestFullscreen().catch(()=>{});
+      else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+    }
+  }
+}
+window.addEventListener("touchstart", autoLandscapeFullScreen, { passive: true });
+window.addEventListener("pointerdown", autoLandscapeFullScreen, { passive: true });
 
 // ─── 1. Save Manager ─────────────────────────────────────────
 const SAVE_KEY = "oops_multiverse_v9";
@@ -281,7 +316,6 @@ const FeedbackManager = {
     this.initialized = true;
 
     const modal = document.getElementById("feedback-modal");
-    const btnOpen = document.getElementById("btn-open-feedback");
     const btnClose = document.getElementById("btn-close-feedback");
     const btnCancel = document.getElementById("btn-cancel-feedback");
     const form = document.getElementById("feedback-form");
@@ -290,9 +324,6 @@ const FeedbackManager = {
     const btnSnap = document.getElementById("btn-snap-screen");
     const btnRemove = document.getElementById("btn-remove-preview");
 
-    if (btnOpen) {
-      btnOpen.addEventListener("click", () => this.open());
-    }
     if (btnClose) {
       btnClose.addEventListener("click", () => this.close());
     }
@@ -387,18 +418,18 @@ const FeedbackManager = {
     let deathsCount = SaveManager.getTotalDeaths();
 
     if (window.game && window.game.scene) {
-      const gScene = window.game.scene.getScene("GameScene");
-      if (gScene && window.game.scene.isActive("GameScene")) {
-        const theme = getTheme(gScene.currentWorld);
+      const wsScene = window.game.scene.getScene("WorldSelectScene");
+      if (wsScene && window.game.scene.isActive("WorldSelectScene")) {
+        const theme = getTheme(wsScene.currentWorldIdx);
         worldName = `${theme.badge} (${theme.name})`;
-        levelNum = gScene.currentLevel + 1;
-        deathsCount = gScene.deaths;
+        levelNum = SaveManager.getWorldUnlocked(wsScene.currentWorldIdx) + 1;
       } else {
-        const wsScene = window.game.scene.getScene("WorldSelectScene");
-        if (wsScene) {
-          const theme = getTheme(wsScene.currentWorldIdx);
+        const gScene = window.game.scene.getScene("GameScene");
+        if (gScene && window.game.scene.isActive("GameScene")) {
+          const theme = getTheme(gScene.currentWorld);
           worldName = `${theme.badge} (${theme.name})`;
-          levelNum = SaveManager.getWorldUnlocked(wsScene.currentWorldIdx) + 1;
+          levelNum = gScene.currentLevel + 1;
+          deathsCount = gScene.deaths;
         }
       }
     }
@@ -477,11 +508,6 @@ ${message}${imageSection}
     window.open(githubIssueUrl, "_blank");
 
     this.close();
-
-    const gScene = window.game?.scene?.getScene("GameScene");
-    if (gScene && window.game?.scene?.isActive("GameScene")) {
-      gScene.showTrollToast("Feedback Prepared! Opening GitHub... 🚀");
-    }
 
     const msgInput = document.getElementById("fb-message");
     if (msgInput) msgInput.value = "";
@@ -881,15 +907,26 @@ class WorldSelectScene extends Phaser.Scene {
 
     const titleText = this.add.text(width / 2, 34, "Oops! - WORLD MAP", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "22px",
+      fontSize: "20px",
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 6
     }).setOrigin(0.5);
     this.islandContainer.add(titleText);
 
-    const sndText = this.add.text(width - 40, 34, AudioEngine.muted ? "🔇" : "🔊", {
-      fontSize: "22px"
+    // ── TOP-RIGHT BUTTON CLUSTER: [ 💬 FEEDBACK ]  [ 🔊 SOUND ]  [ ⛶ FULLSCREEN ] ──
+    // 1. Fullscreen Toggle Icon (Far Right)
+    const fsText = this.add.text(width - 32, 34, "⛶", {
+      fontSize: "18px"
+    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
+    fsText.on("pointerdown", () => {
+      toggleFullScreen();
+    });
+    this.islandContainer.add(fsText);
+
+    // 2. Sound Toggle Icon (Middle)
+    const sndText = this.add.text(width - 68, 34, AudioEngine.muted ? "🔇" : "🔊", {
+      fontSize: "18px"
     }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
     sndText.on("pointerdown", () => {
       AudioEngine.init();
@@ -897,6 +934,35 @@ class WorldSelectScene extends Phaser.Scene {
       sndText.setText(muted ? "🔇" : "🔊");
     });
     this.islandContainer.add(sndText);
+
+    // 3. Feedback / Report Button (Directly to the Left of Sound Icon)
+    const fbBtn = this.add.container(width - 150, 34);
+    const fbGfx = this.add.graphics();
+    fbGfx.fillStyle(0x161822, 0.9);
+    fbGfx.fillRoundedRect(-48, -13, 96, 26, 13);
+    fbGfx.lineStyle(1.5, 0xff4757, 0.85);
+    fbGfx.strokeRoundedRect(-48, -13, 96, 26, 13);
+    const fbLabel = this.add.text(0, 0, "💬 FEEDBACK", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "7px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
+    const fbZone = this.add.zone(0, 0, 96, 26).setInteractive({ cursor: "pointer" });
+    fbZone.on("pointerover", () => {
+      fbBtn.setScale(1.06);
+      fbLabel.setColor("#ffd32a");
+    });
+    fbZone.on("pointerout", () => {
+      fbBtn.setScale(1);
+      fbLabel.setColor("#ffffff");
+    });
+    fbZone.on("pointerdown", () => {
+      AudioEngine.init();
+      AudioEngine.sfxJump();
+      FeedbackManager.open();
+    });
+    fbBtn.add([fbGfx, fbLabel, fbZone]);
+    this.islandContainer.add(fbBtn);
 
     const islandW = 820, islandH = 370;
     const islandX = width / 2, islandY = height / 2 + 25;
@@ -1262,14 +1328,21 @@ class GameScene extends Phaser.Scene {
       color: "#ffffff"
     }).setDepth(200);
 
-    this.deathText = this.add.text(width - 90, 20, `💀 ${this.deaths}`, {
+    this.deathText = this.add.text(width - 120, 20, `💀 ${this.deaths}`, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
 
-    const mapBtn = this.add.text(width - 32, 20, "🗺️", {
-      fontSize: "20px"
+    const fsBtn = this.add.text(width - 60, 20, "⛶", {
+      fontSize: "17px"
+    }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
+    fsBtn.on("pointerdown", () => {
+      toggleFullScreen();
+    });
+
+    const mapBtn = this.add.text(width - 25, 20, "🗺️", {
+      fontSize: "18px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
 
     mapBtn.on("pointerdown", () => {
@@ -1976,6 +2049,7 @@ window.addEventListener("orientationchange", () => {
     if (window.game && window.game.scale) {
       window.game.scale.refresh();
     }
+    autoLandscapeFullScreen();
   }, 200);
 });
 
