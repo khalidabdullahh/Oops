@@ -1,4 +1,6 @@
-// ═══════════════════════════════════════════════════════════════
+import sys
+
+script_content = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – World 1 Master Edition (v7.0.0)
 //  World 1: 30 100% Unique Handcrafted Levels (Zero Repetition)
 //  Comedic 7-Second Intro, True Dual-Orientation (Portrait/Landscape),
@@ -2448,3 +2450,9 @@ if (document.readyState === "loading") {
 } else {
   launchOopsGame();
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(script_content)
+
+print("game.js successfully created with 30 INDIVIDUALLY HANDCRAFTED UNIQUE LEVELS FOR WORLD 1! Size:", len(script_content))
