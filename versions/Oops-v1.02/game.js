@@ -1835,10 +1835,8 @@ class GameScene extends Phaser.Scene {
     this.player.body.setOffset(5, 4);
     this.player.body.setGravityY(1400);
     this.player.setDepth(100);
+    this.player.setScale(1, 1);
     this.player.anims.play("hero_anim_idle");
-
-    this.wasOnFloor = true;
-    this.dustTimer = 0;
 
     this.physics.add.collider(this.player, this.platforms, this.onPlatformCollide, null, this);
     this.physics.add.collider(this.player, this.trampolines, this.onTrampolineCollide, null, this);
@@ -1891,18 +1889,6 @@ class GameScene extends Phaser.Scene {
     // Layer 2: Mid Parallax Ancient Ruin Columns (Medium scroll)
     this.midParallaxGfx = this.add.graphics().setDepth(-17);
     this.drawMidRuins(this.midParallaxGfx, width, height, 0);
-
-    // Ambient floating dust motes
-    this.ambientMotes = this.add.particles(0, 0, "dust_puff", {
-      x: { min: 0, max: width },
-      y: { min: 30, max: height - 50 },
-      lifespan: 3600,
-      speedX: { min: -15, max: 22 },
-      speedY: { min: -8, max: 8 },
-      scale: { start: 0.35, end: 0 },
-      alpha: { start: 0.3, end: 0 },
-      frequency: 220
-    }).setDepth(-16);
   }
 
   drawFarDunes(g, width, height, offsetX) {
@@ -2105,45 +2091,6 @@ class GameScene extends Phaser.Scene {
       this.coyoteTimer -= dt;
     }
 
-    // ── 💨 FOOTSTEP DUST PUFF JUICE ──
-    if (onFloor && Math.abs(this.player.body.velocity.x) > 40) {
-      this.dustTimer -= dt;
-      if (this.dustTimer <= 0) {
-        this.dustTimer = 0.16;
-        var dustX = this.player.x + (this.player.flipX ? 8 : -8);
-        this.add.particles(dustX, this.player.y + 16, "dust_puff", {
-          speedX: { min: this.player.flipX ? 15 : -35, max: this.player.flipX ? 35 : -15 },
-          speedY: { min: -15, max: -5 },
-          scale: { start: 0.45, end: 0 },
-          alpha: { start: 0.6, end: 0 },
-          lifespan: 260,
-          quantity: 2
-        });
-      }
-    }
-
-    // ── 🤸 SQUASH & STRETCH LANDING IMPACT JUICE ──
-    if (onFloor && !this.wasOnFloor && this.player.body.velocity.y >= 0) {
-      this.tweens.add({
-        targets: this.player,
-        scaleX: 1.25,
-        scaleY: 0.75,
-        duration: 90,
-        yoyo: true,
-        ease: "Quad.easeOut"
-      });
-      // Dual landing dust clouds
-      this.add.particles(this.player.x, this.player.y + 16, "dust_puff", {
-        speedX: { min: -60, max: 60 },
-        speedY: { min: -25, max: -5 },
-        scale: { start: 0.6, end: 0 },
-        alpha: { start: 0.7, end: 0 },
-        lifespan: 300,
-        quantity: 5
-      });
-    }
-    this.wasOnFloor = onFloor;
-
     var jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
                       Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
                       Phaser.Input.Keyboard.JustDown(this.keyW) ||
@@ -2161,24 +2108,6 @@ class GameScene extends Phaser.Scene {
       this.jumpBufferTimer = 0;
       this.coyoteTimer = 0;
       AudioEngine.sfxJump();
-
-      // Launch stretch tween + dust
-      this.tweens.add({
-        targets: this.player,
-        scaleX: 0.78,
-        scaleY: 1.28,
-        duration: 120,
-        yoyo: true,
-        ease: "Quad.easeOut"
-      });
-      this.add.particles(this.player.x, this.player.y + 16, "dust_puff", {
-        speedX: { min: -30, max: 30 },
-        speedY: { min: -20, max: 0 },
-        scale: { start: 0.5, end: 0 },
-        alpha: { start: 0.6, end: 0 },
-        lifespan: 250,
-        quantity: 3
-      });
     }
 
     if (!onFloor) {
