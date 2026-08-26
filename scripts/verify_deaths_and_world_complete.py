@@ -167,11 +167,9 @@ d_state1 = eval_js('''(() => {
 print("Level 5 (0 level deaths, 14 total deaths):", d_state1)
 assert d_state1['levelDeaths'] == 0
 assert d_state1['deaths'] == 14
-assert "LV:0" in d_state1['hudDeathText'] or "LV: 0" in d_state1['hudDeathText']
-assert "TOT:14" in d_state1['hudDeathText'] or "TOT: 14" in d_state1['hudDeathText']
-assert "LV: 0" in d_state1['deckInfoText']
-assert "TOT: 14" in d_state1['deckInfoText']
-print("✅ Test 1 Passed: Level deaths (0) and Total deaths (14) are distinctly separated!")
+assert "💀 0" in d_state1['hudDeathText']
+assert "WORLD 1 · LV 5  💀 0" in d_state1['deckInfoText']
+print("✅ Test 1 Passed: Level deaths (💀 0) cleanly displayed without cluttered total text!")
 
 # Die twice on Level 5
 eval_js('window.game.scene.getScene("GameScene").onPlayerDie();')
@@ -192,11 +190,9 @@ d_state2 = eval_js('''(() => {
 print("Level 5 after 2 deaths:", d_state2)
 assert d_state2['levelDeaths'] == 2
 assert d_state2['deaths'] == 16
-assert "LV:2" in d_state2['hudDeathText']
-assert "TOT:16" in d_state2['hudDeathText']
-assert "LV: 2" in d_state2['deckInfoText']
-assert "TOT: 16" in d_state2['deckInfoText']
-print("✅ Test 2 Passed: Deaths increment both level counter (2) and total counter (16) accurately!")
+assert "💀 2" in d_state2['hudDeathText']
+assert "WORLD 1 · LV 5  💀 2" in d_state2['deckInfoText']
+print("✅ Test 2 Passed: Deaths increment level counter to 💀 2 accurately!")
 
 print("\n=== 🧪 2. TESTING WORLD 1 LEVEL 30 COMPLETION SCREEN ===")
 

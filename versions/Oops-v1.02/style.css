@@ -327,23 +327,31 @@ canvas {
     align-items: center;
     width: 100%;
     padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.55);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     pointer-events: auto;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
   }
 
   .deck-info-item {
     font-family: 'Press Start 2P', monospace;
-    font-size: clamp(8px, 2.2vw, 10px);
+    font-size: clamp(8.5px, 2.5vw, 10.5px);
     color: #ffd32a;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .deck-actions-cluster {
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-shrink: 0;
   }
 
   .deck-utility-btn {
@@ -352,11 +360,13 @@ canvas {
     border-radius: 6px;
     color: #ffffff;
     font-family: 'Press Start 2P', monospace;
-    font-size: clamp(7px, 1.8vw, 8.5px);
+    font-size: clamp(7.5px, 2vw, 9px);
     padding: 6px 10px;
     cursor: pointer;
     touch-action: manipulation;
     transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+    line-height: 1;
   }
 
   .deck-utility-btn:active {

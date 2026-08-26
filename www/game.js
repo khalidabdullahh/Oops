@@ -415,7 +415,7 @@ var MobileGamepad = {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo && scene) {
-      deckInfo.textContent = "WORLD 1 · LV " + (scene.currentLevel + 1) + " (💀 " + (scene.deaths || 0) + ")";
+      deckInfo.textContent = "WORLD 1 · LV " + (scene.currentLevel + 1) + "  💀 " + (scene.levelDeaths || 0);
     }
 
     if (window.game && window.game.scale) {
@@ -1859,7 +1859,7 @@ class GameScene extends Phaser.Scene {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
   }
 
@@ -1956,15 +1956,15 @@ class GameScene extends Phaser.Scene {
       color: "#ffffff"
     }).setDepth(200);
 
-    // Separated Level Deaths and Total Deaths Display
-    this.deathText = this.add.text(width - 170, 20, "💀 LV:" + this.levelDeaths + " | TOT:" + this.deaths, {
+    // Clean Level Death Display
+    this.deathText = this.add.text(width - 120, 20, "💀 " + this.levelDeaths, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8.5px",
+      fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
 
     // In-game HUD Skip Button (Unlocked after 7 deaths)
-    this.hudSkipBtn = this.add.container(width - 265, 20);
+    this.hudSkipBtn = this.add.container(width - 220, 20);
     var skGfx = this.add.graphics();
     skGfx.fillStyle(0x161822, 0.9);
     skGfx.fillRoundedRect(-38, -12, 76, 24, 6);
@@ -2240,11 +2240,11 @@ class GameScene extends Phaser.Scene {
     SaveManager.saveDeaths(this.deaths);
 
     if (this.deathText) {
-      this.deathText.setText("💀 LV:" + this.levelDeaths + " | TOT:" + this.deaths);
+      this.deathText.setText("💀 " + this.levelDeaths);
     }
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
 
     this.player.anims.stop();
