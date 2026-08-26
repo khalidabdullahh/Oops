@@ -639,10 +639,11 @@ var FeedbackManager = {
 // ─── 4.5. Modular Monetization & Rewarded Ads Manager ────────
 var MONETIZATION_CONFIG = {
   enabled: true,
-  testMode: true,          // Set to false when production Google AdSense / H5 Ads is approved
-  publisherId: "ca-pub-0000000000000000",
+  testMode: false,          // Uses official Google H5 adBreak; falls back gracefully to simulation if blocked
+  publisherId: "ca-pub-7942277005068512",
   deathsThreshold: 7       // Trigger popup offer on 7th death of current level
 };
+window.MONETIZATION_CONFIG = MONETIZATION_CONFIG;
 
 var MonetizationManager = {
   initialized: false,
@@ -900,6 +901,7 @@ var MonetizationManager = {
     }
   }
 };
+window.MonetizationManager = MonetizationManager;
 
 // ─── 5. World 1 Configuration (Desert Ruins) ─────────────────
 var WORLD_1_THEME = {
@@ -945,12 +947,8 @@ class BootScene extends Phaser.Scene {
 
     removeLoaderSplash();
 
-    // Route to 7-Second Intro if first time, else directly to WorldSelectScene
-    if (!SaveManager.hasSeenIntro()) {
-      this.scene.start("IntroScene");
-    } else {
-      this.scene.start("WorldSelectScene");
-    }
+    // Always launch IntroScene on game load/reload
+    this.scene.start("IntroScene");
   }
 
   createCartoonHero() {
@@ -1263,7 +1261,7 @@ class BootScene extends Phaser.Scene {
   }
 }
 
-// ─── 7. IntroScene: 7-Second Comedic Demonstration ───────────
+// ─── 7. IntroScene: High-Octane Interactive Troll Showcase ───────────
 class IntroScene extends Phaser.Scene {
   constructor() {
     super("IntroScene");
@@ -1279,54 +1277,84 @@ class IntroScene extends Phaser.Scene {
     MobileGamepad.hide();
     removeLoaderSplash();
 
+    // Cinematic Desert Gradient Background
     var bg = this.add.graphics();
-    bg.fillStyle(0x140602, 1);
+    bg.fillGradientStyle(0x3a0d04, 0x3a0d04, 0x6e200c, 0x6e200c, 1);
     bg.fillRect(0, 0, width, height);
 
+    // Glowing Sun Halo
+    var sunGlow = this.add.graphics();
+    sunGlow.fillStyle(0xffa502, 0.2);
+    sunGlow.fillCircle(width * 0.8, 120, 90);
+    sunGlow.fillStyle(0xffd32a, 0.35);
+    sunGlow.fillCircle(width * 0.8, 120, 45);
+
+    // Floating particles
     this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
-      lifespan: 2000,
-      speedY: { min: -10, max: 10 },
-      scale: { start: 0.5, end: 0 },
+      lifespan: 2500,
+      speedY: { min: -15, max: 15 },
+      scale: { start: 0.6, end: 0 },
       alpha: { start: 0.3, end: 0 },
       tint: 0xffa502,
-      frequency: 180
+      frequency: 160
     });
 
+    // Floor Platform
     var floor = this.add.tileSprite(width / 2, 450, width + 100, 80, "plat_tex");
     floor.setTint(0xe5825b);
 
-    var door = this.add.container(720, 390);
+    // Exit Gate
+    var door = this.add.container(750, 390);
     var dInt = this.add.image(0, 0, "door_interior_tex");
     var dPan = this.add.image(-13, 2, "door_panel_tex").setOrigin(0, 0.5).setTint(0x9c4118);
     var dFrm = this.add.image(0, 0, "door_frame_tex");
     door.add([dInt, dPan, dFrm]);
 
-    var hero = this.add.sprite(180, 390, "hero_idle_1");
+    // Hero
+    var hero = this.add.sprite(160, 390, "hero_idle_1");
     hero.anims.play("hero_anim_run");
 
-    var caption = this.add.text(width / 2, 50, "JUST REACH THE EXIT... RIGHT? 😉", {
+    // Dynamic Cinematic Banner / Troll Toast
+    var caption = this.add.text(width / 2, 45, "STEP 1: JUST REACH THE DOOR... EASY RIGHT? 😉", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "14px",
+      fontSize: "12px",
       color: "#ffd32a",
       stroke: "#000000",
-      strokeThickness: 4
+      strokeThickness: 5
     }).setOrigin(0.5);
 
-    var skipBtn = this.add.container(width - 90, 45);
-    var skGfx = this.add.graphics();
-    skGfx.fillStyle(0x1e202c, 0.85);
-    skGfx.fillRoundedRect(-45, -14, 90, 28, 6);
-    skGfx.lineStyle(1.5, 0xffffff, 0.6);
-    skGfx.strokeRoundedRect(-45, -14, 90, 28, 6);
-    var skTxt = this.add.text(0, 0, "SKIP ▶", {
+    // Interactive Tap to Jump / Action Hint
+    var actionHint = this.add.text(width / 2, 85, "👆 TAP OR PRESS SPACE TO JUMP!", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8.5px",
-      color: "#ffffff"
+      fontSize: "9px",
+      color: "#2ed573"
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: actionHint,
+      alpha: 0.3,
+      duration: 350,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // ── Persistent SKIP Button (Always on top right) ──
+    var skipBtn = this.add.container(width - 75, 35);
+    var skGfx = this.add.graphics();
+    skGfx.fillStyle(0x161822, 0.9);
+    skGfx.fillRoundedRect(-45, -14, 90, 28, 14);
+    skGfx.lineStyle(1.5, 0xffd32a, 0.9);
+    skGfx.strokeRoundedRect(-45, -14, 90, 28, 14);
+    var skTxt = this.add.text(0, 0, "SKIP ⏩", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "8px",
+      color: "#ffd32a"
     }).setOrigin(0.5);
     var skZone = this.add.zone(0, 0, 90, 28).setInteractive({ cursor: "pointer" });
     skipBtn.add([skGfx, skTxt, skZone]);
+    skipBtn.setDepth(300);
 
     var endIntro = function() {
       SaveManager.setIntroSeen();
@@ -1334,138 +1362,266 @@ class IntroScene extends Phaser.Scene {
     };
 
     skZone.on("pointerdown", endIntro);
-    this.input.keyboard.on("keydown-SPACE", endIntro);
+    this.input.keyboard.on("keydown-SPACE", function(e) {
+      if (self.introComplete) endIntro();
+    });
     this.input.keyboard.on("keydown-ENTER", endIntro);
+    this.input.keyboard.on("keydown-ESC", endIntro);
 
+    // ── Interactive Jump Trigger ──
+    var canJump = true;
+    var doInteractiveJump = function() {
+      if (!canJump || self.introComplete) return;
+      canJump = false;
+      AudioEngine.sfxJump();
+      hero.anims.play("hero_anim_jump");
+      self.tweens.add({
+        targets: hero,
+        y: hero.y - 80,
+        duration: 250,
+        yoyo: true,
+        ease: "Quad.easeOut",
+        onComplete: function() {
+          hero.anims.play("hero_anim_run");
+          canJump = true;
+        }
+      });
+    };
+
+    this.input.on("pointerdown", function(ptr) {
+      if (ptr.x > width - 120 && ptr.y < 60) return; // Skip btn area
+      if (self.introComplete) {
+        endIntro();
+      } else {
+        doInteractiveJump();
+      }
+    });
+    this.input.keyboard.on("keydown-UP", doInteractiveJump);
+    this.input.keyboard.on("keydown-W", doInteractiveJump);
+
+    // ═══════════════════════════════════════════════════════════════
+    // TRAP 1: The False Floor & Giant Hammer Smash
+    // ═══════════════════════════════════════════════════════════════
     this.tweens.add({
       targets: hero,
-      x: 440,
-      duration: 2000,
+      x: 400,
+      duration: 1800,
       ease: "Linear",
       onComplete: function() {
-        caption.setText("OOPS! FLOOR WAS A TRAP! 😈");
+        caption.setText("OOPS! THE FLOOR VANISHED! 😈");
         caption.setColor("#ff4757");
+        actionHint.setVisible(false);
 
         AudioEngine.sfxTrap();
         hero.anims.stop();
         hero.setTexture("hero_fall");
 
-        var fakeHole = self.add.rectangle(440, 450, 90, 80, 0x140602);
+        var holeGfx = self.add.graphics();
+        holeGfx.fillStyle(0x3a0d04, 1);
+        holeGfx.fillRect(360, 410, 80, 80);
         self.cameras.main.shake(200, 0.025);
 
-        var hammer = self.add.image(440, 100, "crusher_tex");
+        var crusher = self.add.image(400, 60, "crusher_tex");
         self.tweens.add({
-          targets: hammer,
-          y: 380,
-          duration: 250,
+          targets: crusher,
+          y: 390,
+          duration: 220,
           ease: "Quad.easeIn",
           onComplete: function() {
             AudioEngine.sfxCrush();
             AudioEngine.sfxDie();
-            self.cameras.main.shake(300, 0.04);
+            self.cameras.main.shake(320, 0.04);
             hero.setTexture("hero_dead");
             hero.y = 410;
 
-            var oopsText = self.add.text(440, 320, "💥 OOPS! 💀", {
+            var soul1 = self.add.image(hero.x, hero.y - 10, "hero_soul").setDepth(150);
+            self.tweens.add({ targets: soul1, y: soul1.y - 60, alpha: 0, duration: 600 });
+
+            var toast1 = self.add.text(400, 310, "💥 OOPS! 💀", {
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: "20px",
+              fontSize: "18px",
               color: "#ffd32a",
               stroke: "#000000",
               strokeThickness: 6
             }).setOrigin(0.5);
 
-            self.tweens.add({
-              targets: [hammer, oopsText],
-              alpha: 0,
-              delay: 800,
-              duration: 300
-            });
-
             self.time.delayedCall(1100, function() {
-              oopsText.destroy();
-              hammer.destroy();
-              fakeHole.destroy();
+              toast1.destroy();
+              crusher.destroy();
+              holeGfx.destroy();
+              soul1.destroy();
 
-              caption.setText("NEVER TRUST ANYTHING! 🤣");
+              // ═════════════════════════════════════════════════════════
+              // TRAP 2: Trampoline Ceiling Spike Surprise
+              // ═════════════════════════════════════════════════════════
+              caption.setText("STEP 2: TRY THE TRAMPOLINE! 🟢");
               caption.setColor("#2ed573");
 
-              hero.x = 220;
+              hero.x = 200;
               hero.y = 390;
               hero.setTexture("hero_idle_1");
               hero.anims.play("hero_anim_run");
               AudioEngine.sfxPortal();
 
+              // Add Trampoline
+              var tramp = self.add.image(430, 405, "tramp_tex");
+
+              // Hidden Ceiling Spikes
+              var ceilSpikes = self.add.graphics();
+              ceilSpikes.fillStyle(0xeb2f06, 1);
+              for (var i = 0; i < 4; i++) {
+                var sx = 390 + i * 26;
+                ceilSpikes.fillTriangle(sx, 120, sx + 13, 160, sx + 26, 120);
+              }
+              ceilSpikes.setAlpha(0);
+
               self.tweens.add({
                 targets: hero,
-                x: 440,
-                y: 300,
-                duration: 600,
-                ease: "Quad.easeOut",
+                x: 430,
+                duration: 900,
+                ease: "Linear",
                 onComplete: function() {
+                  // Bounce on trampoline!
+                  AudioEngine.sfxSpring();
                   hero.anims.play("hero_anim_jump");
-                  AudioEngine.sfxJump();
+                  self.tweens.add({ targets: tramp, scaleY: 0.5, yoyo: true, duration: 80 });
+
+                  // Flash ceiling spikes
+                  ceilSpikes.setAlpha(1);
                   self.tweens.add({
                     targets: hero,
-                    x: 640,
-                    y: 390,
-                    duration: 500,
-                    ease: "Quad.easeIn",
+                    y: 180,
+                    x: 430,
+                    duration: 400,
+                    ease: "Quad.easeOut",
                     onComplete: function() {
                       AudioEngine.sfxTrap();
-                      self.tweens.add({
-                        targets: door,
-                        x: 820,
-                        y: 320,
-                        duration: 350,
-                        ease: "Back.easeOut",
-                        onComplete: function() {
-                          AudioEngine.sfxWin();
-                          dPan.scaleX = 0.08;
-                          hero.x = door.x;
-                          hero.y = door.y + 4;
-                          hero.setDepth(dFrm.depth - 1);
-                          hero.alpha = 0;
+                      AudioEngine.sfxDie();
+                      self.cameras.main.shake(280, 0.035);
+                      hero.setTexture("hero_dead");
 
-                          caption.destroy();
-                          var titleCard = self.add.container(width / 2, height / 2 - 20);
+                      var soul2 = self.add.image(hero.x, hero.y - 10, "hero_soul").setDepth(150);
+                      self.tweens.add({ targets: soul2, y: soul2.y - 50, alpha: 0, duration: 600 });
 
-                          var tMain = self.add.text(0, -30, "Oops!", {
-                            fontFamily: "'Press Start 2P', monospace",
-                            fontSize: "44px",
-                            color: "#ffd32a",
-                            stroke: "#000000",
-                            strokeThickness: 8
-                          }).setOrigin(0.5);
+                      var toast2 = self.add.text(430, 120, "💥 CEILING TRAP! 💀", {
+                        fontFamily: "'Press Start 2P', monospace",
+                        fontSize: "15px",
+                        color: "#ff4757",
+                        stroke: "#000000",
+                        strokeThickness: 5
+                      }).setOrigin(0.5);
 
-                          var tSub = self.add.text(0, 25, "DESERT RUINS EDITION", {
-                            fontFamily: "'Press Start 2P', monospace",
-                            fontSize: "12px",
-                            color: "#ff4757",
-                            stroke: "#000000",
-                            strokeThickness: 4
-                          }).setOrigin(0.5);
+                      self.time.delayedCall(1200, function() {
+                        toast2.destroy();
+                        tramp.destroy();
+                        ceilSpikes.destroy();
+                        soul2.destroy();
 
-                          var tTip = self.add.text(0, 65, "TAP ANYWHERE TO PLAY ▶", {
-                            fontFamily: "'Press Start 2P', monospace",
-                            fontSize: "10px",
-                            color: "#ffffff"
-                          }).setOrigin(0.5);
+                        // ═════════════════════════════════════════════════
+                        // TRAP 3: The Rocket Fleeing Exit Door
+                        // ═════════════════════════════════════════════════
+                        caption.setText("STEP 3: FINE! JUST ENTER THE DOOR! 🚪");
+                        caption.setColor("#ffd32a");
 
-                          self.tweens.add({
-                            targets: tTip,
-                            alpha: 0.3,
-                            duration: 400,
-                            yoyo: true,
-                            repeat: -1
-                          });
+                        hero.x = 560;
+                        hero.y = 390;
+                        hero.setTexture("hero_idle_1");
+                        hero.anims.play("hero_anim_run");
+                        AudioEngine.sfxPortal();
 
-                          titleCard.add([tMain, tSub, tTip]);
+                        self.tweens.add({
+                          targets: hero,
+                          x: 670,
+                          duration: 700,
+                          ease: "Linear",
+                          onComplete: function() {
+                            // Door flees into the air!
+                            AudioEngine.sfxTrap();
+                            caption.setText("DOOR: 'NO EXIT FOR YOU!' 😈");
+                            caption.setColor("#ff4757");
 
-                          var bgClick = self.add.zone(width / 2, height / 2, width, height).setInteractive({ cursor: "pointer" });
-                          bgClick.on("pointerdown", endIntro);
+                            self.tweens.add({
+                              targets: door,
+                              y: 160,
+                              x: 820,
+                              angle: -15,
+                              duration: 500,
+                              ease: "Back.easeOut",
+                              onComplete: function() {
+                                AudioEngine.sfxWin();
+                                self.cameras.main.flash(400, 255, 211, 42);
 
-                          self.time.delayedCall(2200, endIntro);
-                        }
+                                // Confetti burst
+                                self.add.particles(width / 2, height / 2 - 20, "part_dot", {
+                                  speed: { min: 80, max: 280 },
+                                  angle: { min: 0, max: 360 },
+                                  scale: { start: 0.8, end: 0 },
+                                  lifespan: 1400,
+                                  quantity: 45
+                                });
+
+                                caption.destroy();
+                                self.introComplete = true;
+
+                                // ── Grand Title Card ──
+                                var titleCard = self.add.container(width / 2, height / 2 - 25);
+
+                                var titleGfx = self.add.graphics();
+                                titleGfx.fillStyle(0x000000, 0.7);
+                                titleGfx.fillRoundedRect(-320, -100, 640, 200, 18);
+                                titleGfx.lineStyle(3, 0xffd32a, 0.9);
+                                titleGfx.strokeRoundedRect(-320, -100, 640, 200, 18);
+
+                                var tMain = self.add.text(0, -45, "😈 Oops!", {
+                                  fontFamily: "'Press Start 2P', monospace",
+                                  fontSize: "44px",
+                                  color: "#ffd32a",
+                                  stroke: "#000000",
+                                  strokeThickness: 8
+                                }).setOrigin(0.5);
+
+                                var tSub = self.add.text(0, 10, "★ 30 HANDCRAFTED TROLL PUZZLES ★", {
+                                  fontFamily: "'Press Start 2P', monospace",
+                                  fontSize: "11px",
+                                  color: "#ff4757",
+                                  stroke: "#000000",
+                                  strokeThickness: 4
+                                }).setOrigin(0.5);
+
+                                var tTip = self.add.text(0, 55, "▶ TAP ANYWHERE TO START WORLD 1 ◀", {
+                                  fontFamily: "'Press Start 2P', monospace",
+                                  fontSize: "10px",
+                                  color: "#2ed573",
+                                  stroke: "#000000",
+                                  strokeThickness: 4
+                                }).setOrigin(0.5);
+
+                                self.tweens.add({
+                                  targets: tTip,
+                                  scaleX: 1.06,
+                                  scaleY: 1.06,
+                                  alpha: 0.7,
+                                  duration: 400,
+                                  yoyo: true,
+                                  repeat: -1
+                                });
+
+                                titleCard.add([titleGfx, tMain, tSub, tTip]);
+                                titleCard.setScale(0.7);
+                                self.tweens.add({
+                                  targets: titleCard,
+                                  scaleX: 1,
+                                  scaleY: 1,
+                                  duration: 350,
+                                  ease: "Back.easeOut"
+                                });
+
+                                var clickZone = self.add.zone(width / 2, height / 2, width, height).setInteractive({ cursor: "pointer" });
+                                clickZone.on("pointerdown", endIntro);
+                              }
+                            });
+                          }
+                        });
                       });
                     }
                   });
@@ -1540,47 +1696,30 @@ class WorldSelectScene extends Phaser.Scene {
     var theme = WORLD_1_THEME;
     var maxUnlocked = SaveManager.getWorldUnlocked(0);
 
+    // ── CENTER TITLE: Clean & Spacious (No Overlap) ──
     var titleText = this.add.text(width / 2, 34, "Oops! - WORLD 1: DESERT RUINS", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "16px",
+      fontSize: "14px",
       color: "#ffffff",
       stroke: "#000000",
-      strokeThickness: 6
+      strokeThickness: 5
     }).setOrigin(0.5);
     this.islandContainer.add(titleText);
 
-    // ── TOP-RIGHT BUTTON CLUSTER: [ 🎬 INTRO ]  [ 💬 FEEDBACK ]  [ 🔊 SOUND ]  [ ⛶ FULLSCREEN ] ──
-    var fsText = this.add.text(width - 28, 34, "⛶", {
-      fontSize: "17px"
-    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
-    fsText.on("pointerdown", function() {
-      toggleFullScreen();
-    });
-    this.islandContainer.add(fsText);
-
-    var sndText = this.add.text(width - 60, 34, AudioEngine.muted ? "🔇" : "🔊", {
-      fontSize: "17px"
-    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
-    sndText.on("pointerdown", function() {
-      AudioEngine.init();
-      var muted = AudioEngine.toggleMute();
-      sndText.setText(muted ? "🔇" : "🔊");
-    });
-    this.islandContainer.add(sndText);
-
-    // [ 🎬 INTRO ] Button
-    var introBtn = this.add.container(width - 136, 34);
+    // ── LEFT-SIDE BUTTON CLUSTER: [ 🎬 INTRO ]  [ 💬 REPORT ] ──
+    // [ 🎬 INTRO ] Button (Compact, on Left)
+    var introBtn = this.add.container(58, 34);
     var inGfx = this.add.graphics();
     inGfx.fillStyle(0x161822, 0.9);
-    inGfx.fillRoundedRect(-40, -13, 80, 26, 13);
-    inGfx.lineStyle(1.5, 0xffd32a, 0.8);
-    inGfx.strokeRoundedRect(-40, -13, 80, 26, 13);
+    inGfx.fillRoundedRect(-36, -12, 72, 24, 12);
+    inGfx.lineStyle(1.5, 0xffd32a, 0.85);
+    inGfx.strokeRoundedRect(-36, -12, 72, 24, 12);
     var inLabel = this.add.text(0, 0, "🎬 INTRO", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "7px",
+      fontSize: "6.5px",
       color: "#ffd32a"
     }).setOrigin(0.5);
-    var inZone = this.add.zone(0, 0, 80, 26).setInteractive({ cursor: "pointer" });
+    var inZone = this.add.zone(0, 0, 72, 24).setInteractive({ cursor: "pointer" });
     inZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
@@ -1589,19 +1728,19 @@ class WorldSelectScene extends Phaser.Scene {
     introBtn.add([inGfx, inLabel, inZone]);
     this.islandContainer.add(introBtn);
 
-    // [ 💬 FEEDBACK ] Button
-    var fbBtn = this.add.container(width - 232, 34);
+    // [ 💬 REPORT ] Button (Compact, on Left next to Intro)
+    var fbBtn = this.add.container(146, 34);
     var fbGfx = this.add.graphics();
     fbGfx.fillStyle(0x161822, 0.9);
-    fbGfx.fillRoundedRect(-46, -13, 92, 26, 13);
+    fbGfx.fillRoundedRect(-40, -12, 80, 24, 12);
     fbGfx.lineStyle(1.5, 0xff4757, 0.85);
-    fbGfx.strokeRoundedRect(-46, -13, 92, 26, 13);
+    fbGfx.strokeRoundedRect(-40, -12, 80, 24, 12);
     var fbLabel = this.add.text(0, 0, "💬 REPORT", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "7px",
+      fontSize: "6.5px",
       color: "#ffffff"
     }).setOrigin(0.5);
-    var fbZone = this.add.zone(0, 0, 92, 26).setInteractive({ cursor: "pointer" });
+    var fbZone = this.add.zone(0, 0, 80, 24).setInteractive({ cursor: "pointer" });
     fbZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
@@ -1609,6 +1748,25 @@ class WorldSelectScene extends Phaser.Scene {
     });
     fbBtn.add([fbGfx, fbLabel, fbZone]);
     this.islandContainer.add(fbBtn);
+
+    // ── RIGHT-SIDE BUTTON CLUSTER: [ 🔊 SOUND ]  [ ⛶ FULLSCREEN ] ──
+    var fsText = this.add.text(width - 26, 34, "⛶", {
+      fontSize: "17px"
+    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
+    fsText.on("pointerdown", function() {
+      toggleFullScreen();
+    });
+    this.islandContainer.add(fsText);
+
+    var sndText = this.add.text(width - 58, 34, AudioEngine.muted ? "🔇" : "🔊", {
+      fontSize: "17px"
+    }).setOrigin(0.5).setInteractive({ cursor: "pointer" });
+    sndText.on("pointerdown", function() {
+      AudioEngine.init();
+      var muted = AudioEngine.toggleMute();
+      sndText.setText(muted ? "🔇" : "🔊");
+    });
+    this.islandContainer.add(sndText);
 
     var islandW = 820, islandH = 370;
     var islandX = width / 2, islandY = height / 2 + 25;
@@ -2276,9 +2434,11 @@ class GameScene extends Phaser.Scene {
     // ── 7-Death Threshold Check: Trigger one-time rewarded ad popup offer! ──
     if (this.levelDeaths === MONETIZATION_CONFIG.deathsThreshold && !this.skipOfferUnlocked && !this.skipOfferUsed) {
       this.skipOfferUnlocked = true;
-      this.time.delayedCall(450, function() {
-        MonetizationManager.onDeathThresholdReached(self);
-      });
+      setTimeout(function() {
+        if (typeof MonetizationManager !== "undefined") {
+          MonetizationManager.onDeathThresholdReached(self);
+        }
+      }, 350);
       return;
     }
 

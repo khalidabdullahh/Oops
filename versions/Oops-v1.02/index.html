@@ -27,8 +27,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"/></noscript>
   <link rel="stylesheet" href="style.css?v=1.0.2"/>
+
+  <!-- Google AdSense & H5 Game Ads SDK -->
+  <script async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7942277005068512"
+    crossorigin="anonymous"
+    data-ad-client="ca-pub-7942277005068512"
+    data-ad-frequency-hint="30s"
+    data-adbreak-test="on">
+  </script>
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    var adBreak = adConfig = function(o) { adsbygoogle.push(o); };
+    try {
+      adConfig({ preloadAdBreaks: 'on' });
+    } catch(e) {}
+  </script>
 </head>
 <body>
   <!-- High-Speed Progressive Splash Loader (Removed upon game load) -->
@@ -46,7 +61,7 @@
   <div id="game-container"></div>
 
   <!-- In-Game Player Feedback & Bug Report Modal -->
-  <div id="feedback-modal" class="modal-overlay hidden" style="display: none !important;">
+  <div id="feedback-modal" class="modal-overlay hidden">
     <div class="feedback-modal-card">
       <div class="modal-header">
         <div class="modal-title">💬 PLAYER REPORT &amp; FEEDBACK</div>
@@ -112,7 +127,7 @@
   </div>
 
   <!-- Rewarded Ad Level-Skip Offer Modal (7-Death Trigger) -->
-  <div id="rewarded-ad-offer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" style="display: none !important;">
+  <div id="rewarded-ad-offer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="ad-offer-card">
       <div class="ad-offer-header">
         <div class="ad-offer-icon">😈</div>
@@ -130,7 +145,7 @@
   </div>
 
   <!-- Simulated Ad Player Overlay (Test Mode / Sandbox) -->
-  <div id="simulated-ad-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" style="display: none !important;">
+  <div id="simulated-ad-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="sim-ad-card">
       <div class="sim-ad-badge">🧪 TEST MODE / SIMULATED AD</div>
       <div class="sim-ad-icon">🎬</div>
@@ -172,6 +187,19 @@
       </div>
     </div>
   </div>
+
+  <!-- Google AdSense & SEO Policy Footer -->
+  <footer class="site-policy-footer">
+    <div class="policy-links-wrap">
+      <span>&copy; 2026 Oops!</span>
+      <span class="policy-sep">&bull;</span>
+      <a href="privacy.html">Privacy Policy</a>
+      <span class="policy-sep">&bull;</span>
+      <a href="terms.html">Terms of Service</a>
+      <span class="policy-sep">&bull;</span>
+      <a href="about.html">About &amp; Contact</a>
+    </div>
+  </footer>
 
   <!-- High-Speed Progressive Loader & Clean Service Worker Lifecycle -->
   <script>
