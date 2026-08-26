@@ -1416,3 +1416,45 @@ canvas {
   0% { box-shadow: 0 0 5px rgba(255, 211, 42, 0.4); transform: scale(1); }
   100% { box-shadow: 0 0 15px rgba(255, 211, 42, 0.85); transform: scale(1.04); }
 }
+
+/* ── Google AdSense & Policy Footer ─────────────────────────── */
+.site-policy-footer {
+  width: 100%;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #8395a7;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: transparent;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.policy-links-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.site-policy-footer a {
+  color: #a4b0be;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-policy-footer a:hover {
+  color: #ffd32a;
+  text-decoration: underline;
+}
+
+.policy-sep {
+  color: #576574;
+}
+
+@media (orientation: landscape) {
+  .site-policy-footer {
+    display: none; /* Keep landscape screen 100% clean for full canvas view */
+  }
+}

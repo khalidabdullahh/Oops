@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About &amp; Contact – Oops! Game</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #0f111a;
+      --card-bg: #181b28;
+      --accent: #ffd32a;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #2d3748;
+      --link: #2ed573;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+      padding: 24px 16px;
+    }
+    .policy-container {
+      max-width: 840px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: #ffffff;
+      background: var(--link);
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .back-btn:hover {
+      opacity: 0.9;
+    }
+    h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: #ffffff;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin: 28px 0 12px;
+      font-weight: 700;
+    }
+    p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    ul {
+      margin-left: 24px;
+      margin-bottom: 18px;
+      color: var(--text-muted);
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .feature-card h3 {
+      font-size: 14px;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+    .footer-note {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="policy-container">
+    <div class="header-nav">
+      <a href="index.html" class="brand-title">😈 Oops!</a>
+      <a href="index.html" class="back-btn">🎮 Play Game</a>
+    </div>
+
+    <h1>About Oops!</h1>
+    <p><strong>Oops!</strong> is a comedy-driven, deceptive multiverse platformer game where traditional gaming intuition is your biggest trap! Inspired by legendary rage-puzzle titles like <em>Level Devil</em> and <em>Cat Mario</em>, Oops! challenges players with unexpected mechanical surprises, shifting terrain, and hilarious fakeouts.</p>
+
+    <h2>🎮 Game Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>🏜️ 30 Handcrafted Levels</h3>
+        <p>Zero repetition. Every stage introduces fresh puzzles, falling bridges, flee-gates, and spring traps.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📱 Instant Dual-Orientation</h3>
+        <p>Built for both desktop keyboards and mobile touchscreen gamepads in portrait and landscape modes.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⚡ Sub-Second Load Times</h3>
+        <p>Ultra-lightweight HTML5 &amp; Phaser 3 architecture running at smooth 60 FPS on any modern browser.</p>
+      </div>
+    </div>
+
+    <h2>🛠️ Technology &amp; Open Standards</h2>
+    <p>Oops! is built using open web standards:</p>
+    <ul>
+      <li><strong>Game Engine:</strong> Phaser 3 (HTML5 Canvas &amp; WebGL)</li>
+      <li><strong>Audio:</strong> Native Web Audio API procedural sound synthesizer (zero external audio file latency)</li>
+      <li><strong>Packaging:</strong> Progressive Web App (PWA) &amp; Capacitor Mobile ready</li>
+      <li><strong>Hosting &amp; Edge Delivery:</strong> Cloudflare Edge CDN &amp; Vercel Worldwide Edge Network</li>
+    </ul>
+
+    <h2>📫 Developer Contact &amp; Community Support</h2>
+    <p>We welcome player feedback, bug reports, and partnership inquiries!</p>
+    <ul>
+      <li><strong>Project Repository:</strong> <a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener noreferrer">github.com/khalidabdullahh/Oops</a></li>
+      <li><strong>Bug Tracking:</strong> Report issues and feature requests on our <a href="https://github.com/khalidabdullahh/Oops/issues" target="_blank" rel="noopener noreferrer">GitHub Issue Tracker</a></li>
+      <li><strong>In-Game Feedback:</strong> Click the "💬" button inside the game to submit instant feedback.</li>
+    </ul>
+
+    <div class="footer-note">
+      &copy; 2026 Oops! Multiverse Platformer. All rights reserved. &bull; <a href="privacy.html">Privacy Policy</a> &bull; <a href="terms.html">Terms of Service</a>
+    </div>
+  </div>
+</body>
+</html>
