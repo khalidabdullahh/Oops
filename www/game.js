@@ -635,6 +635,271 @@ var FeedbackManager = {
   }
 };
 
+// ─── 4.5. Modular Monetization & Rewarded Ads Manager ────────
+var MONETIZATION_CONFIG = {
+  enabled: true,
+  testMode: true,          // Set to false when production Google AdSense / H5 Ads is approved
+  publisherId: "ca-pub-0000000000000000",
+  deathsThreshold: 7       // Trigger popup offer on 7th death of current level
+};
+
+var MonetizationManager = {
+  initialized: false,
+  activeScene: null,
+  isAdPlaying: false,
+  countdownInterval: null,
+  currentCallbacks: null,
+
+  init: function() {
+    var self = this;
+    if (this.initialized) return;
+    this.initialized = true;
+
+    // Bind Offer Modal buttons
+    var btnWatch = document.getElementById("btn-ad-watch");
+    var btnDecline = document.getElementById("btn-ad-decline");
+    var deckBtnSkip = document.getElementById("deck-btn-skip");
+
+    if (btnWatch) {
+      btnWatch.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.closeOfferModal();
+        self.triggerRewardedFlow();
+      });
+    }
+
+    if (btnDecline) {
+      btnDecline.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.declineOffer();
+      });
+    }
+
+    if (deckBtnSkip) {
+      deckBtnSkip.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.triggerRewardedFlow();
+      });
+      deckBtnSkip.addEventListener("touchstart", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.triggerRewardedFlow();
+      }, { passive: false });
+    }
+
+    // Bind Simulated Ad Modal buttons (Test Mode)
+    var btnSimComplete = document.getElementById("btn-sim-complete");
+    var btnSimCancel = document.getElementById("btn-sim-cancel");
+
+    if (btnSimComplete) {
+      btnSimComplete.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.finishSimulatedAd(true);
+      });
+    }
+    if (btnSimCancel) {
+      btnSimCancel.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        self.finishSimulatedAd(false);
+      });
+    }
+  },
+
+  setActiveScene: function(scene) {
+    this.activeScene = scene;
+  },
+
+  // Analytics event dispatcher hook
+  logEvent: function(eventName, params) {
+    try {
+      console.log("[Monetization Event]", eventName, params || {});
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("event", eventName, params);
+      }
+    } catch(e) {}
+  },
+
+  // Called on 7th death on the same level
+  onDeathThresholdReached: function(scene) {
+    if (!MONETIZATION_CONFIG.enabled) return;
+    this.activeScene = scene;
+    this.logEvent("rewarded_offer_unlocked", { level: scene.currentLevel + 1, deaths: scene.levelDeaths });
+    this.showOfferModal();
+  },
+
+  showOfferModal: function() {
+    this.init();
+    var modal = document.getElementById("rewarded-ad-offer-modal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      modal.style.display = "flex";
+    }
+  },
+
+  closeOfferModal: function() {
+    var modal = document.getElementById("rewarded-ad-offer-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.style.display = "none";
+    }
+  },
+
+  declineOffer: function() {
+    this.closeOfferModal();
+    if (this.activeScene) {
+      this.logEvent("rewarded_offer_declined", { level: this.activeScene.currentLevel + 1 });
+      this.updateSkipButtonVisibility(true);
+      this.activeScene.showTrollToast("No worries! 'Skip Level' unlocked if you change your mind.");
+      this.activeScene.restartLevel();
+    }
+  },
+
+  updateSkipButtonVisibility: function(visible) {
+    var deckBtnSkip = document.getElementById("deck-btn-skip");
+    if (deckBtnSkip) {
+      if (visible) {
+        deckBtnSkip.classList.remove("hidden");
+        deckBtnSkip.style.display = "inline-flex";
+      } else {
+        deckBtnSkip.classList.add("hidden");
+        deckBtnSkip.style.display = "none";
+      }
+    }
+
+    if (this.activeScene && this.activeScene.hudSkipBtn) {
+      this.activeScene.hudSkipBtn.setVisible(visible);
+    }
+  },
+
+  triggerRewardedFlow: function() {
+    var self = this;
+    if (!this.activeScene || this.isAdPlaying) return;
+    this.isAdPlaying = true;
+    this.logEvent("rewarded_ad_requested", { level: this.activeScene.currentLevel + 1 });
+
+    AudioEngine.stopMusic();
+
+    this.showRewardedAd({
+      onRewardEarned: function() {
+        self.isAdPlaying = false;
+        self.logEvent("rewarded_ad_completed", { level: self.activeScene.currentLevel + 1 });
+        self.logEvent("level_skipped_by_rewarded_ad", { level: self.activeScene.currentLevel + 1 });
+        
+        self.updateSkipButtonVisibility(false);
+        if (self.activeScene && typeof self.activeScene.skipCurrentLevel === "function") {
+          self.activeScene.skipCurrentLevel();
+        }
+      },
+      onAdDismissed: function() {
+        self.isAdPlaying = false;
+        self.logEvent("rewarded_ad_dismissed", { level: self.activeScene ? self.activeScene.currentLevel + 1 : 0 });
+        AudioEngine.startMusic();
+        if (self.activeScene) {
+          self.activeScene.showTrollToast("Ad closed without completion. Level not skipped.");
+        }
+      },
+      onAdFailed: function(err) {
+        self.isAdPlaying = false;
+        self.logEvent("rewarded_ad_failed", { level: self.activeScene ? self.activeScene.currentLevel + 1 : 0, error: err });
+        AudioEngine.startMusic();
+        if (self.activeScene) {
+          self.activeScene.showTrollToast("Ad unavailable. Please try again.");
+        }
+      }
+    });
+  },
+
+  // Abstract platform-aware Rewarded Ad Provider
+  showRewardedAd: function(callbacks) {
+    if (MONETIZATION_CONFIG.testMode || !window.adsbygoogle) {
+      // 🧪 TEST MODE / SIMULATOR
+      this.playSimulatedRewardedAd(callbacks);
+      return;
+    }
+
+    // 🌐 WEB: Official Google H5 Games Ad Placement API
+    try {
+      if (typeof window.adBreak === "function") {
+        window.adBreak({
+          type: "reward",
+          name: "skip_level_reward",
+          beforeReward: function(showAdFn) {
+            showAdFn();
+          },
+          adDismissed: function() {
+            callbacks.onAdDismissed();
+          },
+          adViewed: function() {
+            callbacks.onRewardEarned();
+          },
+          adBreakDone: function(placementInfo) {
+            if (placementInfo && placementInfo.breakStatus === "notViewed") {
+              callbacks.onAdFailed("Not viewed");
+            }
+          }
+        });
+      } else {
+        this.playSimulatedRewardedAd(callbacks);
+      }
+    } catch(err) {
+      callbacks.onAdFailed(err ? err.message : "Error loading ad");
+    }
+  },
+
+  // 🧪 Simulated Rewarded Ad Player for Development & Testing
+  playSimulatedRewardedAd: function(callbacks) {
+    var self = this;
+    this.currentCallbacks = callbacks;
+
+    var modal = document.getElementById("simulated-ad-player-modal");
+    var timerEl = document.getElementById("sim-ad-countdown");
+    if (!modal) {
+      setTimeout(function() { callbacks.onRewardEarned(); }, 500);
+      return;
+    }
+
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+
+    var timeLeft = 3;
+    if (timerEl) timerEl.textContent = "Reward in: " + timeLeft + "s";
+
+    if (this.countdownInterval) clearInterval(this.countdownInterval);
+    this.countdownInterval = setInterval(function() {
+      timeLeft--;
+      if (timerEl) timerEl.textContent = "Reward in: " + timeLeft + "s";
+      if (timeLeft <= 0) {
+        clearInterval(self.countdownInterval);
+        self.countdownInterval = null;
+        self.finishSimulatedAd(true);
+      }
+    }, 1000);
+  },
+
+  finishSimulatedAd: function(isSuccess) {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+
+    var modal = document.getElementById("simulated-ad-player-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.style.display = "none";
+    }
+
+    var cb = this.currentCallbacks;
+    this.currentCallbacks = null;
+
+    if (cb) {
+      if (isSuccess) {
+        cb.onRewardEarned();
+      } else {
+        cb.onAdDismissed();
+      }
+    }
+  }
+};
+
 // ─── 5. World 1 Configuration (Desert Ruins) ─────────────────
 var WORLD_1_THEME = {
   id: 0,
@@ -674,6 +939,7 @@ class BootScene extends Phaser.Scene {
 
     try {
       FeedbackManager.init();
+      MonetizationManager.init();
     } catch(e) {}
 
     removeLoaderSplash();
@@ -1458,6 +1724,9 @@ class GameScene extends Phaser.Scene {
     this.currentWorld = 0;
     this.currentLevel = (typeof data.level === "number") ? data.level : 0;
     this.deaths = (typeof data.deaths === "number") ? data.deaths : SaveManager.getTotalDeaths();
+    this.levelDeaths = (typeof data.levelDeaths === "number") ? data.levelDeaths : 0;
+    this.skipOfferUnlocked = (typeof data.skipOfferUnlocked === "boolean") ? data.skipOfferUnlocked : false;
+    this.skipOfferUsed = false;
     this.levelTime = 0;
     this.isDead = false;
     this.isComplete = false;
@@ -1471,6 +1740,7 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    var self = this;
     var size = this.scale;
     var width = size.width;
     var height = size.height;
@@ -1481,6 +1751,7 @@ class GameScene extends Phaser.Scene {
     AudioEngine.init();
     AudioEngine.startMusic();
     MobileGamepad.show(this);
+    MonetizationManager.setActiveScene(this);
 
     this.bgGfx = this.add.graphics();
     this.bgGfx.fillStyle(theme.bg, 1);
@@ -1520,6 +1791,7 @@ class GameScene extends Phaser.Scene {
 
     this.createHUD();
     this.showLevelBanner();
+    MonetizationManager.updateSkipButtonVisibility(this.skipOfferUnlocked && !this.skipOfferUsed);
   }
 
   showLevelBanner() {
@@ -1558,6 +1830,26 @@ class GameScene extends Phaser.Scene {
       fontSize: "10px",
       color: "#ff4757"
     }).setDepth(200);
+
+    // In-game HUD Skip Button (Unlocked after 7 deaths)
+    this.hudSkipBtn = this.add.container(width - 220, 20);
+    var skGfx = this.add.graphics();
+    skGfx.fillStyle(0x161822, 0.9);
+    skGfx.fillRoundedRect(-40, -12, 80, 24, 6);
+    skGfx.lineStyle(1.5, 0xffd32a, 0.9);
+    skGfx.strokeRoundedRect(-40, -12, 80, 24, 6);
+    var skTxt = this.add.text(0, 0, "📺 SKIP", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "7.5px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+    var skZone = this.add.zone(0, 0, 80, 24).setInteractive({ cursor: "pointer" });
+    skZone.on("pointerdown", function() {
+      MonetizationManager.triggerRewardedFlow();
+    });
+    this.hudSkipBtn.add([skGfx, skTxt, skZone]);
+    this.hudSkipBtn.setDepth(200);
+    this.hudSkipBtn.setVisible(this.skipOfferUnlocked && !this.skipOfferUsed);
 
     var fsBtn = this.add.text(width - 60, 20, "⛶", {
       fontSize: "17px"
@@ -1811,10 +2103,17 @@ class GameScene extends Phaser.Scene {
     if (this.isDead || this.isComplete) return;
     this.isDead = true;
     this.deaths++;
+    this.levelDeaths++;
     AudioEngine.sfxDie();
     this.cameras.main.shake(260, 0.035);
 
     SaveManager.saveDeaths(this.deaths);
+
+    if (this.deathText) this.deathText.setText("💀 " + this.deaths);
+    var deckInfo = document.getElementById("deck-level-info");
+    if (deckInfo) {
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 " + this.deaths + ")";
+    }
 
     this.player.anims.stop();
     this.player.setTexture("hero_dead");
@@ -1828,13 +2127,73 @@ class GameScene extends Phaser.Scene {
       tint: 0xff4757
     });
 
+    // ── 7-Death Threshold Check: Trigger one-time rewarded ad popup offer! ──
+    if (this.levelDeaths === MONETIZATION_CONFIG.deathsThreshold && !this.skipOfferUnlocked && !this.skipOfferUsed) {
+      this.skipOfferUnlocked = true;
+      this.time.delayedCall(450, function() {
+        MonetizationManager.onDeathThresholdReached(self);
+      });
+      return;
+    }
+
     this.time.delayedCall(500, function() {
       self.restartLevel();
     });
   }
 
   restartLevel() {
-    this.scene.restart({ world: 0, level: this.currentLevel, deaths: this.deaths });
+    this.scene.restart({
+      world: 0,
+      level: this.currentLevel,
+      deaths: this.deaths,
+      levelDeaths: this.levelDeaths,
+      skipOfferUnlocked: this.skipOfferUnlocked
+    });
+  }
+
+  skipCurrentLevel() {
+    var self = this;
+    this.isDead = false;
+    this.isComplete = true;
+    this.skipOfferUsed = true;
+    this.skipOfferUnlocked = false;
+    MonetizationManager.updateSkipButtonVisibility(false);
+
+    this.player.setVelocity(0, 0);
+    if (this.player.body) {
+      this.player.body.setEnable(false);
+      this.player.body.moves = false;
+    }
+
+    SaveManager.saveLevelClear(0, this.currentLevel, this.deaths);
+    AudioEngine.sfxWin();
+    AudioEngine.sfxPortal();
+
+    this.showTrollToast("🎉 LEVEL SKIPPED! 🚀");
+
+    this.add.particles(this.player.x, this.player.y, "part_dot", {
+      speed: { min: 90, max: 280 },
+      scale: { start: 1.4, end: 0 },
+      lifespan: 650,
+      quantity: 36,
+      tint: [0xffd32a, 0x2ed573, 0x00d2d3, 0xffffff]
+    });
+
+    this.time.delayedCall(700, function() {
+      var nextLvl = self.currentLevel + 1;
+      if (nextLvl >= 30) {
+        MobileGamepad.hide();
+        self.scene.start("WorldSelectScene");
+      } else {
+        self.scene.restart({
+          world: 0,
+          level: nextLvl,
+          deaths: self.deaths,
+          levelDeaths: 0,
+          skipOfferUnlocked: false
+        });
+      }
+    });
   }
 
   onReachExit() {
@@ -1901,7 +2260,13 @@ class GameScene extends Phaser.Scene {
                   MobileGamepad.hide();
                   self.scene.start("WorldSelectScene");
                 } else {
-                  self.scene.restart({ world: 0, level: nextLvl, deaths: self.deaths });
+                  self.scene.restart({
+                    world: 0,
+                    level: nextLvl,
+                    deaths: self.deaths,
+                    levelDeaths: 0,
+                    skipOfferUnlocked: false
+                  });
                 }
               });
             }
@@ -1914,7 +2279,13 @@ class GameScene extends Phaser.Scene {
               MobileGamepad.hide();
               self.scene.start("WorldSelectScene");
             } else {
-              self.scene.restart({ world: 0, level: nextLvl, deaths: self.deaths });
+              self.scene.restart({
+                world: 0,
+                level: nextLvl,
+                deaths: self.deaths,
+                levelDeaths: 0,
+                skipOfferUnlocked: false
+              });
             }
           });
         }

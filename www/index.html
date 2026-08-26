@@ -111,12 +111,46 @@
     </div>
   </div>
 
+  <!-- Rewarded Ad Level-Skip Offer Modal (7-Death Trigger) -->
+  <div id="rewarded-ad-offer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" style="display: none !important;">
+    <div class="ad-offer-card">
+      <div class="ad-offer-header">
+        <div class="ad-offer-icon">😈</div>
+        <h2 class="ad-offer-title">OOPS!</h2>
+      </div>
+      <div class="ad-offer-body">
+        <p class="ad-offer-subtitle">Having trouble?</p>
+        <p class="ad-offer-desc">Watch a short ad to skip<br/>this level.</p>
+      </div>
+      <div class="ad-offer-actions">
+        <button type="button" id="btn-ad-watch" class="ad-btn-watch">🎬 WATCH AD</button>
+        <button type="button" id="btn-ad-decline" class="ad-btn-decline">✕ NO THANKS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Ad Player Overlay (Test Mode / Sandbox) -->
+  <div id="simulated-ad-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" style="display: none !important;">
+    <div class="sim-ad-card">
+      <div class="sim-ad-badge">🧪 TEST MODE / SIMULATED AD</div>
+      <div class="sim-ad-icon">🎬</div>
+      <p class="sim-ad-title">Simulating Rewarded Ad...</p>
+      <p class="sim-ad-timer" id="sim-ad-countdown">Reward in: 3s</p>
+      <p class="sim-ad-note">(In production, real Google H5 / AdMob video will play here)</p>
+      <div class="sim-ad-actions">
+        <button type="button" id="btn-sim-complete" class="sim-btn-complete">⏩ Complete &amp; Reward</button>
+        <button type="button" id="btn-sim-cancel" class="sim-btn-cancel">❌ Close / Fail Ad</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Responsive On-Screen Mobile Gamepad -->
   <div id="mobile-gamepad" class="hidden">
     <!-- Top Deck Info & Quick Actions Bar (Visible in Portrait) -->
     <div class="gamepad-deck-bar">
       <div class="deck-info-item" id="deck-level-info">WORLD 1 · LV 1</div>
       <div class="deck-actions-cluster">
+        <button type="button" id="deck-btn-skip" class="deck-utility-btn deck-btn-skip hidden" aria-label="Skip Level" style="display: none;">📺 SKIP</button>
         <button type="button" id="deck-btn-restart" class="deck-utility-btn" aria-label="Restart Level">↺ RESTART</button>
         <button type="button" id="deck-btn-map" class="deck-utility-btn" aria-label="World Map">🗺️ MAP</button>
       </div>
