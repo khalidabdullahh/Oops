@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="logo.png" alt="Oops! Game Official Logo" width="280" style="border-radius: 28px;" />
+  <img src="logo.png" alt="Oops! Game Logo" width="160" />
 </p>
 
-# <p align="center">Oops! 🎮</p>
+<h1 align="center">Oops! 🎮</h1>
 
 <p align="center">
-  <em>A totally fair multiverse platformer game 😇</em>
+  <em>A totally fair multiverse platformer game 😇</em><br/>
+  <strong><a href="https://oops-snowy-three.vercel.app/">▶ Play Live on Vercel</a></strong> · <strong>Version 1.02</strong>
 </p>
 
 <p align="center">
