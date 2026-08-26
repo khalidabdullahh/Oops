@@ -1792,6 +1792,11 @@ class GameScene extends Phaser.Scene {
     this.createHUD();
     this.showLevelBanner();
     MonetizationManager.updateSkipButtonVisibility(this.skipOfferUnlocked && !this.skipOfferUsed);
+
+    var deckInfo = document.getElementById("deck-level-info");
+    if (deckInfo) {
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
+    }
   }
 
   showLevelBanner() {
@@ -1825,25 +1830,26 @@ class GameScene extends Phaser.Scene {
       color: "#ffffff"
     }).setDepth(200);
 
-    this.deathText = this.add.text(width - 120, 20, "💀 " + this.deaths, {
+    // Separated Level Deaths and Total Deaths Display
+    this.deathText = this.add.text(width - 170, 20, "💀 LV:" + this.levelDeaths + " | TOT:" + this.deaths, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "10px",
+      fontSize: "8.5px",
       color: "#ff4757"
     }).setDepth(200);
 
     // In-game HUD Skip Button (Unlocked after 7 deaths)
-    this.hudSkipBtn = this.add.container(width - 220, 20);
+    this.hudSkipBtn = this.add.container(width - 265, 20);
     var skGfx = this.add.graphics();
     skGfx.fillStyle(0x161822, 0.9);
-    skGfx.fillRoundedRect(-40, -12, 80, 24, 6);
+    skGfx.fillRoundedRect(-38, -12, 76, 24, 6);
     skGfx.lineStyle(1.5, 0xffd32a, 0.9);
-    skGfx.strokeRoundedRect(-40, -12, 80, 24, 6);
+    skGfx.strokeRoundedRect(-38, -12, 76, 24, 6);
     var skTxt = this.add.text(0, 0, "📺 SKIP", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "7.5px",
+      fontSize: "7px",
       color: "#ffd32a"
     }).setOrigin(0.5);
-    var skZone = this.add.zone(0, 0, 80, 24).setInteractive({ cursor: "pointer" });
+    var skZone = this.add.zone(0, 0, 76, 24).setInteractive({ cursor: "pointer" });
     skZone.on("pointerdown", function() {
       MonetizationManager.triggerRewardedFlow();
     });
@@ -1851,14 +1857,14 @@ class GameScene extends Phaser.Scene {
     this.hudSkipBtn.setDepth(200);
     this.hudSkipBtn.setVisible(this.skipOfferUnlocked && !this.skipOfferUsed);
 
-    var fsBtn = this.add.text(width - 60, 20, "⛶", {
+    var fsBtn = this.add.text(width - 55, 20, "⛶", {
       fontSize: "17px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
     fsBtn.on("pointerdown", function() {
       toggleFullScreen();
     });
 
-    var mapBtn = this.add.text(width - 25, 20, "🗺️", {
+    var mapBtn = this.add.text(width - 22, 20, "🗺️", {
       fontSize: "18px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
 
@@ -2127,6 +2133,14 @@ class GameScene extends Phaser.Scene {
       tint: 0xff4757
     });
 
+    if (this.deathText) {
+      this.deathText.setText("💀 LV:" + this.levelDeaths + " | TOT:" + this.deaths);
+    }
+    var deckInfo = document.getElementById("deck-level-info");
+    if (deckInfo) {
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
+    }
+
     // ── 7-Death Threshold Check: Trigger one-time rewarded ad popup offer! ──
     if (this.levelDeaths === MONETIZATION_CONFIG.deathsThreshold && !this.skipOfferUnlocked && !this.skipOfferUsed) {
       this.skipOfferUnlocked = true;
@@ -2183,7 +2197,7 @@ class GameScene extends Phaser.Scene {
       var nextLvl = self.currentLevel + 1;
       if (nextLvl >= 30) {
         MobileGamepad.hide();
-        self.scene.start("WorldSelectScene");
+        self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
       } else {
         self.scene.restart({
           world: 0,
@@ -2258,7 +2272,7 @@ class GameScene extends Phaser.Scene {
                 var nextLvl = self.currentLevel + 1;
                 if (nextLvl >= 30) {
                   MobileGamepad.hide();
-                  self.scene.start("WorldSelectScene");
+                  self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
                 } else {
                   self.scene.restart({
                     world: 0,
@@ -2277,7 +2291,7 @@ class GameScene extends Phaser.Scene {
             var nextLvl = self.currentLevel + 1;
             if (nextLvl >= 30) {
               MobileGamepad.hide();
-              self.scene.start("WorldSelectScene");
+              self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
             } else {
               self.scene.restart({
                 world: 0,
@@ -2822,6 +2836,180 @@ class GameScene extends Phaser.Scene {
   }
 }
 
+// ─── 9.5. WorldCompleteScene: World 1 Victory & Teaser Screen ──
+class WorldCompleteScene extends Phaser.Scene {
+  constructor() {
+    super("WorldCompleteScene");
+  }
+
+  init(data) {
+    this.totalDeaths = (typeof data.totalDeaths === "number") ? data.totalDeaths : SaveManager.getTotalDeaths();
+  }
+
+  create() {
+    var self = this;
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+
+    MobileGamepad.hide();
+    AudioEngine.init();
+    AudioEngine.sfxWin();
+
+    var theme = WORLD_1_THEME;
+    syncBodyBackground(theme);
+
+    // Background
+    var bgGfx = this.add.graphics();
+    bgGfx.fillStyle(theme.bg, 1);
+    bgGfx.fillRect(0, 0, width, height);
+
+    // Confetti Fireworks Particle System
+    this.confetti = this.add.particles(0, 0, "part_dot", {
+      x: { min: 40, max: width - 40 },
+      y: { min: 20, max: height - 80 },
+      lifespan: 1800,
+      speedY: { min: -60, max: 80 },
+      speedX: { min: -70, max: 70 },
+      scale: { start: 1.5, end: 0 },
+      alpha: { start: 1, end: 0 },
+      tint: [0xffd32a, 0x2ed573, 0x00d2d3, 0xff4757, 0xffffff, 0xff9ff3],
+      frequency: 90
+    });
+
+    var panel = this.add.container(width / 2, height / 2);
+
+    // Card background
+    var cardGfx = this.add.graphics();
+    cardGfx.fillStyle(0x12141e, 0.95);
+    cardGfx.fillRoundedRect(-360, -210, 720, 420, 16);
+    cardGfx.lineStyle(3, 0xffd32a, 1);
+    cardGfx.strokeRoundedRect(-360, -210, 720, 420, 16);
+
+    // Animated Trophy Icon
+    var trophy = this.add.text(0, -145, "🏆", {
+      fontSize: "44px"
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: trophy,
+      scaleX: 1.2,
+      scaleY: 1.2,
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut"
+    });
+
+    // Congratulations Title
+    var title = this.add.text(0, -90, "CONGRATULATIONS!", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "19px",
+      color: "#ffd32a",
+      stroke: "#000000",
+      strokeThickness: 6
+    }).setOrigin(0.5);
+
+    var subtitle = this.add.text(0, -60, "YOU CONQUERED ALL 30 LEVELS OF WORLD 1!", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9.5px",
+      color: "#2ed573",
+      stroke: "#000000",
+      strokeThickness: 3
+    }).setOrigin(0.5);
+
+    // Stats bar
+    var statsGfx = this.add.graphics();
+    statsGfx.fillStyle(0x1c1f2e, 0.9);
+    statsGfx.fillRoundedRect(-310, -38, 620, 42, 8);
+    statsGfx.lineStyle(1, 0x3d4460, 1);
+    statsGfx.strokeRoundedRect(-310, -38, 620, 42, 8);
+
+    var statsText = this.add.text(0, -17, "💀 TOTAL DEATHS: " + this.totalDeaths + "   ⭐ 30/30 LEVELS CLEARED", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
+
+    // Teaser / Welcome Next World Card
+    var teaserGfx = this.add.graphics();
+    teaserGfx.fillStyle(0x241014, 0.9);
+    teaserGfx.fillRoundedRect(-310, 20, 620, 95, 10);
+    teaserGfx.lineStyle(2, 0xff4757, 0.9);
+    teaserGfx.strokeRoundedRect(-310, 20, 620, 95, 10);
+
+    var teaserHeader = this.add.text(0, 42, "🔥 NEXT WORLD COMING SOON! 🔥", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "11.5px",
+      color: "#ff4757",
+      stroke: "#000000",
+      strokeThickness: 4
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: teaserHeader,
+      scaleX: 1.05,
+      scaleY: 1.05,
+      duration: 600,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut"
+    });
+
+    var teaserBody = this.add.text(0, 80, "World 2: Shadow Crypts is currently in development!\nGet ready for gravity inversion, glitch blocks & devilish new traps.", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "7.5px",
+      color: "#ffcccc",
+      align: "center",
+      lineSpacing: 8
+    }).setOrigin(0.5);
+
+    // Buttons Container
+    var btnMap = this.add.container(-130, 160);
+    var b1Gfx = this.add.graphics();
+    b1Gfx.fillStyle(0x2ed573, 1);
+    b1Gfx.fillRoundedRect(-110, -18, 220, 36, 8);
+    b1Gfx.lineStyle(2, 0xffffff, 1);
+    b1Gfx.strokeRoundedRect(-110, -18, 220, 36, 8);
+    var b1Txt = this.add.text(0, 0, "🗺️ WORLD MAP", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
+    var b1Zone = this.add.zone(0, 0, 220, 36).setInteractive({ cursor: "pointer" });
+    b1Zone.on("pointerdown", function() {
+      AudioEngine.sfxJump();
+      self.scene.start("WorldSelectScene");
+    });
+    btnMap.add([b1Gfx, b1Txt, b1Zone]);
+
+    var btnReplay = this.add.container(130, 160);
+    var b2Gfx = this.add.graphics();
+    b2Gfx.fillStyle(0xffd32a, 1);
+    b2Gfx.fillRoundedRect(-110, -18, 220, 36, 8);
+    b2Gfx.lineStyle(2, 0x000000, 1);
+    b2Gfx.strokeRoundedRect(-110, -18, 220, 36, 8);
+    var b2Txt = this.add.text(0, 0, "↺ REPLAY WORLD 1", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "9px",
+      color: "#000000"
+    }).setOrigin(0.5);
+    var b2Zone = this.add.zone(0, 0, 220, 36).setInteractive({ cursor: "pointer" });
+    b2Zone.on("pointerdown", function() {
+      AudioEngine.sfxJump();
+      self.scene.start("GameScene", { world: 0, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
+    });
+    btnReplay.add([b2Gfx, b2Txt, b2Zone]);
+
+    panel.add([
+      cardGfx, trophy, title, subtitle,
+      statsGfx, statsText,
+      teaserGfx, teaserHeader, teaserBody,
+      btnMap, btnReplay
+    ]);
+  }
+}
+
 // ─── 10. Phaser Game Configuration ───────────────────────────
 var config = {
   type: Phaser.AUTO,
@@ -2848,7 +3036,7 @@ var config = {
       debug: false
     }
   },
-  scene: [BootScene, IntroScene, WorldSelectScene, GameScene]
+  scene: [BootScene, IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
 };
 
 window.addEventListener("resize", function() {
