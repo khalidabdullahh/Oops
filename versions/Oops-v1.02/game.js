@@ -94,14 +94,15 @@ function removeLoaderSplash() {
     if (loader) {
       loader.style.opacity = "0";
       loader.style.pointerEvents = "none";
-      setTimeout(function() {
-        if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 200);
+      loader.style.display = "none";
+      if (loader.parentNode) {
+        loader.parentNode.removeChild(loader);
+      }
     }
   } catch(e) {}
 }
 
-setTimeout(removeLoaderSplash, 1200);
+setTimeout(removeLoaderSplash, 500);
 
 // ─── 1. Save Manager ─────────────────────────────────────────
 var SAVE_KEY = "oops_world1_master_v1";
@@ -267,6 +268,9 @@ var AudioEngine = {
   sfxBounce: function() {
     this.playTone(280, "sine", 0.12, 0.2);
     this.playTone(580, "sine", 0.15, 0.25, 0.04);
+  },
+  sfxSpring: function() {
+    this.sfxBounce();
   },
 
   startMusic: function() {
@@ -1343,26 +1347,30 @@ class IntroScene extends Phaser.Scene {
     // ── Persistent SKIP Button (Always on top right) ──
     var skipBtn = this.add.container(width - 75, 35);
     var skGfx = this.add.graphics();
-    skGfx.fillStyle(0x161822, 0.9);
-    skGfx.fillRoundedRect(-45, -14, 90, 28, 14);
-    skGfx.lineStyle(1.5, 0xffd32a, 0.9);
-    skGfx.strokeRoundedRect(-45, -14, 90, 28, 14);
+    skGfx.fillStyle(0x161822, 0.95);
+    skGfx.fillRoundedRect(-50, -16, 100, 32, 16);
+    skGfx.lineStyle(2, 0xffd32a, 1);
+    skGfx.strokeRoundedRect(-50, -16, 100, 32, 16);
     var skTxt = this.add.text(0, 0, "SKIP ⏩", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8px",
+      fontSize: "9px",
       color: "#ffd32a"
     }).setOrigin(0.5);
-    var skZone = this.add.zone(0, 0, 90, 28).setInteractive({ cursor: "pointer" });
+    var skZone = this.add.zone(0, 0, 110, 40).setInteractive({ cursor: "pointer" });
     skipBtn.add([skGfx, skTxt, skZone]);
-    skipBtn.setDepth(300);
+    skipBtn.setDepth(500);
 
+    var hasEnded = false;
     var endIntro = function() {
+      if (hasEnded) return;
+      hasEnded = true;
       SaveManager.setIntroSeen();
       self.scene.start("WorldSelectScene");
     };
 
     skZone.on("pointerdown", endIntro);
-    this.input.keyboard.on("keydown-SPACE", function(e) {
+    skZone.on("pointerup", endIntro);
+    this.input.keyboard.on("keydown-SPACE", function() {
       if (self.introComplete) endIntro();
     });
     this.input.keyboard.on("keydown-ENTER", endIntro);
@@ -1370,26 +1378,29 @@ class IntroScene extends Phaser.Scene {
 
     // ── Interactive Jump Trigger ──
     var canJump = true;
+    var trapActive = false;
     var doInteractiveJump = function() {
-      if (!canJump || self.introComplete) return;
+      if (!canJump || trapActive || self.introComplete || hasEnded) return;
       canJump = false;
       AudioEngine.sfxJump();
       hero.anims.play("hero_anim_jump");
       self.tweens.add({
         targets: hero,
-        y: hero.y - 80,
-        duration: 250,
+        y: hero.y - 75,
+        duration: 220,
         yoyo: true,
         ease: "Quad.easeOut",
         onComplete: function() {
-          hero.anims.play("hero_anim_run");
+          if (!trapActive && !self.introComplete) {
+            hero.anims.play("hero_anim_run");
+          }
           canJump = true;
         }
       });
     };
 
     this.input.on("pointerdown", function(ptr) {
-      if (ptr.x > width - 120 && ptr.y < 60) return; // Skip btn area
+      if (ptr.x > width - 140 && ptr.y < 70) return; // Skip btn area
       if (self.introComplete) {
         endIntro();
       } else {
@@ -1405,9 +1416,11 @@ class IntroScene extends Phaser.Scene {
     this.tweens.add({
       targets: hero,
       x: 400,
-      duration: 1800,
+      duration: 1300,
       ease: "Linear",
       onComplete: function() {
+        if (hasEnded) return;
+        trapActive = true;
         caption.setText("OOPS! THE FLOOR VANISHED! 😈");
         caption.setColor("#ff4757");
         actionHint.setVisible(false);
@@ -1419,23 +1432,24 @@ class IntroScene extends Phaser.Scene {
         var holeGfx = self.add.graphics();
         holeGfx.fillStyle(0x3a0d04, 1);
         holeGfx.fillRect(360, 410, 80, 80);
-        self.cameras.main.shake(200, 0.025);
+        self.cameras.main.shake(180, 0.025);
 
         var crusher = self.add.image(400, 60, "crusher_tex");
         self.tweens.add({
           targets: crusher,
           y: 390,
-          duration: 220,
+          duration: 200,
           ease: "Quad.easeIn",
           onComplete: function() {
+            if (hasEnded) return;
             AudioEngine.sfxCrush();
             AudioEngine.sfxDie();
-            self.cameras.main.shake(320, 0.04);
+            self.cameras.main.shake(280, 0.04);
             hero.setTexture("hero_dead");
             hero.y = 410;
 
             var soul1 = self.add.image(hero.x, hero.y - 10, "hero_soul").setDepth(150);
-            self.tweens.add({ targets: soul1, y: soul1.y - 60, alpha: 0, duration: 600 });
+            self.tweens.add({ targets: soul1, y: soul1.y - 60, alpha: 0, duration: 500 });
 
             var toast1 = self.add.text(400, 310, "💥 OOPS! 💀", {
               fontFamily: "'Press Start 2P', monospace",
@@ -1445,7 +1459,8 @@ class IntroScene extends Phaser.Scene {
               strokeThickness: 6
             }).setOrigin(0.5);
 
-            self.time.delayedCall(1100, function() {
+            self.time.delayedCall(750, function() {
+              if (hasEnded) return;
               toast1.destroy();
               crusher.destroy();
               holeGfx.destroy();
@@ -1454,6 +1469,7 @@ class IntroScene extends Phaser.Scene {
               // ═════════════════════════════════════════════════════════
               // TRAP 2: Trampoline Ceiling Spike Surprise
               // ═════════════════════════════════════════════════════════
+              trapActive = false;
               caption.setText("STEP 2: TRY THE TRAMPOLINE! 🟢");
               caption.setColor("#2ed573");
 
@@ -1478,9 +1494,11 @@ class IntroScene extends Phaser.Scene {
               self.tweens.add({
                 targets: hero,
                 x: 430,
-                duration: 900,
+                duration: 700,
                 ease: "Linear",
                 onComplete: function() {
+                  if (hasEnded) return;
+                  trapActive = true;
                   // Bounce on trampoline!
                   AudioEngine.sfxSpring();
                   hero.anims.play("hero_anim_jump");
@@ -1492,16 +1510,17 @@ class IntroScene extends Phaser.Scene {
                     targets: hero,
                     y: 180,
                     x: 430,
-                    duration: 400,
+                    duration: 320,
                     ease: "Quad.easeOut",
                     onComplete: function() {
+                      if (hasEnded) return;
                       AudioEngine.sfxTrap();
                       AudioEngine.sfxDie();
-                      self.cameras.main.shake(280, 0.035);
+                      self.cameras.main.shake(250, 0.035);
                       hero.setTexture("hero_dead");
 
                       var soul2 = self.add.image(hero.x, hero.y - 10, "hero_soul").setDepth(150);
-                      self.tweens.add({ targets: soul2, y: soul2.y - 50, alpha: 0, duration: 600 });
+                      self.tweens.add({ targets: soul2, y: soul2.y - 50, alpha: 0, duration: 500 });
 
                       var toast2 = self.add.text(430, 120, "💥 CEILING TRAP! 💀", {
                         fontFamily: "'Press Start 2P', monospace",
@@ -1511,7 +1530,8 @@ class IntroScene extends Phaser.Scene {
                         strokeThickness: 5
                       }).setOrigin(0.5);
 
-                      self.time.delayedCall(1200, function() {
+                      self.time.delayedCall(750, function() {
+                        if (hasEnded) return;
                         toast2.destroy();
                         tramp.destroy();
                         ceilSpikes.destroy();
@@ -1520,6 +1540,7 @@ class IntroScene extends Phaser.Scene {
                         // ═════════════════════════════════════════════════
                         // TRAP 3: The Rocket Fleeing Exit Door
                         // ═════════════════════════════════════════════════
+                        trapActive = false;
                         caption.setText("STEP 3: FINE! JUST ENTER THE DOOR! 🚪");
                         caption.setColor("#ffd32a");
 
@@ -1532,9 +1553,11 @@ class IntroScene extends Phaser.Scene {
                         self.tweens.add({
                           targets: hero,
                           x: 670,
-                          duration: 700,
+                          duration: 600,
                           ease: "Linear",
                           onComplete: function() {
+                            if (hasEnded) return;
+                            trapActive = true;
                             // Door flees into the air!
                             AudioEngine.sfxTrap();
                             caption.setText("DOOR: 'NO EXIT FOR YOU!' 😈");
@@ -1545,11 +1568,12 @@ class IntroScene extends Phaser.Scene {
                               y: 160,
                               x: 820,
                               angle: -15,
-                              duration: 500,
+                              duration: 400,
                               ease: "Back.easeOut",
                               onComplete: function() {
+                                if (hasEnded) return;
                                 AudioEngine.sfxWin();
-                                self.cameras.main.flash(400, 255, 211, 42);
+                                self.cameras.main.flash(350, 255, 211, 42);
 
                                 // Confetti burst
                                 self.add.particles(width / 2, height / 2 - 20, "part_dot", {
@@ -1567,9 +1591,9 @@ class IntroScene extends Phaser.Scene {
                                 var titleCard = self.add.container(width / 2, height / 2 - 25);
 
                                 var titleGfx = self.add.graphics();
-                                titleGfx.fillStyle(0x000000, 0.7);
+                                titleGfx.fillStyle(0x000000, 0.75);
                                 titleGfx.fillRoundedRect(-320, -100, 640, 200, 18);
-                                titleGfx.lineStyle(3, 0xffd32a, 0.9);
+                                titleGfx.lineStyle(3, 0xffd32a, 0.95);
                                 titleGfx.strokeRoundedRect(-320, -100, 640, 200, 18);
 
                                 var tMain = self.add.text(0, -45, "😈 Oops!", {
@@ -1601,7 +1625,7 @@ class IntroScene extends Phaser.Scene {
                                   scaleX: 1.06,
                                   scaleY: 1.06,
                                   alpha: 0.7,
-                                  duration: 400,
+                                  duration: 350,
                                   yoyo: true,
                                   repeat: -1
                                 });
@@ -1612,12 +1636,13 @@ class IntroScene extends Phaser.Scene {
                                   targets: titleCard,
                                   scaleX: 1,
                                   scaleY: 1,
-                                  duration: 350,
+                                  duration: 300,
                                   ease: "Back.easeOut"
                                 });
 
                                 var clickZone = self.add.zone(width / 2, height / 2, width, height).setInteractive({ cursor: "pointer" });
                                 clickZone.on("pointerdown", endIntro);
+                                clickZone.on("pointerup", endIntro);
                               }
                             });
                           }
