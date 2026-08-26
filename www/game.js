@@ -283,6 +283,8 @@ var MobileGamepad = {
     var btnJump = document.getElementById("btn-jump");
     var btnFlip = document.getElementById("btn-flip");
     var btnRestart = document.getElementById("btn-restart");
+    var deckBtnRestart = document.getElementById("deck-btn-restart");
+    var deckBtnMap = document.getElementById("deck-btn-map");
 
     var bindButton = function(el, onDown, onUp) {
       if (!el) return;
@@ -315,6 +317,55 @@ var MobileGamepad = {
     bindButton(btnJump, function(s) { s.touchJump = true; }, function(s) { s.touchJump = false; });
     bindButton(btnFlip, function(s) { s.touchFlip = true; }, function(s) { s.touchFlip = false; });
     bindButton(btnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
+    bindButton(deckBtnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
+
+    if (deckBtnMap) {
+      deckBtnMap.addEventListener("click", function(e) {
+        if (e.cancelable) e.preventDefault();
+        if (self.activeScene) {
+          AudioEngine.init();
+          AudioEngine.stopMusic();
+          self.hide();
+          self.activeScene.scene.start("WorldSelectScene");
+        }
+      });
+      deckBtnMap.addEventListener("touchstart", function(e) {
+        if (e.cancelable) e.preventDefault();
+        if (self.activeScene) {
+          AudioEngine.init();
+          AudioEngine.stopMusic();
+          self.hide();
+          self.activeScene.scene.start("WorldSelectScene");
+        }
+      }, { passive: false });
+    }
+
+    // Touch sliding support on directional cluster
+    var leftCluster = document.querySelector(".touch-cluster-left");
+    if (leftCluster) {
+      var handleClusterMove = function(e) {
+        if (!self.activeScene) return;
+        var touch = e.touches ? e.touches[0] : e;
+        if (!touch) return;
+        var rectL = btnLeft ? btnLeft.getBoundingClientRect() : null;
+        var rectR = btnRight ? btnRight.getBoundingClientRect() : null;
+        var tx = touch.clientX, ty = touch.clientY;
+
+        if (rectL && tx >= rectL.left && tx <= rectL.right && ty >= rectL.top && ty <= rectL.bottom) {
+          self.activeScene.touchLeft = true;
+          self.activeScene.touchRight = false;
+          btnLeft.classList.add("pressed");
+          if (btnRight) btnRight.classList.remove("pressed");
+        } else if (rectR && tx >= rectR.left && tx <= rectR.right && ty >= rectR.top && ty <= rectR.bottom) {
+          self.activeScene.touchRight = true;
+          self.activeScene.touchLeft = false;
+          btnRight.classList.add("pressed");
+          if (btnLeft) btnLeft.classList.remove("pressed");
+        }
+      };
+
+      leftCluster.addEventListener("touchmove", handleClusterMove, { passive: true });
+    }
   },
 
   show: function(scene) {
@@ -325,26 +376,35 @@ var MobileGamepad = {
 
     var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
     if (isTouch) {
-      gamepad.style.display = "flex";
+      document.body.classList.add("gamepad-visible");
+      document.body.classList.remove("gamepad-hidden");
       gamepad.classList.remove("hidden");
     } else {
-      gamepad.style.display = "none";
+      document.body.classList.remove("gamepad-visible");
+      document.body.classList.add("gamepad-hidden");
       gamepad.classList.add("hidden");
     }
 
-    var btnFlip = document.getElementById("btn-flip");
-    if (btnFlip) {
-      btnFlip.classList.add("hidden");
-      btnFlip.style.display = "none";
+    var deckInfo = document.getElementById("deck-level-info");
+    if (deckInfo && scene) {
+      deckInfo.textContent = "WORLD 1 · LV " + (scene.currentLevel + 1) + " (💀 " + (scene.deaths || 0) + ")";
+    }
+
+    if (window.game && window.game.scale) {
+      setTimeout(function() { window.game.scale.refresh(); }, 50);
     }
   },
 
   hide: function() {
     this.activeScene = null;
+    document.body.classList.remove("gamepad-visible");
+    document.body.classList.add("gamepad-hidden");
     var gamepad = document.getElementById("mobile-gamepad");
     if (gamepad) {
-      gamepad.style.display = "none";
       gamepad.classList.add("hidden");
+    }
+    if (window.game && window.game.scale) {
+      setTimeout(function() { window.game.scale.refresh(); }, 50);
     }
   }
 };
