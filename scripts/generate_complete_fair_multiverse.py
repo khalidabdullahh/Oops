@@ -1,4 +1,7 @@
-// ═══════════════════════════════════════════════════════════════
+import os
+
+with open("/Users/khalidabdullah/AntiGravity/Oops!/scripts/build_fair_playable_multiverse.py", "w") as f:
+    f.write('''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition (v6.0.0 Master Engine)
 //  5 Worlds x 30 Handcrafted Unique Levels (150 Total Levels)
 //  Comedic 7-Second Intro, True Dual-Orientation (Portrait/Landscape),
@@ -553,11 +556,11 @@ var FeedbackManager = {
 
     var imageSection = "";
     if (this.attachedImage) {
-      imageSection = "\n\n### 📸 Attached Screenshot\n> *Screenshot file: " + this.attachedImage.name + "*\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*";
+      imageSection = "\\n\\n### 📸 Attached Screenshot\\n> *Screenshot file: " + this.attachedImage.name + "*\\n*(💡 Tip: You can also paste or drop your image directly here on GitHub!)*";
     }
 
     var issueTitle = encodeURIComponent("[" + category + "] Feedback from " + name + " on " + worldName + " " + levelName);
-    var issueBody = encodeURIComponent("### 👤 Player Information\n- **Player Name / Nickname:** " + name + "\n- **Feedback Category:** " + category + "\n\n### 🎮 Game Context\n- **World & Level:** " + worldName + " · " + levelName + "\n- **Total Deaths:** 💀 " + deaths + "\n- **Device / Screen:** " + window.innerWidth + "x" + window.innerHeight + " (" + (('ontouchstart' in window) ? 'Touch Device' : 'Desktop') + ")\n- **Submission Time:** " + new Date().toISOString() + "\n\n### 💡 Feedback & Improvement Suggestions\n" + message + imageSection + "\n\n---\n*Submitted via Oops! In-Game Feedback System*");
+    var issueBody = encodeURIComponent("### 👤 Player Information\\n- **Player Name / Nickname:** " + name + "\\n- **Feedback Category:** " + category + "\\n\\n### 🎮 Game Context\\n- **World & Level:** " + worldName + " · " + levelName + "\\n- **Total Deaths:** 💀 " + deaths + "\\n- **Device / Screen:** " + window.innerWidth + "x" + window.innerHeight + " (" + (('ontouchstart' in window) ? 'Touch Device' : 'Desktop') + ")\\n- **Submission Time:** " + new Date().toISOString() + "\\n\\n### 💡 Feedback & Improvement Suggestions\\n" + message + imageSection + "\\n\\n---\\n*Submitted via Oops! In-Game Feedback System*");
 
     var githubIssueUrl = "https://github.com/khalidabdullahh/Oops/issues/new?title=" + issueTitle + "&body=" + issueBody;
 
@@ -673,3 +676,5 @@ function getTheme(worldIdx) {
   var idx = Math.max(0, Math.min(worldIdx, WORLD_THEMES.length - 1));
   return WORLD_THEMES[idx];
 }
+''')
+print("Base generator template initialized.")

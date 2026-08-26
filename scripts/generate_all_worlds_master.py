@@ -1,4 +1,6 @@
-// ═══════════════════════════════════════════════════════════════
+import sys
+
+script_content = r'''// ═══════════════════════════════════════════════════════════════
 //  Oops! – Multiverse Platformer Edition (v6.0.0 Master Engine)
 //  5 Worlds x 30 Handcrafted Unique Levels (150 Total Levels)
 //  Comedic 7-Second Intro, True Dual-Orientation (Portrait/Landscape),
@@ -2795,3 +2797,9 @@ if (document.readyState === "loading") {
 } else {
   launchOopsGame();
 }
+'''
+
+with open('/Users/khalidabdullah/AntiGravity/Oops!/game.js', 'w') as f:
+    f.write(script_content)
+
+print("game.js successfully created with 5 Worlds x 30 Handcrafted Unique Levels + 7-Second Intro! Size:", len(script_content))

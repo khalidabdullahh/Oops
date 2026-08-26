@@ -37,52 +37,7 @@
   100% { opacity: 0; transform: scale(1.15); }
 }
 
-/* ── Rotate Device Overlay for Mobile Portrait Mode ───────── */
-#rotate-prompt {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999998;
-  background: #0d0f17;
-  background: radial-gradient(ellipse at center, #1b1e2e 0%, #08090f 100%);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 30px;
-  gap: 18px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.rotate-phone-anim {
-  font-size: 54px;
-  animation: phoneRotate 1.8s ease-in-out infinite;
-  transform-origin: center;
-}
-.rotate-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(14px, 4vw, 20px);
-  color: #ffd32a;
-  letter-spacing: 1.5px;
-  text-shadow: 0 0 15px rgba(255, 211, 42, 0.6);
-}
-.rotate-desc {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(9px, 2.5vw, 11px);
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.7;
-  max-width: 320px;
-}
-@keyframes phoneRotate {
-  0%, 15% { transform: rotate(0deg); }
-  50%, 75% { transform: rotate(-90deg) scale(1.1); }
-  100% { transform: rotate(0deg); }
-}
-@media (orientation: portrait) and (max-width: 900px) {
-  #rotate-prompt {
-    display: flex !important;
-  }
-}
+
 
 /* ── High-Speed Progressive Game Loader ──────────────────── */
 #game-loader {
@@ -281,6 +236,58 @@ canvas {
 
 #mobile-gamepad.hidden {
   display: none !important;
+}
+
+/* ── Portrait Mode Controller Deck (Below Game Canvas) ───────── */
+@media (orientation: portrait) {
+  #game-container {
+    position: absolute;
+    top: max(8px, env(safe-area-inset-top));
+    left: 0;
+    right: 0;
+    height: 52vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mobile-gamepad {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px max(18px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+    background: radial-gradient(ellipse at top, rgba(24, 28, 44, 0.95) 0%, rgba(8, 9, 15, 0.98) 100%);
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
+  }
+
+  .gamepad-btn-dir {
+    width: clamp(74px, 19vw, 88px) !important;
+    height: clamp(74px, 19vw, 88px) !important;
+    font-size: clamp(24px, 6vw, 30px) !important;
+  }
+
+  .gamepad-btn-jump {
+    width: clamp(90px, 23vw, 108px) !important;
+    height: clamp(90px, 23vw, 108px) !important;
+    font-size: clamp(20px, 5vw, 24px) !important;
+  }
+
+  .gamepad-btn-flip {
+    width: clamp(66px, 16vw, 78px) !important;
+    height: clamp(66px, 16vw, 78px) !important;
+  }
+
+  .gamepad-btn-restart {
+    width: clamp(56px, 14vw, 68px) !important;
+    height: clamp(56px, 14vw, 68px) !important;
+  }
 }
 
 .touch-cluster-left {
