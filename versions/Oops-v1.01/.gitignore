@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+.vscode/
+.idea/
+
+# Android build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+
+# Root APK (keep only RELEASE/)
+/ChaosRealm.apk
+
+# Media references
+*.mp4

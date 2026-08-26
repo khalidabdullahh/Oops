@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"/></noscript>
-  <link rel="stylesheet" href="style.css?v=1.0.2"/>
+  <link rel="stylesheet" href="style.css?v=5.0.0"/>
 </head>
 <body>
   <!-- High-Speed Progressive Splash Loader (Removed upon game load) -->
@@ -205,7 +205,7 @@
       // 1. Try Cloudflare Edge CDN first (Brotli compressed ~280KB, worldwide edge caching)
       loadScript('https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js', function() {
         setProgress(70, 'LOADING MULTIVERSE WORLDS');
-        loadScript('game.js?v=1.0.2', function() {
+        loadScript('game.js?v=5.3.0', function() {
           setProgress(100, 'READY!');
         });
       }, function() {
@@ -213,7 +213,7 @@
         setProgress(50, 'LOADING LOCAL ENGINE');
         loadScript('phaser.min.js', function() {
           setProgress(85, 'LOADING MULTIVERSE WORLDS');
-          loadScript('game.js?v=1.0.2', function() {
+          loadScript('game.js?v=5.3.0', function() {
             setProgress(100, 'READY!');
           });
         }, function() {

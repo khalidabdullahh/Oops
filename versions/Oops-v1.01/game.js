@@ -1,10 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
-//  Oops! – Version v1.02 (2.5D Stylized Edition)
+//  Oops! – World 1 Master Edition (v7.0.0)
 //  World 1: 30 100% Unique Handcrafted Levels (Zero Repetition)
-//  2.5D Parallax Background, Platform Depth, Rewarded Ads System
+//  Comedic 7-Second Intro, True Dual-Orientation (Portrait/Landscape),
 //  and Complete Troll Puzzle Variety
 // ═══════════════════════════════════════════════════════════════
-var GAME_VERSION = "1.02";
 
 "use strict";
 
@@ -1088,138 +1087,75 @@ class BootScene extends Phaser.Scene {
   }
 
   createWorldAssets() {
-    // ── 🧱 2.5D PLATFORM TILE WITH 3D TOP HIGHLIGHT & FRONT BEVEL ──
     var platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0xffffff, 1);
     platGfx.fillRect(0, 0, 32, 32);
-    // Subtle horizontal strata line
-    platGfx.fillStyle(0x000000, 0.08);
-    platGfx.fillRect(0, 10, 32, 3);
-    platGfx.fillRect(0, 22, 32, 2);
-    // 3D Top Sunlit Rim (Light Highlight)
-    platGfx.fillStyle(0xffffff, 0.45);
+    platGfx.fillStyle(0x000000, 0.12);
     platGfx.fillRect(0, 0, 32, 3);
-    // 3D Bottom Front Bevel (Depth Extrusion)
-    platGfx.fillStyle(0x000000, 0.28);
-    platGfx.fillRect(0, 27, 32, 5);
     platGfx.generateTexture("plat_tex", 32, 32);
     platGfx.destroy();
 
-    // ── 🔺 3D FACETED DANGER SPIKE WITH METALLIC RIDGE ──
     var spkGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    // Left facet (illuminated side)
-    spkGfx.fillStyle(0xff4757, 1);
+    spkGfx.fillStyle(0xffffff, 1);
     spkGfx.beginPath();
     spkGfx.moveTo(0, 20);
     spkGfx.lineTo(10, 0);
-    spkGfx.lineTo(10, 20);
-    spkGfx.closePath();
-    spkGfx.fill();
-    // Right facet (shadowed side)
-    spkGfx.fillStyle(0x9c1000, 1);
-    spkGfx.beginPath();
-    spkGfx.moveTo(10, 0);
     spkGfx.lineTo(20, 20);
-    spkGfx.lineTo(10, 20);
     spkGfx.closePath();
     spkGfx.fill();
-    // Ridge highlight
-    spkGfx.lineStyle(1, 0xffd32a, 0.9);
-    spkGfx.lineBetween(10, 0, 10, 20);
-    // Tip glint
-    spkGfx.fillStyle(0xffffff, 1);
-    spkGfx.fillCircle(10, 1.5, 1.5);
     spkGfx.generateTexture("spike_up", 20, 20);
     spkGfx.destroy();
 
-    // ── 🔨 2.5D CRUSHER WITH RIVETED STEEL & GLOWING EYES ──
     var crushGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    crushGfx.fillStyle(0x2f3542, 1);
-    crushGfx.fillRoundedRect(0, 0, 60, 60, 6);
-    crushGfx.fillStyle(0x747d8c, 1);
-    crushGfx.fillRect(2, 2, 56, 4);
+    crushGfx.fillStyle(0x2d3436, 1);
+    crushGfx.fillRoundedRect(0, 0, 60, 60, 4);
     crushGfx.fillStyle(0x1e272e, 1);
-    crushGfx.fillRect(6, 8, 48, 44);
-    // Glowing red menacing eye slits
-    crushGfx.fillStyle(0xff4757, 1);
+    crushGfx.fillRect(6, 6, 48, 48);
+    crushGfx.fillStyle(0xff3838, 1);
     crushGfx.fillTriangle(14, 20, 26, 26, 14, 32);
     crushGfx.fillTriangle(46, 20, 34, 26, 46, 32);
-    // Heavy bottom teeth
-    crushGfx.fillStyle(0xd63031, 1);
-    crushGfx.fillTriangle(0, 60, 10, 74, 20, 60);
-    crushGfx.fillTriangle(20, 60, 30, 74, 40, 60);
-    crushGfx.fillTriangle(40, 60, 50, 74, 60, 60);
-    crushGfx.generateTexture("crusher_tex", 60, 74);
+    crushGfx.fillStyle(0xcc2200, 1);
+    crushGfx.fillTriangle(0, 60, 10, 72, 20, 60);
+    crushGfx.fillTriangle(20, 60, 30, 72, 40, 60);
+    crushGfx.fillTriangle(40, 60, 50, 72, 60, 60);
+    crushGfx.generateTexture("crusher_tex", 60, 72);
     crushGfx.destroy();
 
-    // ── 🚪 3-PART 2.5D PORTAL DOORWAY ASSETS ──
+    // ── 🚪 3-PART DOORWAY ASSETS (Interior, Swing Panel, Outer Frame) ──
     var dIntGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dIntGfx.fillStyle(0x0a0b12, 1);
-    dIntGfx.fillRoundedRect(4, 6, 28, 44, 8);
-    dIntGfx.fillStyle(0xffd32a, 0.4);
-    dIntGfx.fillCircle(18, 22, 12);
-    dIntGfx.fillStyle(0x2ed573, 0.4);
-    dIntGfx.fillCircle(18, 22, 6);
-    dIntGfx.generateTexture("door_interior_tex", 36, 52);
+    dIntGfx.fillRoundedRect(4, 6, 28, 44, 6);
+    dIntGfx.fillStyle(0xffd32a, 0.2);
+    dIntGfx.fillCircle(18, 20, 10);
+    dIntGfx.generateTexture("door_interior_tex", 36, 50);
     dIntGfx.destroy();
 
     var dPanGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dPanGfx.fillStyle(0xffffff, 1);
-    dPanGfx.fillRoundedRect(0, 0, 26, 44, 4);
+    dPanGfx.fillRoundedRect(0, 0, 26, 42, 4);
     dPanGfx.fillStyle(0x1e272e, 1);
-    dPanGfx.fillRect(2, 2, 22, 40);
+    dPanGfx.fillRect(2, 2, 22, 38);
     dPanGfx.fillStyle(0xffd32a, 1);
-    dPanGfx.fillCircle(20, 23, 2.5); // Golden knob
-    dPanGfx.generateTexture("door_panel_tex", 26, 44);
+    dPanGfx.fillCircle(20, 22, 2.5); // Golden knob
+    dPanGfx.generateTexture("door_panel_tex", 26, 42);
     dPanGfx.destroy();
 
     var dFrmGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dFrmGfx.lineStyle(4, 0xffffff, 1);
-    dFrmGfx.strokeRoundedRect(2, 4, 32, 48, 8);
-    dFrmGfx.fillStyle(0xffd32a, 1);
-    dFrmGfx.fillRect(0, 50, 36, 4);
-    dFrmGfx.generateTexture("door_frame_tex", 36, 54);
+    dFrmGfx.strokeRoundedRect(2, 4, 32, 46, 8);
+    dFrmGfx.fillStyle(0xffffff, 1);
+    dFrmGfx.fillRect(0, 48, 36, 4);
+    dFrmGfx.generateTexture("door_frame_tex", 36, 52);
     dFrmGfx.destroy();
 
-    // ── 🌀 2.5D SPRING TRAMPOLINE ──
     var trampGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    trampGfx.fillStyle(0x747d8c, 1);
-    trampGfx.fillRect(6, 10, 4, 6);
-    trampGfx.fillRect(22, 10, 4, 6);
-    trampGfx.fillStyle(0x2f3542, 1);
-    trampGfx.fillRoundedRect(2, 12, 28, 4, 2);
     trampGfx.fillStyle(0x2ed573, 1);
-    trampGfx.fillRoundedRect(0, 2, 32, 9, 3);
-    trampGfx.fillStyle(0xffffff, 0.7);
-    trampGfx.fillRect(4, 3, 24, 2);
+    trampGfx.fillRoundedRect(0, 8, 32, 8, 3);
+    trampGfx.fillStyle(0xff4757, 1);
+    trampGfx.fillRoundedRect(4, 2, 24, 6, 2);
     trampGfx.generateTexture("tramp_tex", 32, 16);
     trampGfx.destroy();
 
-    // ── 💨 SOFT DUST CLOUD PARTICLE ──
-    var dustGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    dustGfx.fillStyle(0xf5cd79, 0.75);
-    dustGfx.fillCircle(6, 6, 6);
-    dustGfx.fillStyle(0xffffff, 0.6);
-    dustGfx.fillCircle(5, 5, 3);
-    dustGfx.generateTexture("dust_puff", 12, 12);
-    dustGfx.destroy();
-
-    // ── 👻 CARTOON HERO SOUL GHOST ──
-    var soulGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    soulGfx.fillStyle(0xffffff, 0.88);
-    soulGfx.fillCircle(14, 14, 10);
-    soulGfx.fillTriangle(4, 18, 14, 28, 24, 18);
-    soulGfx.lineStyle(2, 0xffd32a, 1);
-    soulGfx.strokeEllipse(14, 2, 8, 3);
-    soulGfx.lineStyle(1.5, 0x2d3436, 1);
-    soulGfx.lineBetween(9, 11, 13, 15);
-    soulGfx.lineBetween(13, 11, 9, 15);
-    soulGfx.lineBetween(15, 11, 19, 15);
-    soulGfx.lineBetween(19, 11, 15, 15);
-    soulGfx.generateTexture("hero_soul", 28, 30);
-    soulGfx.destroy();
-
-    // ── ✨ SPARKS & DOTS ──
     var dotGfx = this.make.graphics({ x: 0, y: 0, add: false });
     dotGfx.fillStyle(0xffffff, 1);
     dotGfx.fillCircle(4, 4, 4);
@@ -1817,8 +1753,9 @@ class GameScene extends Phaser.Scene {
     MobileGamepad.show(this);
     MonetizationManager.setActiveScene(this);
 
-    // ── 🏜️ 2.5D MULTI-LAYER PARALLAX DESERT ATMOSPHERE ──
-    this.draw2DParallaxBackground();
+    this.bgGfx = this.add.graphics();
+    this.bgGfx.fillStyle(theme.bg, 1);
+    this.bgGfx.fillRect(0, 0, width, height);
 
     this.platforms = this.physics.add.staticGroup();
     this.spikes = this.physics.add.staticGroup();
@@ -1836,9 +1773,6 @@ class GameScene extends Phaser.Scene {
     this.player.body.setGravityY(1400);
     this.player.setDepth(100);
     this.player.anims.play("hero_anim_idle");
-
-    this.wasOnFloor = true;
-    this.dustTimer = 0;
 
     this.physics.add.collider(this.player, this.platforms, this.onPlatformCollide, null, this);
     this.physics.add.collider(this.player, this.trampolines, this.onTrampolineCollide, null, this);
@@ -1862,80 +1796,6 @@ class GameScene extends Phaser.Scene {
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
       deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
-    }
-  }
-
-  draw2DParallaxBackground() {
-    var size = this.scale;
-    var width = size.width;
-    var height = size.height;
-
-    // Layer 0: Warm Desert Sky Gradient
-    this.skyGfx = this.add.graphics().setDepth(-20);
-    this.skyGfx.fillGradientStyle(0x5c1808, 0x5c1808, 0x8a2c14, 0x8a2c14, 1);
-    this.skyGfx.fillRect(0, 0, width, height);
-
-    // Warm Mystic Sun / Oasis Moon Glow
-    var sunGlow = this.add.graphics().setDepth(-19);
-    sunGlow.fillStyle(0xffa502, 0.18);
-    sunGlow.fillCircle(width * 0.74, height * 0.26, 85);
-    sunGlow.fillStyle(0xffd32a, 0.35);
-    sunGlow.fillCircle(width * 0.74, height * 0.26, 45);
-    sunGlow.fillStyle(0xffffff, 0.8);
-    sunGlow.fillCircle(width * 0.74, height * 0.26, 20);
-
-    // Layer 1: Far Parallax Dunes & Ancient Pyramids (Slow scroll)
-    this.farParallaxGfx = this.add.graphics().setDepth(-18);
-    this.drawFarDunes(this.farParallaxGfx, width, height, 0);
-
-    // Layer 2: Mid Parallax Ancient Ruin Columns (Medium scroll)
-    this.midParallaxGfx = this.add.graphics().setDepth(-17);
-    this.drawMidRuins(this.midParallaxGfx, width, height, 0);
-
-    // Ambient floating dust motes
-    this.ambientMotes = this.add.particles(0, 0, "dust_puff", {
-      x: { min: 0, max: width },
-      y: { min: 30, max: height - 50 },
-      lifespan: 3600,
-      speedX: { min: -15, max: 22 },
-      speedY: { min: -8, max: 8 },
-      scale: { start: 0.35, end: 0 },
-      alpha: { start: 0.3, end: 0 },
-      frequency: 220
-    }).setDepth(-16);
-  }
-
-  drawFarDunes(g, width, height, offsetX) {
-    g.clear();
-    // Silhouette Pyramids in the far distance
-    g.fillStyle(0x601a09, 0.85);
-    g.fillTriangle(width * 0.16 + offsetX, height * 0.65, width * 0.30 + offsetX, height * 0.34, width * 0.44 + offsetX, height * 0.65);
-    g.fillTriangle(width * 0.56 + offsetX, height * 0.68, width * 0.72 + offsetX, height * 0.40, width * 0.88 + offsetX, height * 0.68);
-    // Smooth Far Dunes
-    g.fillStyle(0x6e200c, 0.9);
-    g.beginPath();
-    g.moveTo(-40 + offsetX, height * 0.66);
-    g.lineTo(width * 0.25 + offsetX, height * 0.58);
-    g.lineTo(width * 0.60 + offsetX, height * 0.70);
-    g.lineTo(width + 40 + offsetX, height * 0.62);
-    g.lineTo(width + 40 + offsetX, height);
-    g.lineTo(-40 + offsetX, height);
-    g.closePath();
-    g.fillPath();
-  }
-
-  drawMidRuins(g, width, height, offsetX) {
-    g.clear();
-    // Ancient Sandstone Columns
-    g.fillStyle(0x7e250e, 0.8);
-    var colX = [70, 230, 460, 670, 870];
-    for (var i = 0; i < colX.length; i++) {
-      var cx = colX[i] + offsetX;
-      var ch = 110 + (i % 3) * 35;
-      g.fillRoundedRect(cx, height * 0.75 - ch, 24, ch, 4);
-      g.fillStyle(0x8a2c14, 0.95);
-      g.fillRoundedRect(cx - 3, height * 0.75 - ch, 30, 7, 2);
-      g.fillStyle(0x7e250e, 0.8);
     }
   }
 
@@ -2023,13 +1883,6 @@ class GameScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    // ── 🏜️ 2.5D PARALLAX SCROLLING DEPTH ──
-    if (this.farParallaxGfx && this.midParallaxGfx && this.player) {
-      var pRatio = (this.player.x - width / 2) / width;
-      this.drawFarDunes(this.farParallaxGfx, width, height, -pRatio * 20);
-      this.drawMidRuins(this.midParallaxGfx, width, height, -pRatio * 50);
-    }
-
     // ── 🛡️ BOUNDARIES ──
     if (this.player.x < 18) {
       this.player.x = 18;
@@ -2105,45 +1958,6 @@ class GameScene extends Phaser.Scene {
       this.coyoteTimer -= dt;
     }
 
-    // ── 💨 FOOTSTEP DUST PUFF JUICE ──
-    if (onFloor && Math.abs(this.player.body.velocity.x) > 40) {
-      this.dustTimer -= dt;
-      if (this.dustTimer <= 0) {
-        this.dustTimer = 0.16;
-        var dustX = this.player.x + (this.player.flipX ? 8 : -8);
-        this.add.particles(dustX, this.player.y + 16, "dust_puff", {
-          speedX: { min: this.player.flipX ? 15 : -35, max: this.player.flipX ? 35 : -15 },
-          speedY: { min: -15, max: -5 },
-          scale: { start: 0.45, end: 0 },
-          alpha: { start: 0.6, end: 0 },
-          lifespan: 260,
-          quantity: 2
-        });
-      }
-    }
-
-    // ── 🤸 SQUASH & STRETCH LANDING IMPACT JUICE ──
-    if (onFloor && !this.wasOnFloor && this.player.body.velocity.y >= 0) {
-      this.tweens.add({
-        targets: this.player,
-        scaleX: 1.25,
-        scaleY: 0.75,
-        duration: 90,
-        yoyo: true,
-        ease: "Quad.easeOut"
-      });
-      // Dual landing dust clouds
-      this.add.particles(this.player.x, this.player.y + 16, "dust_puff", {
-        speedX: { min: -60, max: 60 },
-        speedY: { min: -25, max: -5 },
-        scale: { start: 0.6, end: 0 },
-        alpha: { start: 0.7, end: 0 },
-        lifespan: 300,
-        quantity: 5
-      });
-    }
-    this.wasOnFloor = onFloor;
-
     var jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
                       Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
                       Phaser.Input.Keyboard.JustDown(this.keyW) ||
@@ -2162,22 +1976,13 @@ class GameScene extends Phaser.Scene {
       this.coyoteTimer = 0;
       AudioEngine.sfxJump();
 
-      // Launch stretch tween + dust
       this.tweens.add({
         targets: this.player,
-        scaleX: 0.78,
-        scaleY: 1.28,
+        scaleX: 0.8,
+        scaleY: 1.25,
         duration: 120,
         yoyo: true,
         ease: "Quad.easeOut"
-      });
-      this.add.particles(this.player.x, this.player.y + 16, "dust_puff", {
-        speedX: { min: -30, max: 30 },
-        speedY: { min: -20, max: 0 },
-        scale: { start: 0.5, end: 0 },
-        alpha: { start: 0.6, end: 0 },
-        lifespan: 250,
-        quantity: 3
       });
     }
 
@@ -2306,9 +2111,27 @@ class GameScene extends Phaser.Scene {
     this.deaths++;
     this.levelDeaths++;
     AudioEngine.sfxDie();
-    this.cameras.main.shake(280, 0.038);
+    this.cameras.main.shake(260, 0.035);
 
     SaveManager.saveDeaths(this.deaths);
+
+    if (this.deathText) this.deathText.setText("💀 " + this.deaths);
+    var deckInfo = document.getElementById("deck-level-info");
+    if (deckInfo) {
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 " + this.deaths + ")";
+    }
+
+    this.player.anims.stop();
+    this.player.setTexture("hero_dead");
+    this.player.setVelocity(0, -250);
+
+    this.add.particles(this.player.x, this.player.y, "part_dot", {
+      speed: { min: 80, max: 260 },
+      scale: { start: 1.1, end: 0 },
+      lifespan: 600,
+      quantity: 24,
+      tint: 0xff4757
+    });
 
     if (this.deathText) {
       this.deathText.setText("💀 LV:" + this.levelDeaths + " | TOT:" + this.deaths);
@@ -2317,32 +2140,6 @@ class GameScene extends Phaser.Scene {
     if (deckInfo) {
       deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + " (💀 LV: " + this.levelDeaths + " · TOT: " + this.deaths + ")";
     }
-
-    this.player.anims.stop();
-    this.player.setTexture("hero_dead");
-    this.player.setVelocity(0, -280);
-
-    // ── 👻 COMIC FLOATING HERO SOUL GHOST ──
-    var soul = this.add.image(this.player.x, this.player.y - 12, "hero_soul").setDepth(150);
-    this.tweens.add({
-      targets: soul,
-      y: soul.y - 65,
-      alpha: 0,
-      scaleX: 1.25,
-      scaleY: 1.25,
-      duration: 520,
-      ease: "Quad.easeOut",
-      onComplete: function() { soul.destroy(); }
-    });
-
-    // ── ✨ COMIC PARTICLES & DEBRIS ──
-    this.add.particles(this.player.x, this.player.y, "part_dot", {
-      speed: { min: 90, max: 280 },
-      scale: { start: 1.25, end: 0 },
-      lifespan: 650,
-      quantity: 26,
-      tint: [0xff4757, 0xffa502, 0xffd32a, 0xffffff]
-    });
 
     // ── 7-Death Threshold Check: Trigger one-time rewarded ad popup offer! ──
     if (this.levelDeaths === MONETIZATION_CONFIG.deathsThreshold && !this.skipOfferUnlocked && !this.skipOfferUsed) {
@@ -2542,24 +2339,15 @@ class GameScene extends Phaser.Scene {
     var theme = WORLD_1_THEME;
 
     var addPlat = function(x, y, w, h) {
-      // Soft Ambient Occlusion Drop Shadow under floating blocks
-      if (y < 420) {
-        self.add.rectangle(x + w/2, y + h + 3, w - 2, 6, 0x000000, 0.24).setDepth(2);
-      }
       var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
       p.setTint(theme.platform);
-      p.setDepth(10);
       self.platforms.add(p);
       return p;
     };
 
     var addFallingPlat = function(x, y, w, h) {
-      if (y < 420) {
-        self.add.rectangle(x + w/2, y + h + 3, w - 2, 6, 0x000000, 0.24).setDepth(2);
-      }
       var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
       p.setTint(theme.platform);
-      p.setDepth(10);
       p.isFallingPlat = true;
       p.stepped = false;
       p.hasFallen = false;
@@ -2571,7 +2359,6 @@ class GameScene extends Phaser.Scene {
     var addSpike = function(x, y) {
       var s = self.spikes.create(x, y, "spike_up");
       s.setTint(theme.spike);
-      s.setDepth(15);
       s.body.setSize(18, 14).setOffset(1, 6);
       return s;
     };
@@ -2583,13 +2370,11 @@ class GameScene extends Phaser.Scene {
       c.isRetracting = false;
       c.body.setImmovable(true);
       c.body.setSize(52, 60);
-      c.setDepth(20);
       return c;
     };
 
     var addTrampoline = function(x, y) {
       var tr = self.trampolines.create(x, y, "tramp_tex");
-      tr.setDepth(12);
       tr.body.setSize(32, 12).setOffset(0, 4);
       return tr;
     };

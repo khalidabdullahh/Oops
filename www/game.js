@@ -1,9 +1,10 @@
 // ═══════════════════════════════════════════════════════════════
-//  Oops! – World 1 Master Edition (v7.0.0)
+//  Oops! – Version v1.02 (2.5D Stylized Edition)
 //  World 1: 30 100% Unique Handcrafted Levels (Zero Repetition)
-//  Comedic 7-Second Intro, True Dual-Orientation (Portrait/Landscape),
+//  2.5D Parallax Background, Platform Depth, Rewarded Ads System
 //  and Complete Troll Puzzle Variety
 // ═══════════════════════════════════════════════════════════════
+var GAME_VERSION = "1.02";
 
 "use strict";
 
@@ -2051,7 +2052,7 @@ class GameScene extends Phaser.Scene {
           var tY = this.exitGate.targetY || (this.exitGate.y - 70);
           
           this.tweens.add({
-            targets: [this.exitGate, this.exitGate.interior, this.exitGate.doorPanel, this.exitGate.doorFrame, this.exitGate.doorAura],
+            targets: [this.exitGate, this.exitGate.interior, this.exitGate.doorPanel, this.exitGate.doorFrame],
             x: tX,
             y: tY,
             duration: 350,
@@ -2512,24 +2513,6 @@ class GameScene extends Phaser.Scene {
   createExitDoor(x, y) {
     var theme = WORLD_1_THEME;
 
-    // Glowing 2.5D Aura behind door
-    var aura = this.add.graphics().setDepth(20);
-    aura.fillStyle(0xffd32a, 0.22);
-    aura.fillCircle(x, y, 32);
-    aura.fillStyle(0xffffff, 0.4);
-    aura.fillCircle(x, y, 16);
-
-    this.tweens.add({
-      targets: aura,
-      scaleX: 1.15,
-      scaleY: 1.15,
-      alpha: 0.7,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut"
-    });
-
     var interior = this.add.image(x, y, "door_interior_tex").setDepth(30);
 
     var trigger = this.physics.add.sprite(x, y, "door_interior_tex");
@@ -2543,7 +2526,6 @@ class GameScene extends Phaser.Scene {
 
     var frame = this.add.image(x, y, "door_frame_tex").setDepth(70);
 
-    trigger.doorAura = aura;
     trigger.interior = interior;
     trigger.doorPanel = panel;
     trigger.doorFrame = frame;

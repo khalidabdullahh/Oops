@@ -1,0 +1,9 @@
+{
+  "appId": "com.chaosrealm.game",
+  "appName": "Oops!",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#0a0000"
+  }
+}
