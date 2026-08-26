@@ -51,11 +51,38 @@ function toggleFullScreen() {
 
 function syncBodyBackground(theme) {
   try {
+    if (!theme) return;
+    var hexBg = (typeof theme.bg === "number")
+      ? "#" + theme.bg.toString(16).padStart(6, "0")
+      : (theme.bg || "#8a2c14");
+
+    document.documentElement.style.setProperty("--world-bg", hexBg);
+    document.documentElement.style.backgroundColor = hexBg;
+    document.body.style.backgroundColor = hexBg;
+    document.body.style.background = hexBg;
+
+    var gc = document.getElementById("game-container");
+    if (gc) {
+      gc.style.backgroundColor = hexBg;
+      gc.style.background = hexBg;
+    }
+
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute("content", hexBg);
+
     var canvas = document.querySelector("canvas");
-    if (canvas && theme) {
-      var accentHex = "#" + (theme.accent || 0xffd32a).toString(16).padStart(6, "0");
-      canvas.style.borderColor = "rgba(255, 255, 255, 0.22)";
-      canvas.style.boxShadow = "0 0 0 1px rgba(0, 0, 0, 0.95), 0 12px 45px rgba(0, 0, 0, 0.88), 0 0 30px " + accentHex + "40";
+    if (canvas) {
+      var isPortrait = window.innerHeight > window.innerWidth;
+      if (isPortrait) {
+        var accentHex = "#" + (theme.accent || 0xffd32a).toString(16).padStart(6, "0");
+        canvas.style.border = "2px solid rgba(255, 255, 255, 0.22)";
+        canvas.style.boxShadow = "0 8px 30px rgba(0, 0, 0, 0.8), 0 0 20px " + accentHex + "40";
+        canvas.style.borderRadius = "8px";
+      } else {
+        canvas.style.border = "none";
+        canvas.style.boxShadow = "none";
+        canvas.style.borderRadius = "0px";
+      }
     }
   } catch(e) {}
 }
@@ -2457,14 +2484,17 @@ window.addEventListener("resize", function() {
   if (window.game && window.game.scale) {
     window.game.scale.refresh();
   }
+  syncBodyBackground(WORLD_1_THEME);
   var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
   var gamepad = document.getElementById("mobile-gamepad");
-  if (gamepad && window.game && window.game.scene.isActive("GameScene")) {
+  if (gamepad && window.game && window.game.scene && window.game.scene.isActive("GameScene")) {
     if (isTouch) {
-      gamepad.style.display = "flex";
+      document.body.classList.add("gamepad-visible");
+      document.body.classList.remove("gamepad-hidden");
       gamepad.classList.remove("hidden");
     } else {
-      gamepad.style.display = "none";
+      document.body.classList.remove("gamepad-visible");
+      document.body.classList.add("gamepad-hidden");
       gamepad.classList.add("hidden");
     }
   }
@@ -2475,6 +2505,7 @@ window.addEventListener("orientationchange", function() {
     if (window.game && window.game.scale) {
       window.game.scale.refresh();
     }
+    syncBodyBackground(WORLD_1_THEME);
   }, 150);
 });
 
