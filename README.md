@@ -6,11 +6,11 @@
 
 <p align="center">
   <em>A totally fair multiverse platformer game 😇</em><br/>
-  <strong><a href="https://oops-snowy-three.vercel.app/">▶ Play Live on Vercel</a></strong> · <strong>Version 1.02</strong>
+  <strong><a href="https://oops-snowy-three.vercel.app/">▶ Play Live on Vercel</a></strong> · <strong>Version 1.03</strong>
 </p>
 
 <p align="center">
-  A deceptive, trap-filled 2D platformer where trust is your biggest weakness and questioning everything is the only way to survive.
+  A deceptive, trap-filled 2D/2.5D platformer where trust is your biggest weakness and questioning everything is the only way to survive.
 </p>
 
 ---
@@ -18,51 +18,33 @@
 ## 🌐 Play Live in Browser:
 👉 **[https://oops-snowy-three.vercel.app/](https://oops-snowy-three.vercel.app/)**
 
-*(Playable on PC, Mac, Android, and iOS browsers directly with zero installations!)*
-
-📋 **[View 150-Level Quality Assurance Audit Report](AUDIT_REPORT.md)**
+*(Playable on PC, Mac, Android, and iOS browsers directly with zero installation required!)*
 
 ---
 
-## 📸 In-Game Screenshots & Conceptual Previews
+## 🛠️ Tech Stack & Engine Architecture
 
-### 🕹️ Title Screen ("Oops!")
-![Oops! Title Screen](screenshots/01_title_screen.jpg)
-
----
-
-### 🏜️ Desert World (Level 1 & 2 — Sneaky Spikes & Vanishing Floors)
-![Desert World Traps](screenshots/02_gameplay_traps.jpg)
-
----
-
-### 🌑 Shadow World (Level 3 & 4 — Moving Buzzsaw Gauntlet & Ice Physics)
-![Shadow World Buzzsaws](screenshots/03_portal_mechanics.jpg)
-
----
-
-### 🌌 Void World (Level 5+ — Teleport Portals & Trampolines)
-![Void World Portals](screenshots/04_death_screen.jpg)
+* **Core Engine**: **Phaser 3.80.1** (`phaser.min.js`, Arcade Physics).
+* **Rendering & Aesthetics**: **2.5D Stylized Visuals** featuring:
+  - Multi-layer real-time parallax desert background (far dunes & mid ruins).
+  - Platform tiles with 3D sunlit top highlights and depth bevel extrusions.
+  - 3D faceted metallic hazard spikes with lighting glints.
+  - Recessed 2.5D steel crushers with glowing eye slits.
+  - 3-part depth portal exit doorways and mechanical spring trampolines.
+* **Sound System**: Procedural **Web Audio API** synthesizer (zero external audio file latency).
+* **Monetization**: Google H5 Games Ads Placement API with 7-death rewarded level-skip flow (`ca-pub-7942277005068512`).
+* **Mobile & Responsive**: Touch gamepad overlay with slide clusters, responsive letterboxed canvas (`960x540` virtual resolution), portrait and landscape support.
+* **Platform Packaging**: Progressive Web App (PWA) + Android ready via Capacitor 5.
 
 ---
 
-### 💀 The "Oops!" Death Screen & Troll Roasts
-![Oops! Death Screen](screenshots/05_character_animations.jpg)
+## 🗺️ Current Content: World 1 (Desert Ruins)
 
----
-
-## 🌟 Multiverse Features
-
-- **5 Unique Worlds (150 Handcrafted Stages):**
-  - 🏜️ **World 1 (Desert Ruins):** Sinking sandstone, pop-up spikes, boulder crushers, and fleeing troll gates.
-  - ❄️ **World 2 (Frost Spire):** Low-friction ice momentum sliding, falling icicles, and blizzard particles.
-  - 🔮 **World 3 (Shadow Crypt):** Mystic obsidian cavern, glowing purple runes, and laser tripwires.
-  - ⚡ **World 4 (Gravity Nexus):** Real-time gravity inversion (`Shift` / `⇄`), ceiling walking, and inverted hazards.
-  - 🌌 **World 5 (Glitch Core):** Flickering glitch tiles, inverted control fields, and singularity final gauntlets.
-- **Cute Cartoon Hero:** Custom animated sprite with idle blinks, run cycles, squashing jumps, and signature "enter door" shrink animations.
-- **Synthesized Web Audio SFX:** Pure Web Audio API retro sound effects and chiptune melodies.
-- **Responsive Mobile Touch Gamepad:** Full on-screen touch controls with multi-touch support for phones and tablets.
-- **Progressive Web App (PWA):** Installable directly on homescreens for full-screen offline gameplay.
+* **Status**: Stable & Frozen Baseline for **v1.03**.
+* **Levels**: **30 Individually Handcrafted Stages** (Levels 1–30, zero auto-generation).
+* **Troll Hazards**: Sinking sandstone, surprise pop-up spikes, boulder crushers, spring trampolines, and fleeing exit gates.
+* **Climax**: Stage 30 Master Singularity leading to the `WorldCompleteScene` victory screen.
+* **Roadmap**: World 2 (Frost Spire) planned for future major release.
 
 ---
 
@@ -70,23 +52,41 @@
 
 | Action | PC / Mac Keyboard | Mobile Touch Gamepad |
 |---|---|---|
-| **Move Left / Right** | `←` / `→` or `A` / `D` | `◀` / `▶` Buttons |
+| **Move Left / Right** | `←` / `→` or `A` / `D` | `◀` / `▶` Buttons (supports touch sliding) |
 | **Jump** | `↑` / `W` / `Space` | `▲ JUMP` Button |
-| **Quick Restart** | `R` | `↺ R` Button |
-| **Toggle Gamepad** | Click `🎮` Icon | Click `🎮` in HUD |
+| **Quick Restart** | `R` | `↺` / `↺ RESTART` Button |
+| **Skip Level (Unlocked)** | Click `📺 SKIP` in HUD | Tap `📺 SKIP` in Portrait Deck |
+| **World Map / Levels** | Click `🗺️` Icon | Tap `🗺️ MAP` in Deck |
+| **Fullscreen Toggle** | Click `⛶` Icon | Browser default fullscreen |
 
 ---
 
 ## 🚀 Run Locally
 
-Simply open `index.html` in any modern web browser or serve it locally:
+Open `index.html` in any modern web browser or serve it locally with Python 3:
 
 ```bash
-# Using Python 3
+# Serve locally
 python3 -m http.server 8000
 ```
 
-Then navigate to `http://localhost:8000` in your browser.
+Then open `http://localhost:8000` in your browser.
+
+---
+
+## 📦 Build & Deploy
+
+* **Web / Vercel**: Static hosting from project root.
+* **Android APK (Capacitor)**:
+  ```bash
+  # 1. Sync web assets to www/
+  cp index.html style.css game.js phaser.min.js manifest.json sw.js favicon.* logo.png www/
+  cp -r icons www/
+
+  # 2. Sync and open in Android Studio
+  npm run cap-sync
+  npm run cap-open
+  ```
 
 ---
 

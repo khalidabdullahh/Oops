@@ -1,10 +1,9 @@
-// ═══════════════════════════════════════════════════════════════
-//  Oops! – Version v1.02 (2.5D Stylized Edition)
-//  World 1: 30 100% Unique Handcrafted Levels (Zero Repetition)
+// =============================================================================
+//  Oops! – Version v1.03 (2.5D Stylized Edition)
+//  A deceptive puzzle-platformer inspired by Level Devil.
 //  2.5D Parallax Background, Platform Depth, Rewarded Ads System
-//  and Complete Troll Puzzle Variety
 // ═══════════════════════════════════════════════════════════════
-var GAME_VERSION = "1.02";
+var GAME_VERSION = "1.03";
 
 "use strict";
 
