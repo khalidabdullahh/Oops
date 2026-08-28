@@ -135,9 +135,11 @@ Player Enters Level ──► Dies 1..6 Times (Normal Respawn)
 
 | File / Directory | Description |
 |:---|:---|
-| [`index.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/index.html) | Main HTML shell, AdSense SDK loader, loader splash, modal overlays, mobile gamepad. |
+| [`index.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/index.html) | Rich indie game website & publisher content portal (Hero, About, Controls guide, World 1, Screenshots, FAQ, Roadmap, Contact). |
+| [`play.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/play.html) | Dedicated playable Phaser 3 game container, 2.5D canvas, mobile gamepad, loader splash, and Google H5 Ads rewarded flow. |
+| [`portal.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/portal.css) | Responsive stylesheet for the main website, guides, and documentation portal. |
 | [`game.js`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js) | Core game script: Phaser scenes, 2.5D assets, 30 levels, physics, monetization manager. |
-| [`style.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/style.css) | Responsive UI styling, modal cards, mobile gamepad layout, policy footer. |
+| [`style.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/style.css) | Responsive UI styling for playable game canvas, touch gamepad layout, and modals. |
 | [`ads.txt`](file:///Users/khalidabdullah/AntiGravity/Oops!/ads.txt) | Google AdSense authorized digital seller verification file. |
 | [`privacy.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/privacy.html) | Google AdSense GDPR/CCPA privacy policy compliance page. |
 | [`terms.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/terms.html) | Terms of Service compliance page. |

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#cc3300"/>
+  <title>Play Oops! – 2.5D Troll Platformer (30 Levels)</title>
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="Play Oops! – 2.5D Platformer Game" />
+  <meta property="og:description" content="Play all 30 handcrafted levels of World 1. Sinking sandstone, pop-up spikes, crushers, and fleeing exit doors!" />
+  <meta property="og:image" content="https://oops-snowy-three.vercel.app/logo.png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="720" />
+  <meta property="og:url" content="https://oops-snowy-three.vercel.app/play.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Play Oops! – 2.5D Platformer Game" />
+  <meta name="twitter:description" content="Play 30 handcrafted levels in your browser with zero installation!" />
+  <meta name="twitter:image" content="https://oops-snowy-three.vercel.app/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+  <link rel="stylesheet" href="style.css?v=1.0.3"/>
+
+  <!-- Google AdSense & H5 Game Ads SDK -->
+  <script async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7942277005068512"
+    crossorigin="anonymous"
+    data-ad-client="ca-pub-7942277005068512"
+    data-ad-frequency-hint="30s"
+    data-adbreak-test="on">
+  </script>
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    var adBreak = adConfig = function(o) { adsbygoogle.push(o); };
+    try {
+      adConfig({ preloadAdBreaks: 'on' });
+    } catch(e) {}
+  </script>
+</head>
+<body class="play-page-body">
+  <!-- Minimal Top Navigation Bar -->
+  <header class="play-top-navbar" id="play-top-navbar">
+    <a href="index.html" class="play-nav-back" title="Return to Game Home &amp; Guide">
+      <span class="nav-arrow">◀</span>
+      <span class="nav-text">Home &amp; Guide</span>
+    </a>
+    <div class="play-nav-badge">
+      <span class="badge-dot"></span>
+      <span class="badge-title">Oops! v1.03</span>
+      <span class="badge-sub">&bull; World 1: 30 Levels</span>
+    </div>
+    <div class="play-nav-tools">
+      <a href="index.html#how-to-play" class="play-nav-btn" title="How to Play / Controls">🎮 Controls</a>
+      <button type="button" id="btn-top-fs" class="play-nav-btn play-fs-trigger" aria-label="Toggle Fullscreen">⛶</button>
+    </div>
+  </header>
+
+  <!-- High-Speed Progressive Splash Loader (Removed upon game load) -->
+  <div id="game-loader">
+    <div class="loader-card">
+      <div class="loader-logo">Oops!</div>
+      <div class="loader-tagline">A TOTALLY FAIR MULTIVERSE</div>
+      <div class="loader-bar-wrap">
+        <div id="loader-bar-fill" class="loader-bar-fill"></div>
+      </div>
+      <div id="loader-status" class="loader-status">STARTING ENGINE (20%)...</div>
+    </div>
+  </div>
+
+  <div id="game-container"></div>
+
+  <!-- In-Game Player Feedback & Bug Report Modal -->
+  <div id="feedback-modal" class="modal-overlay hidden">
+    <div class="feedback-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">💬 PLAYER REPORT &amp; FEEDBACK</div>
+        <button type="button" id="btn-close-feedback" class="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <p class="modal-desc">Share your opinion, report a bug, or suggest improvements directly to GitHub!</p>
+
+      <form id="feedback-form">
+        <div class="form-row">
+          <label for="fb-category">Category</label>
+          <select id="fb-category" class="feedback-input">
+            <option value="💡 Suggestion / Idea">💡 Suggestion / Improvement Idea</option>
+            <option value="🐛 Bug Report">🐛 Bug Report / Glitch</option>
+            <option value="⚖️ Level Difficulty">⚖️ Level Difficulty Balance</option>
+            <option value="🎨 Visual &amp; Sound">🎨 Visual &amp; Audio Feedback</option>
+            <option value="⭐ General Feedback">⭐ General Feedback</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="fb-name">Your Name / Nickname</label>
+          <input type="text" id="fb-name" class="feedback-input" placeholder="e.g. NinjaMaster (optional)" maxlength="40" />
+        </div>
+
+        <div class="form-row">
+          <label for="fb-message">Your Feedback / Improvement Idea</label>
+          <textarea id="fb-message" class="feedback-textarea" rows="3" placeholder="Tell us what you liked, what felt unfair, or how to make Oops! even better..." required></textarea>
+        </div>
+
+        <!-- Image / Screenshot Attachment Section -->
+        <div class="form-row">
+          <label>Attach Screenshot / Image (Optional)</label>
+          <div class="fb-attach-row">
+            <label for="fb-image-input" class="fb-attach-btn">
+              📁 Choose File
+            </label>
+            <input type="file" id="fb-image-input" accept="image/*" class="fb-hidden-file" />
+            
+            <button type="button" id="btn-snap-screen" class="fb-attach-btn fb-snap-btn">
+              📸 Snap Game
+            </button>
+          </div>
+
+          <div id="fb-preview-container" class="fb-preview-box hidden">
+            <img id="fb-preview-img" src="" alt="Screenshot preview" />
+            <div class="fb-preview-info">
+              <span id="fb-preview-name" class="fb-preview-text">screenshot.png</span>
+              <button type="button" id="btn-remove-preview" class="fb-remove-btn" title="Remove image">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fb-meta-info" id="fb-meta-info">
+          📍 Game Context: <span id="fb-curr-world">World 1</span> · <span id="fb-curr-level">Level 1</span> · 💀 <span id="fb-curr-deaths">0</span> Deaths
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-feedback" class="fb-btn-cancel">Cancel</button>
+          <button type="submit" id="btn-submit-feedback" class="fb-btn-submit">🚀 Submit to GitHub</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Rewarded Ad Level-Skip Offer Modal (7-Death Trigger) -->
+  <div id="rewarded-ad-offer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="ad-offer-card">
+      <div class="ad-offer-header">
+        <div class="ad-offer-icon">😈</div>
+        <h2 class="ad-offer-title">OOPS!</h2>
+      </div>
+      <div class="ad-offer-body">
+        <p class="ad-offer-subtitle">Having trouble?</p>
+        <p class="ad-offer-desc">Watch a short ad to skip<br/>this level.</p>
+      </div>
+      <div class="ad-offer-actions">
+        <button type="button" id="btn-ad-watch" class="ad-btn-watch">🎬 WATCH AD</button>
+        <button type="button" id="btn-ad-decline" class="ad-btn-decline">✕ NO THANKS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Ad Player Overlay (Test Mode / Sandbox) -->
+  <div id="simulated-ad-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="sim-ad-card">
+      <div class="sim-ad-badge">🧪 TEST MODE / SIMULATED AD</div>
+      <div class="sim-ad-icon">🎬</div>
+      <p class="sim-ad-title">Simulating Rewarded Ad...</p>
+      <p class="sim-ad-timer" id="sim-ad-countdown">Reward in: 3s</p>
+      <p class="sim-ad-note">(In production, real Google H5 / AdMob video will play here)</p>
+      <div class="sim-ad-actions">
+        <button type="button" id="btn-sim-complete" class="sim-btn-complete">⏩ Complete &amp; Reward</button>
+        <button type="button" id="btn-sim-cancel" class="sim-btn-cancel">❌ Close / Fail Ad</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Responsive On-Screen Mobile Gamepad -->
+  <div id="mobile-gamepad" class="hidden">
+    <!-- Top Deck Info & Quick Actions Bar (Visible in Portrait) -->
+    <div class="gamepad-deck-bar">
+      <div class="deck-info-item" id="deck-level-info">WORLD 1 · LV 1</div>
+      <div class="deck-actions-cluster">
+        <button type="button" id="deck-btn-skip" class="deck-utility-btn deck-btn-skip hidden" aria-label="Skip Level" style="display: none;">📺 SKIP</button>
+        <button type="button" id="deck-btn-restart" class="deck-utility-btn" aria-label="Restart Level">↺ RESTART</button>
+        <button type="button" id="deck-btn-map" class="deck-utility-btn" aria-label="World Map">🗺️ MAP</button>
+      </div>
+    </div>
+
+    <!-- Main Thumb Controls Row -->
+    <div class="gamepad-controls-row">
+      <div class="touch-cluster-left">
+        <button type="button" id="btn-left" class="gamepad-btn gamepad-btn-dir" aria-label="Move Left">◀</button>
+        <button type="button" id="btn-right" class="gamepad-btn gamepad-btn-dir" aria-label="Move Right">▶</button>
+      </div>
+      <div class="touch-cluster-right">
+        <button type="button" id="btn-restart" class="gamepad-btn gamepad-btn-restart" aria-label="Restart Level">↺</button>
+        <button type="button" id="btn-flip" class="gamepad-btn gamepad-btn-flip hidden" aria-label="Flip Gravity">⇄</button>
+        <button type="button" id="btn-jump" class="gamepad-btn gamepad-btn-jump" aria-label="Jump">
+          <span>▲</span>
+          <span class="btn-subtext">JUMP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Surrounding Publisher Support & Policy Footer -->
+  <footer class="site-policy-footer">
+    <div class="policy-links-wrap">
+      <span>&copy; 2026 Oops!</span>
+      <span class="policy-sep">&bull;</span>
+      <a href="index.html">Home &amp; Guide</a>
+      <span class="policy-sep">&bull;</span>
+      <a href="privacy.html">Privacy Policy</a>
+      <span class="policy-sep">&bull;</span>
+      <a href="terms.html">Terms of Service</a>
+      <span class="policy-sep">&bull;</span>
+      <a href="about.html">About &amp; Contact</a>
+    </div>
+  </footer>
+
+  <!-- Script Lifecycle & Direct Engine Loading -->
+  <script>
+    var topFsBtn = document.getElementById("btn-top-fs");
+    if (topFsBtn) {
+      topFsBtn.addEventListener("click", function() {
+        if (typeof toggleFullScreen === "function") toggleFullScreen();
+      });
+    }
+  </script>
+  <script src="phaser.min.js"></script>
+  <script src="game.js?v=1.0.3"></script>
+</body>
+</html>

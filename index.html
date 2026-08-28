@@ -2,32 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="theme-color" content="#cc3300"/>
-  <title>Oops!</title>
-  <link rel="icon" type="image/png" href="favicon.png"/>
-  <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
-  <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="Oops! – Platformer Game" />
-  <meta property="og:description" content="A deceptive, trap-filled multiverse platformer game where trust is your biggest weakness 😇" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="description" content="Oops! is a deceptive 2.5D troll platformer featuring 30 handcrafted puzzle levels in World 1. Master tricky jumps, uncover hidden traps, and escape vanishing floors!" />
+  <meta name="keywords" content="Oops game, 2.5D platformer, troll platformer, Level Devil inspired, puzzle platformer, HTML5 web game, free browser game" />
+  <meta name="author" content="Khalid Abdullah" />
+  <meta name="theme-color" content="#2ed573" />
+  <title>Oops! – Official 2.5D Troll Platformer Game &amp; Level Guide</title>
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Open Graph / Social Sharing Meta Tags -->
+  <meta property="og:title" content="Oops! – Official 2.5D Troll Platformer Game" />
+  <meta property="og:description" content="A deceptive, trap-filled multiverse platformer where trust is your biggest weakness and questioning everything is the only way to survive. Play 30 handcrafted levels free in browser!" />
   <meta property="og:image" content="https://oops-snowy-three.vercel.app/logo.png" />
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
-  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="720" />
   <meta property="og:url" content="https://oops-snowy-three.vercel.app/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Oops! – Platformer Game" />
-  <meta name="twitter:description" content="A totally fair multiverse platformer game 😇" />
+  <meta name="twitter:title" content="Oops! – Official 2.5D Platformer Game" />
+  <meta name="twitter:description" content="Explore 30 handcrafted troll puzzle stages. Playable free on PC, Mac, Android, and iOS browsers with zero download!" />
   <meta name="twitter:image" content="https://oops-snowy-three.vercel.app/logo.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-  <link rel="stylesheet" href="style.css?v=1.0.3"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <link rel="stylesheet" href="portal.css?v=1.0.3" />
 
   <!-- Google AdSense & H5 Game Ads SDK -->
   <script async
@@ -37,181 +40,478 @@
     data-ad-frequency-hint="30s"
     data-adbreak-test="on">
   </script>
-  <script>
-    window.adsbygoogle = window.adsbygoogle || [];
-    var adBreak = adConfig = function(o) { adsbygoogle.push(o); };
-    try {
-      adConfig({ preloadAdBreaks: 'on' });
-    } catch(e) {}
-  </script>
 </head>
 <body>
-  <!-- High-Speed Progressive Splash Loader (Removed upon game load) -->
-  <div id="game-loader">
-    <div class="loader-card">
-      <div class="loader-logo">Oops!</div>
-      <div class="loader-tagline">A TOTALLY FAIR MULTIVERSE</div>
-      <div class="loader-bar-wrap">
-        <div id="loader-bar-fill" class="loader-bar-fill"></div>
-      </div>
-      <div id="loader-status" class="loader-status">STARTING ENGINE (20%)...</div>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-wrap" aria-label="Oops! Game Home">
+        <img src="favicon.png" alt="Oops! Logo" class="brand-icon" width="36" height="36" />
+        <span class="brand-text">Oops!</span>
+        <span class="brand-badge">v1.03</span>
+      </a>
+
+      <nav aria-label="Main Website Navigation">
+        <ul class="nav-menu">
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#how-to-play" class="nav-link">How to Play</a></li>
+          <li><a href="#world1" class="nav-link">World 1</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#screenshots" class="nav-link">Screenshots</a></li>
+          <li><a href="#faq" class="nav-link">FAQ</a></li>
+          <li><a href="play.html" class="nav-play-btn"><span>▶</span> PLAY GAME</a></li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <div id="game-container"></div>
+  <main>
+    <!-- Section 1: Hero / Home -->
+    <section class="hero-section" id="home">
+      <div class="main-wrapper">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badges-row">
+              <span class="hero-pill highlight">🌟 v1.03 Stable Baseline</span>
+              <span class="hero-pill">🏜️ 30 Handcrafted Stages</span>
+              <span class="hero-pill">⚡ Free In-Browser</span>
+            </div>
 
-  <!-- In-Game Player Feedback & Bug Report Modal -->
-  <div id="feedback-modal" class="modal-overlay hidden">
-    <div class="feedback-modal-card">
-      <div class="modal-header">
-        <div class="modal-title">💬 PLAYER REPORT &amp; FEEDBACK</div>
-        <button type="button" id="btn-close-feedback" class="modal-close-btn" aria-label="Close">&times;</button>
-      </div>
-      <p class="modal-desc">Share your opinion, report a bug, or suggest improvements directly to GitHub!</p>
-
-      <form id="feedback-form">
-        <div class="form-row">
-          <label for="fb-category">Category</label>
-          <select id="fb-category" class="feedback-input">
-            <option value="💡 Suggestion / Idea">💡 Suggestion / Improvement Idea</option>
-            <option value="🐛 Bug Report">🐛 Bug Report / Glitch</option>
-            <option value="⚖️ Level Difficulty">⚖️ Level Difficulty Balance</option>
-            <option value="🎨 Visual &amp; Sound">🎨 Visual &amp; Audio Feedback</option>
-            <option value="⭐ General Feedback">⭐ General Feedback</option>
-          </select>
-        </div>
-
-        <div class="form-row">
-          <label for="fb-name">Your Name / Nickname</label>
-          <input type="text" id="fb-name" class="feedback-input" placeholder="e.g. NinjaMaster (optional)" maxlength="40" />
-        </div>
-
-        <div class="form-row">
-          <label for="fb-message">Your Feedback / Improvement Idea</label>
-          <textarea id="fb-message" class="feedback-textarea" rows="3" placeholder="Tell us what you liked, what felt unfair, or how to make Oops! even better..." required></textarea>
-        </div>
-
-        <!-- Image / Screenshot Attachment Section -->
-        <div class="form-row">
-          <label>Attach Screenshot / Image (Optional)</label>
-          <div class="fb-attach-row">
-            <label for="fb-image-input" class="fb-attach-btn">
-              📁 Choose File
-            </label>
-            <input type="file" id="fb-image-input" accept="image/*" class="fb-hidden-file" />
+            <h1 class="hero-title">A Totally Fair <span>2.5D Troll</span> Platformer 😇</h1>
+            <p class="hero-tagline">Where trust is your biggest weakness and questioning everything is the only way to survive.</p>
             
-            <button type="button" id="btn-snap-screen" class="fb-attach-btn fb-snap-btn">
-              📸 Snap Game
-            </button>
+            <p class="hero-desc">
+              Oops! is an indie deceptive puzzle-platformer designed to subvert classic platforming intuition. 
+              Navigate 30 handcrafted stages filled with vanishing sandstones, surprise pop-up spikes, boulder crushers, 
+              and mischievous exit doors that run away as soon as you leap toward them.
+            </p>
+
+            <div class="hero-actions">
+              <a href="play.html" class="btn-primary" id="btn-hero-play">
+                <span>🎮</span> PLAY WORLD 1 FREE
+              </a>
+              <a href="#how-to-play" class="btn-secondary">
+                📖 Read Controls &amp; Tips
+              </a>
+            </div>
           </div>
 
-          <div id="fb-preview-container" class="fb-preview-box hidden">
-            <img id="fb-preview-img" src="" alt="Screenshot preview" />
-            <div class="fb-preview-info">
-              <span id="fb-preview-name" class="fb-preview-text">screenshot.png</span>
-              <button type="button" id="btn-remove-preview" class="fb-remove-btn" title="Remove image">✕</button>
+          <div class="hero-visual-col">
+            <div class="hero-visual-card">
+              <img src="logo.png" alt="Oops! Game 2.5D Platformer Showcase" width="1280" height="720" loading="eager" />
+              <div class="hero-visual-caption">
+                <span>🏜️ Desert Ruins (World 1)</span>
+                <span>Playable on PC, Mac, iOS &amp; Android</span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="fb-meta-info" id="fb-meta-info">
-          📍 Game Context: <span id="fb-curr-world">World 1</span> · <span id="fb-curr-level">Level 1</span> · 💀 <span id="fb-curr-deaths">0</span> Deaths
+    <!-- Section 2: About the Game -->
+    <section class="about-section" id="about">
+      <div class="main-wrapper">
+        <span class="section-tag">Game Overview</span>
+        <h2 class="section-title">What is Oops!?</h2>
+        <p class="section-desc">
+          Inspired by notorious deceptive puzzle games like <em>Level Devil</em>, Oops! was created to challenge 
+          conventional platformer muscle memory. Instead of rewarding blind speedrunning, Oops! challenges you to 
+          observe subtle visual tells, predict trap triggers, and laugh every time an innocent-looking floor drops away.
+        </p>
+
+        <div class="about-grid">
+          <article class="feature-card">
+            <div class="card-icon">📐</div>
+            <h3 class="card-title">2.5D Stylized Visual Depth</h3>
+            <p class="card-desc">
+              Every level features custom multi-layer procedural depth: 3D sunlit top platform rims, front bevel 
+              extrusions, faceted metallic hazard spikes with lighting glints, and a real-time parallax desert background.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="card-icon">🧠</div>
+            <h3 class="card-title">Pure Handcrafted Puzzle Design</h3>
+            <p class="card-desc">
+              Zero algorithmic or procedural generation. Every single block, spike trigger, spring bounce, and crusher 
+              placement in World 1 was manually composed and tuned for a balanced, hilarious trial-and-error progression.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="card-icon">🎵</div>
+            <h3 class="card-title">Procedural Web Audio Engine</h3>
+            <p class="card-desc">
+              Powered by zero-dependency Web Audio API synthesis. Chiptune arpeggios, jump bleeps, crunching crusher 
+              thuds, and portal chimes are generated directly in browser math without heavy static audio file downloads.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: How to Play & Controls -->
+    <section class="controls-section" id="how-to-play">
+      <div class="main-wrapper">
+        <span class="section-tag">Player Manual</span>
+        <h2 class="section-title">How to Play &amp; Controls</h2>
+        <p class="section-desc">
+          Mastering the tight physics engine is key to surviving the deceptive traps of Oops!. 
+          The engine incorporates <strong>0.1s coyote time</strong> (allowing you to jump briefly after leaving an edge) 
+          and <strong>0.1s jump buffering</strong> for responsive acrobatic leaps.
+        </p>
+
+        <div class="controls-layout">
+          <!-- Desktop Controls Box -->
+          <div class="controls-box">
+            <h3 class="controls-box-title">💻 Desktop Keyboard Controls</h3>
+            <table class="key-table">
+              <tbody>
+                <tr>
+                  <td>Move Left / Right</td>
+                  <td><span class="key-badge">A</span> / <span class="key-badge">D</span> or <span class="key-badge">←</span> / <span class="key-badge">→</span></td>
+                </tr>
+                <tr>
+                  <td>Jump</td>
+                  <td><span class="key-badge">W</span> / <span class="key-badge">Space</span> / <span class="key-badge">↑</span></td>
+                </tr>
+                <tr>
+                  <td>Instant Level Restart</td>
+                  <td><span class="key-badge">R</span></td>
+                </tr>
+                <tr>
+                  <td>Toggle Fullscreen</td>
+                  <td><span class="key-badge">⛶ HUD Button</span></td>
+                </tr>
+                <tr>
+                  <td>Level Select Map</td>
+                  <td><span class="key-badge">🗺️ Map Button</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Controls Box -->
+          <div class="controls-box">
+            <h3 class="controls-box-title">📱 Mobile Touch Gamepad</h3>
+            <table class="key-table">
+              <tbody>
+                <tr>
+                  <td>Directional Thumb Cluster</td>
+                  <td>Touch <span class="key-badge">◀</span> or <span class="key-badge">▶</span> (supports smooth thumb sliding)</td>
+                </tr>
+                <tr>
+                  <td>Primary Action</td>
+                  <td>Large bottom-right <span class="key-badge">▲ JUMP</span> button</td>
+                </tr>
+                <tr>
+                  <td>Quick Restart</td>
+                  <td><span class="key-badge">↺</span> button on controls cluster &amp; top deck</td>
+                </tr>
+                <tr>
+                  <td>Level &amp; Death Tracker</td>
+                  <td>Single-line minimal top deck bar: <code>WORLD 1 · LV X 💀 Y</code></td>
+                </tr>
+                <tr>
+                  <td>Orientation Support</td>
+                  <td>Seamless gameplay in both Portrait &amp; Landscape modes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="modal-actions">
-          <button type="button" id="btn-cancel-feedback" class="fb-btn-cancel">Cancel</button>
-          <button type="submit" id="btn-submit-feedback" class="fb-btn-submit">🚀 Submit to GitHub</button>
+        <!-- Pro-Tips Card -->
+        <div class="pro-tips-card">
+          <h4 class="pro-tips-title">💡 Pro-Tips for Surviving Troll Traps</h4>
+          <ul class="pro-tips-list">
+            <li><strong>Watch for subtle platform cracks:</strong> Sandstone blocks that appear slightly darker or have hairline crevices will vanish 0.3s after your boots touch down.</li>
+            <li><strong>Bait before leaping:</strong> When approaching high ceiling gaps, take a small step forward to trigger downward crushers before committing to a full leap.</li>
+            <li><strong>The Exit Gate isn't always stationary:</strong> If an exit door is placed suspiciously close to an edge, prepare for it to rocket into the air or glide backward on proximity!</li>
+          </ul>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    </section>
 
-  <!-- Rewarded Ad Level-Skip Offer Modal (7-Death Trigger) -->
-  <div id="rewarded-ad-offer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-    <div class="ad-offer-card">
-      <div class="ad-offer-header">
-        <div class="ad-offer-icon">😈</div>
-        <h2 class="ad-offer-title">OOPS!</h2>
-      </div>
-      <div class="ad-offer-body">
-        <p class="ad-offer-subtitle">Having trouble?</p>
-        <p class="ad-offer-desc">Watch a short ad to skip<br/>this level.</p>
-      </div>
-      <div class="ad-offer-actions">
-        <button type="button" id="btn-ad-watch" class="ad-btn-watch">🎬 WATCH AD</button>
-        <button type="button" id="btn-ad-decline" class="ad-btn-decline">✕ NO THANKS</button>
-      </div>
-    </div>
-  </div>
+    <!-- Section 4: World 1 (Desert Ruins) -->
+    <section class="world-section" id="world1">
+      <div class="main-wrapper">
+        <span class="section-tag">Active Campaign</span>
+        <h2 class="section-title">World 1: Desert Ruins (30 Handcrafted Stages)</h2>
+        <p class="section-desc">
+          World 1 serves as the complete, frozen baseline for Oops! v1.03. 
+          Each stage introduces new mechanical twists, testing your reflexes, patience, and problem-solving skills.
+        </p>
 
-  <!-- Simulated Ad Player Overlay (Test Mode / Sandbox) -->
-  <div id="simulated-ad-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-    <div class="sim-ad-card">
-      <div class="sim-ad-badge">🧪 TEST MODE / SIMULATED AD</div>
-      <div class="sim-ad-icon">🎬</div>
-      <p class="sim-ad-title">Simulating Rewarded Ad...</p>
-      <p class="sim-ad-timer" id="sim-ad-countdown">Reward in: 3s</p>
-      <p class="sim-ad-note">(In production, real Google H5 / AdMob video will play here)</p>
-      <div class="sim-ad-actions">
-        <button type="button" id="btn-sim-complete" class="sim-btn-complete">⏩ Complete &amp; Reward</button>
-        <button type="button" id="btn-sim-cancel" class="sim-btn-cancel">❌ Close / Fail Ad</button>
-      </div>
-    </div>
-  </div>
+        <div class="world-tracker-wrap">
+          <div class="world-header-row">
+            <div class="world-title-badge">🏜️ WORLD 1 CAMPAIGN BREAKDOWN</div>
+            <span class="world-status-tag">30/30 Levels Available Now</span>
+          </div>
 
-  <!-- Responsive On-Screen Mobile Gamepad -->
-  <div id="mobile-gamepad" class="hidden">
-    <!-- Top Deck Info & Quick Actions Bar (Visible in Portrait) -->
-    <div class="gamepad-deck-bar">
-      <div class="deck-info-item" id="deck-level-info">WORLD 1 · LV 1</div>
-      <div class="deck-actions-cluster">
-        <button type="button" id="deck-btn-skip" class="deck-utility-btn deck-btn-skip hidden" aria-label="Skip Level" style="display: none;">📺 SKIP</button>
-        <button type="button" id="deck-btn-restart" class="deck-utility-btn" aria-label="Restart Level">↺ RESTART</button>
-        <button type="button" id="deck-btn-map" class="deck-utility-btn" aria-label="World Map">🗺️ MAP</button>
-      </div>
-    </div>
+          <div class="world-tiers-grid">
+            <div class="tier-box">
+              <div class="tier-range">STAGES 01 – 05</div>
+              <h4 class="tier-name">First Steps &amp; The Hop</h4>
+              <p class="tier-desc">Learn fundamental running and jump physics while meeting the first sneaky pop-up ground spikes and vanishing sandstone ledges.</p>
+            </div>
 
-    <!-- Main Thumb Controls Row -->
-    <div class="gamepad-controls-row">
-      <div class="touch-cluster-left">
-        <button type="button" id="btn-left" class="gamepad-btn gamepad-btn-dir" aria-label="Move Left">◀</button>
-        <button type="button" id="btn-right" class="gamepad-btn gamepad-btn-dir" aria-label="Move Right">▶</button>
-      </div>
-      <div class="touch-cluster-right">
-        <button type="button" id="btn-restart" class="gamepad-btn gamepad-btn-restart" aria-label="Restart Level">↺</button>
-        <button type="button" id="btn-flip" class="gamepad-btn gamepad-btn-flip hidden" aria-label="Flip Gravity">⇄</button>
-        <button type="button" id="btn-jump" class="gamepad-btn gamepad-btn-jump" aria-label="Jump">
-          <span>▲</span>
-          <span class="btn-subtext">JUMP</span>
-        </button>
-      </div>
-    </div>
-  </div>
+            <div class="tier-box">
+              <div class="tier-range">STAGES 06 – 10</div>
+              <h4 class="tier-name">Crusher Alley &amp; Springs</h4>
+              <p class="tier-desc">Navigate heavy drop crushers with glowing eye slits, precision leaps over subterranean pit hazards, and spring-loaded trampolines.</p>
+            </div>
 
-  <!-- Google AdSense & SEO Policy Footer -->
-  <footer class="site-policy-footer">
-    <div class="policy-links-wrap">
-      <span>&copy; 2026 Oops!</span>
-      <span class="policy-sep">&bull;</span>
-      <a href="privacy.html">Privacy Policy</a>
-      <span class="policy-sep">&bull;</span>
-      <a href="terms.html">Terms of Service</a>
-      <span class="policy-sep">&bull;</span>
-      <a href="about.html">About &amp; Contact</a>
+            <div class="tier-box">
+              <div class="tier-range">STAGES 11 – 20</div>
+              <h4 class="tier-name">Shifting Floors &amp; Fleeing Doors</h4>
+              <p class="tier-desc">False safety reigns supreme. Exit doors sprout thrusters and flee on proximity, requiring fast mid-air directional redirects.</p>
+            </div>
+
+            <div class="tier-box">
+              <div class="tier-range">STAGES 21 – 30</div>
+              <h4 class="tier-name">The Master Desert Singularity</h4>
+              <p class="tier-desc">The ultimate test of precision platforming. Multi-tiered falling columns, staggered crushers, and the grand climax at Stage 30!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Real Game Features -->
+    <section class="features-section" id="features">
+      <div class="main-wrapper">
+        <span class="section-tag">Core Capabilities</span>
+        <h2 class="section-title">Authentic Game Features</h2>
+        <p class="section-desc">Built purely with modern web standards, Oops! delivers a console-quality 60 FPS indie experience directly in any browser.</p>
+
+        <div class="about-grid">
+          <article class="feature-card">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Zero Installation &amp; Instant Boot</h3>
+            <p class="card-desc">No app store download, no plugins. Built on lightweight Phaser 3 with instant local script execution and progressive asset caching.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="card-icon">📺</div>
+            <h3 class="card-title">Fair Rewarded Level-Skip System</h3>
+            <p class="card-desc">Stuck on a punishing stage? After 7 deaths on the same level, an optional one-time rewarded video offer appears to skip ahead, or you can decline and keep trying with a persistent HUD skip button.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="card-icon">💾</div>
+            <h3 class="card-title">Persistent Local Progress</h3>
+            <p class="card-desc">Highest stage unlocked, total death counters, and world progress are securely saved in browser storage so you can pick up where you left off.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">PWA &amp; Mobile Shell Ready</h3>
+            <p class="card-desc">Install directly to your phone's homescreen via Progressive Web App descriptors, or build as a native Android APK via Capacitor 5.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Screenshots Showcase -->
+    <section class="gallery-section" id="screenshots">
+      <div class="main-wrapper">
+        <span class="section-tag">Visual Showcase</span>
+        <h2 class="section-title">In-Game Screenshots &amp; Gameplay</h2>
+        <p class="section-desc">Authentic captures directly from live gameplay in the Oops! engine.</p>
+
+        <div class="gallery-grid">
+          <div class="gallery-card">
+            <div class="gallery-img-wrap">
+              <img src="screenshots/01_title_screen.jpg" alt="Oops! Title Screen and Gamepad Interface" width="600" height="338" loading="lazy" />
+            </div>
+            <div class="gallery-meta">
+              <h4 class="gallery-title">Title Screen &amp; Mobile Gamepad</h4>
+              <p class="gallery-desc">Retro aesthetic with responsive touch buttons and clean HUD.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <div class="gallery-img-wrap">
+              <img src="screenshots/02_gameplay_traps.jpg" alt="Desert Ruins Platforming Traps and Sinking Sandstone" width="600" height="338" loading="lazy" />
+            </div>
+            <div class="gallery-meta">
+              <h4 class="gallery-title">Desert Ruins Platforming</h4>
+              <p class="gallery-desc">Sinking sandstone blocks and hidden spikes awaiting the hero.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <div class="gallery-img-wrap">
+              <img src="screenshots/03_portal_mechanics.jpg" alt="Moving Hazards and Exit Portal Mechanics" width="600" height="338" loading="lazy" />
+            </div>
+            <div class="gallery-meta">
+              <h4 class="gallery-title">Moving Hazards &amp; Portals</h4>
+              <p class="gallery-desc">Dynamic crushing blocks and fleeing troll portal doors.</p>
+            </div>
+          </div>
+
+          <div class="gallery-card">
+            <div class="gallery-img-wrap">
+              <img src="screenshots/04_death_screen.jpg" alt="Comic Ghost Death Screen and Troll Commentary" width="600" height="338" loading="lazy" />
+            </div>
+            <div class="gallery-meta">
+              <h4 class="gallery-title">Comic Death &amp; Ghost Effect</h4>
+              <p class="gallery-desc">Hilarious soul ascent and custom narrator roasts upon defeat.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Player FAQ -->
+    <section class="faq-section" id="faq">
+      <div class="main-wrapper">
+        <span class="section-tag">Help &amp; Answers</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-desc">Common questions from players about gameplay, devices, and monetization.</p>
+
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3 class="faq-question">Is Oops! completely free to play?</h3>
+            <p class="faq-answer">Yes, 100%! Oops! is completely free to play in any modern desktop or mobile browser. There are no paywalls, subscriptions, or pay-to-win microtransactions.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">How many levels are currently available?</h3>
+            <p class="faq-answer">In the current v1.03 release, World 1 (Desert Ruins) contains 30 individually handcrafted stages. All 30 stages are completely distinct with zero procedural repetition.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">Can I play on my phone or tablet?</h3>
+            <p class="faq-answer">Absolutely. Oops! includes a responsive on-screen touch gamepad with directional slide clusters, jump button, and quick restart that automatically adapts to both portrait and landscape screen orientations.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">How does the 7-death level skip work?</h3>
+            <p class="faq-answer">If you find yourself stuck and accumulate 7 deaths on the same level, an optional rewarded ad prompt appears. Watching a short video skips the level. If you decline, a persistent [📺 SKIP] button remains available on the HUD if you change your mind.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">Does Oops! track personal data?</h3>
+            <p class="faq-answer">No personal account is required to play. Level progress and death counts are stored locally on your device via HTML5 LocalStorage. Advertising is served via Google AdSense compliant with GDPR/EEA user consent choices.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">How do I report a glitch or suggest a trap?</h3>
+            <p class="faq-answer">You can use the in-game "💬 Report" button or contact developer Khalid Abdullah directly via email at <a href="mailto:seamafridi123456789@gmail.com" style="color: var(--accent-green);">seamafridi123456789@gmail.com</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: Future Worlds Roadmap -->
+    <section class="roadmap-section" id="roadmap">
+      <div class="main-wrapper">
+        <span class="section-tag">Development Roadmap</span>
+        <h2 class="section-title">Future Expansion Plans</h2>
+        <p class="section-desc">Transparent development status for upcoming multiverse expansions.</p>
+
+        <div class="roadmap-grid">
+          <div class="roadmap-card active">
+            <span class="roadmap-status">CURRENT RELEASE (v1.03)</span>
+            <h3 class="roadmap-title">World 1: Desert Ruins</h3>
+            <p class="roadmap-desc">30 handcrafted levels featuring sandstone crumble, pop-up ground spikes, crushing hammers, spring trampolines, and fleeing exit portals. <strong>Available now.</strong></p>
+          </div>
+
+          <div class="roadmap-card upcoming">
+            <span class="roadmap-status">PLANNED EXPANSION</span>
+            <h3 class="roadmap-title">World 2: Frost Spire</h3>
+            <p class="roadmap-desc">Planned future expansion featuring low-friction ice momentum physics, falling icicle projectiles, blizzard fog shaders, and 50 new handcrafted puzzle stages.</p>
+          </div>
+
+          <div class="roadmap-card planned">
+            <span class="roadmap-status">FUTURE CONCEPT</span>
+            <h3 class="roadmap-title">World 3: Shadow Crypt</h3>
+            <p class="roadmap-desc">Future thematic world featuring obsidian caverns, laser tripwires, torchlight visibility mechanics, and inverted gravity fields.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 9: Developer & Contact -->
+    <section class="contact-section" id="contact">
+      <div class="main-wrapper">
+        <div class="contact-card">
+          <div class="contact-info">
+            <h3 class="contact-info-title">Built with Passion by Khalid Abdullah</h3>
+            <p class="contact-info-text">
+              Oops! is an independent game project built to explore high-performance 2D/2.5D canvas physics, 
+              procedural audio synthesis, and responsive mobile gamepad UI. Inquiries, feedback, and collaborations are warmly welcome.
+            </p>
+          </div>
+
+          <div class="contact-links">
+            <a href="mailto:seamafridi123456789@gmail.com" class="contact-btn">✉️ Contact Email</a>
+            <a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener" class="contact-btn">📂 GitHub Repository</a>
+            <a href="about.html" class="contact-btn">👤 Full Developer Bio</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Portal Footer -->
+  <footer class="portal-footer">
+    <div class="main-wrapper">
+      <div class="footer-top-grid">
+        <div class="footer-col-brand">
+          <div class="footer-brand-title">Oops! 🎮</div>
+          <p class="footer-brand-desc">
+            A deceptive 2.5D troll platformer where questioning every block is the only way to survive. 
+            30 handcrafted stages available free in your browser.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">Game Navigation</div>
+          <ul class="footer-links-list">
+            <li><a href="play.html">▶ Play Game Now</a></li>
+            <li><a href="#about">About the Game</a></li>
+            <li><a href="#how-to-play">Controls &amp; Physics</a></li>
+            <li><a href="#world1">World 1 Campaign</a></li>
+            <li><a href="#screenshots">Screenshots</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">Legal &amp; Policy</div>
+          <ul class="footer-links-list">
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="about.html">About &amp; Contact</a></li>
+            <li><a href="ads.txt">ads.txt Verification</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">Developer</div>
+          <ul class="footer-links-list">
+            <li><a href="https://github.com/khalidabdullahh" target="_blank" rel="noopener">GitHub Profile</a></li>
+            <li><a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener">Oops! Source Code</a></li>
+            <li><a href="mailto:seamafridi123456789@gmail.com">Developer Email</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <span>&copy; 2026 Oops! Platformer Game. All rights reserved. Developed by Khalid Abdullah.</span>
+        <span>Version 1.03 &bull; Hosted on Vercel</span>
+      </div>
     </div>
   </footer>
 
-  <!-- High-Speed Instant Loader & Clean Service Worker Lifecycle -->
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
-      }).catch(function(){});
+    if (window.Capacitor) {
+      window.location.replace("play.html");
     }
   </script>
-  <script src="phaser.min.js"></script>
-  <script src="game.js?v=1.0.3"></script>
 </body>
 </html>
