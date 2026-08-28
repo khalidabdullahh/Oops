@@ -1,0 +1,19 @@
+# robots.txt for Oops! (https://oops-snowy-three.vercel.app/)
+User-agent: *
+Allow: /
+Allow: /play
+Allow: /about
+Allow: /privacy
+Allow: /terms
+Allow: /ads.txt
+Allow: /manifest.json
+Allow: /portal.css
+Allow: /style.css
+Allow: /game.js
+Allow: /phaser.min.js
+Allow: /screenshots/
+Allow: /icons/
+Allow: /logo.png
+Allow: /favicon.png
+
+Sitemap: https://oops-snowy-three.vercel.app/sitemap.xml

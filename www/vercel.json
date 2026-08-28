@@ -9,7 +9,7 @@
       ]
     },
     {
-      "source": "/(phaser.min.js|logo.png|favicon.png|manifest.json)",
+      "source": "/(phaser.min.js|logo.png|favicon.png|manifest.json|robots.txt|sitemap.xml)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]

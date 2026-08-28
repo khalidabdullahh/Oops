@@ -160,3 +160,37 @@ Player Enters Level ──► Dies 1..6 Times (Normal Respawn)
 4. **Always Sync `www/`**: Whenever changes are made to `index.html`, `style.css`, `game.js`, `manifest.json`, or icons, immediately copy them to `www/`.
 5. **No Fake Credentials**: Always preserve the verified AdSense publisher ID (`ca-pub-7942277005068512`).
 6. **No Breaking Framework Migrations**: Keep the code vanilla JavaScript + Phaser 3. Do not introduce Webpack, Vite, React, or unnecessary bundlers.
+
+---
+
+## 10. SEO Architecture & Long-Term Search Strategy
+
+### Primary Semantic Positioning
+* **Primary Entity**: **A Free 2.5D Puzzle/Platformer Browser Game**.
+* **Search Intent Targets**: Puzzle platformer games, 2.5D puzzle games, platform puzzle gameplay, tricky puzzle games, challenging platformer puzzles, free browser puzzle games, trap-based puzzle games.
+* **Branded Search**: `OOPS!`, `Oops! Game`, `Oops platformer`.
+
+### Crawlable Routes & URL Structure
+All routes use Vercel Clean URLs (`cleanUrls: true` in `vercel.json`):
+* `https://oops-snowy-three.vercel.app/` (Home / Guide / Publisher Content Hub)
+* `https://oops-snowy-three.vercel.app/play` (Dedicated Game Container)
+* `https://oops-snowy-three.vercel.app/about` (About Game & Developer Bio)
+* `https://oops-snowy-three.vercel.app/privacy` (Privacy Policy)
+* `https://oops-snowy-three.vercel.app/terms` (Terms of Service)
+
+### Technical SEO Assets
+* [`robots.txt`](file:///Users/khalidabdullah/AntiGravity/Oops!/robots.txt): Explicitly allows crawling of all content routes, styles, scripts, and screenshots, while declaring the canonical sitemap.
+* [`sitemap.xml`](file:///Users/khalidabdullah/AntiGravity/Oops!/sitemap.xml): XML sitemap listing the 5 canonical indexable URLs with priorities and change frequencies.
+* **Canonical Tags**: Every page declares a single authoritative `<link rel="canonical" href="...">`.
+* **Phaser Canvas Separation Rule**: Web crawlers cannot parse interactive Phaser canvas frames as text. All essential descriptions, how-to-play guides, controls tables, level overviews, and FAQs must live in semantic HTML DOM outside the canvas.
+
+### Structured Data (Schema.org) Conventions
+* `index.html`: Contains `@graph` with `WebSite`, `VideoGame` (declaring genre, platforms, author, free offer), and `FAQPage` (matching visible Q&As).
+* `play.html`, `about.html`, `privacy.html`, `terms.html`: Include `BreadcrumbList` for breadcrumb rich snippets.
+* **No Fake Data**: Never inject fabricated ratings, player counts, awards, or fake reviews.
+
+### Editorial & Content Rules
+1. **No Keyword Stuffing**: Integrate puzzle-platformer keywords naturally within context.
+2. **No Doorway Pages or Thin Content**: Maintain comprehensive, genuine content on existing routes instead of generating dozens of thin programmatic pages.
+3. **Image SEO**: All screenshots in `screenshots/` must have descriptive, puzzle-focused `alt` text and explicit `width` and `height` attributes to prevent Cumulative Layout Shift (CLS).
+4. **Internal Linking**: Use descriptive anchor text (`Play OOPS! 2.5D Puzzle Platformer`, `Explore World 1 Stages`) rather than generic `click here`.

@@ -3,30 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <meta name="description" content="Oops! is a deceptive 2.5D troll platformer featuring 30 handcrafted puzzle levels in World 1. Master tricky jumps, uncover hidden traps, and escape vanishing floors!" />
-  <meta name="keywords" content="Oops game, 2.5D platformer, troll platformer, Level Devil inspired, puzzle platformer, HTML5 web game, free browser game" />
+  <title>OOPS! — Free 2.5D Puzzle Platformer Browser Game (30 Levels)</title>
+  <meta name="description" content="Play OOPS!, a free 2.5D puzzle platformer browser game with 30 handcrafted levels. Solve tricky traps, learn deceptive patterns, and escape vanishing floors directly in your browser." />
+  <meta name="keywords" content="puzzle platformer, 2.5D puzzle game, platform puzzle game, tricky puzzle game, challenging platformer puzzles, free browser puzzle game, OOPS game, trap platformer" />
   <meta name="author" content="Khalid Abdullah" />
   <meta name="theme-color" content="#2ed573" />
-  <title>Oops! – Official 2.5D Troll Platformer Game &amp; Level Guide</title>
+  <link rel="canonical" href="https://oops-snowy-three.vercel.app/" />
 
+  <!-- Icons & PWA Manifest -->
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
 
-  <!-- Open Graph / Social Sharing Meta Tags -->
-  <meta property="og:title" content="Oops! – Official 2.5D Troll Platformer Game" />
-  <meta property="og:description" content="A deceptive, trap-filled multiverse platformer where trust is your biggest weakness and questioning everything is the only way to survive. Play 30 handcrafted levels free in browser!" />
+  <!-- Open Graph / Facebook / Discord -->
+  <meta property="og:site_name" content="OOPS! Game" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="OOPS! — Free 2.5D Puzzle Platformer Browser Game" />
+  <meta property="og:description" content="A tricky, trap-based 2.5D puzzle platformer where observation, deduction, and pattern learning are the only ways to survive. Play 30 handcrafted levels free in your browser." />
+  <meta property="og:url" content="https://oops-snowy-three.vercel.app/" />
   <meta property="og:image" content="https://oops-snowy-three.vercel.app/logo.png" />
   <meta property="og:image:width" content="1280" />
   <meta property="og:image:height" content="720" />
-  <meta property="og:url" content="https://oops-snowy-three.vercel.app/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Oops! – Official 2.5D Platformer Game" />
-  <meta name="twitter:description" content="Explore 30 handcrafted troll puzzle stages. Playable free on PC, Mac, Android, and iOS browsers with zero download!" />
-  <meta name="twitter:image" content="https://oops-snowy-three.vercel.app/logo.png" />
+  <meta property="og:image:alt" content="OOPS! 2.5D puzzle platformer title banner showing cartoon ninja hero and desert trap environment" />
 
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="OOPS! — Free 2.5D Puzzle Platformer Browser Game" />
+  <meta name="twitter:description" content="Play 30 handcrafted puzzle platformer stages online. Deceptive traps, vanishing sandstone, and fleeing exit portals!" />
+  <meta name="twitter:image" content="https://oops-snowy-three.vercel.app/logo.png" />
+  <meta name="twitter:image:alt" content="OOPS! game showcase banner" />
+
+  <!-- Performance & Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
@@ -40,27 +48,130 @@
     data-ad-frequency-hint="30s"
     data-adbreak-test="on">
   </script>
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://oops-snowy-three.vercel.app/#website",
+        "url": "https://oops-snowy-three.vercel.app/",
+        "name": "OOPS!",
+        "description": "Official website for OOPS!, a free 2.5D puzzle platformer browser game.",
+        "inLanguage": "en-US",
+        "publisher": {
+          "@type": "Person",
+          "name": "Khalid Abdullah",
+          "email": "seamafridi123456789@gmail.com"
+        }
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "https://oops-snowy-three.vercel.app/#game",
+        "name": "OOPS!",
+        "url": "https://oops-snowy-three.vercel.app/play",
+        "image": "https://oops-snowy-three.vercel.app/logo.png",
+        "description": "OOPS! is a challenging 2.5D puzzle platformer where players navigate 30 handcrafted levels filled with deceptive traps, vanishing floors, drop crushers, and fleeing exit portals.",
+        "genre": ["Puzzle Platformer", "2.5D Platformer", "Trap Game", "Action-Puzzle"],
+        "gamePlatform": ["Web Browser", "PC", "Mac", "Android", "iOS"],
+        "applicationCategory": "Game",
+        "operatingSystem": "Any (Web Browser with HTML5 Canvas / WebGL support)",
+        "playMode": "SinglePlayer",
+        "numberOfPlayers": {
+          "@type": "QuantitativeValue",
+          "value": 1
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Khalid Abdullah"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://oops-snowy-three.vercel.app/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is OOPS! completely free to play?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, OOPS! is 100% free to play directly in any modern desktop or mobile web browser. There are no paywalls, microtransactions, or subscription fees required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What makes OOPS! a puzzle platformer rather than a normal runner?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Unlike standard speed-based platformers, OOPS! requires intellectual deduction. Players must observe subtle environmental clues, deduce hidden trigger mechanisms, learn deceptive trap patterns, and calibrate jump timing to solve each stage's puzzle."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How many levels are available in World 1?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "In the current v1.03 release, World 1 (Desert Ruins) contains exactly 30 individually handcrafted puzzle stages with zero algorithmic repetition, culminating in the Stage 30 Master Singularity."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I play OOPS! on mobile devices in both portrait and landscape?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. OOPS! features a fully responsive HTML5 touch gamepad with directional slide clusters, jump button, and quick restart that adapts naturally to mobile portrait, mobile landscape, tablet, and desktop viewports without forced orientation locks."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the 7-death rewarded level-skip system work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When a player dies 7 times on the same difficult level, an optional rewarded ad offer appears. Watching the short video grants an immediate level skip with death count reset. Declining the offer permanently unlocks a discreet [📺 SKIP] button on the HUD for voluntary use later."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does OOPS! collect personal player data?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No account registration or personal data collection is required to play. Game progress and stage unlocks are saved locally on your device via HTML5 LocalStorage, and advertising complies with standard Google CMP user consent frameworks."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
   <!-- Top Sticky Navigation Bar -->
   <header class="site-header">
     <div class="nav-container">
-      <a href="index.html" class="brand-wrap" aria-label="Oops! Game Home">
-        <img src="favicon.png" alt="Oops! Logo" class="brand-icon" width="36" height="36" />
-        <span class="brand-text">Oops!</span>
+      <a href="https://oops-snowy-three.vercel.app/" class="brand-wrap" aria-label="OOPS! Game Home">
+        <img src="favicon.png" alt="OOPS! Logo Icon" class="brand-icon" width="36" height="36" />
+        <span class="brand-text">OOPS!</span>
         <span class="brand-badge">v1.03</span>
       </a>
 
       <nav aria-label="Main Website Navigation">
         <ul class="nav-menu">
-          <li><a href="#about" class="nav-link">About</a></li>
-          <li><a href="#how-to-play" class="nav-link">How to Play</a></li>
-          <li><a href="#world1" class="nav-link">World 1</a></li>
+          <li><a href="#about" class="nav-link">About Puzzle Mechanics</a></li>
+          <li><a href="#how-to-play" class="nav-link">Controls &amp; Physics</a></li>
+          <li><a href="#world1" class="nav-link">World 1 Stages</a></li>
           <li><a href="#features" class="nav-link">Features</a></li>
           <li><a href="#screenshots" class="nav-link">Screenshots</a></li>
           <li><a href="#faq" class="nav-link">FAQ</a></li>
-          <li><a href="play.html" class="nav-play-btn"><span>▶</span> PLAY GAME</a></li>
+          <li><a href="play.html" class="nav-play-btn"><span>▶</span> PLAY OOPS! FREE</a></li>
         </ul>
       </nav>
     </div>
@@ -74,34 +185,35 @@
           <div class="hero-content">
             <div class="hero-badges-row">
               <span class="hero-pill highlight">🌟 v1.03 Stable Baseline</span>
+              <span class="hero-pill">🧩 2.5D Puzzle Platformer</span>
               <span class="hero-pill">🏜️ 30 Handcrafted Stages</span>
               <span class="hero-pill">⚡ Free In-Browser</span>
             </div>
 
-            <h1 class="hero-title">A Totally Fair <span>2.5D Troll</span> Platformer 😇</h1>
+            <h1 class="hero-title">Free 2.5D <span>Puzzle Platformer</span> Browser Game 😇</h1>
             <p class="hero-tagline">Where trust is your biggest weakness and questioning everything is the only way to survive.</p>
             
             <p class="hero-desc">
-              Oops! is an indie deceptive puzzle-platformer designed to subvert classic platforming intuition. 
-              Navigate 30 handcrafted stages filled with vanishing sandstones, surprise pop-up spikes, boulder crushers, 
-              and mischievous exit doors that run away as soon as you leap toward them.
+              OOPS! is a deceptive 2.5D puzzle platformer designed to subvert classic platforming expectations. 
+              Instead of rushing blindly through stages, you must observe environments, deduce hidden trigger mechanisms, 
+              survive sudden vanishing sandstones, outsmart heavy drop crushers, and catch tricky exit portals that flee the moment you jump toward them.
             </p>
 
             <div class="hero-actions">
               <a href="play.html" class="btn-primary" id="btn-hero-play">
-                <span>🎮</span> PLAY WORLD 1 FREE
+                <span>🎮</span> PLAY OOPS! IN BROWSER
               </a>
               <a href="#how-to-play" class="btn-secondary">
-                📖 Read Controls &amp; Tips
+                📖 Learn Controls &amp; Puzzle Tips
               </a>
             </div>
           </div>
 
           <div class="hero-visual-col">
             <div class="hero-visual-card">
-              <img src="logo.png" alt="Oops! Game 2.5D Platformer Showcase" width="1280" height="720" loading="eager" />
+              <img src="logo.png" alt="OOPS! 2.5D puzzle platformer official banner showing cartoon ninja character in a trap-filled desert ruins stage" width="1280" height="720" loading="eager" />
               <div class="hero-visual-caption">
-                <span>🏜️ Desert Ruins (World 1)</span>
+                <span>🏜️ World 1: Desert Ruins (30 Handcrafted Levels)</span>
                 <span>Playable on PC, Mac, iOS &amp; Android</span>
               </div>
             </div>
@@ -110,44 +222,72 @@
       </div>
     </section>
 
-    <!-- Section 2: About the Game -->
+    <!-- Section 2: About the Game & Puzzle Dimensions -->
     <section class="about-section" id="about">
       <div class="main-wrapper">
-        <span class="section-tag">Game Overview</span>
-        <h2 class="section-title">What is Oops!?</h2>
+        <span class="section-tag">Game Design &amp; Philosophy</span>
+        <h2 class="section-title">What Makes OOPS! a Unique 2.5D Puzzle Platformer?</h2>
         <p class="section-desc">
-          Inspired by notorious deceptive puzzle games like <em>Level Devil</em>, Oops! was created to challenge 
-          conventional platformer muscle memory. Instead of rewarding blind speedrunning, Oops! challenges you to 
-          observe subtle visual tells, predict trap triggers, and laugh every time an innocent-looking floor drops away.
+          Inspired by celebrated deceptive puzzle games such as <em>Level Devil</em> and classic precision platformers, 
+          OOPS! bridges high-speed acrobatic platforming with intellectual spatial deduction. 
+          Every level is a miniature logic puzzle wrapped in a retro action obstacle course.
         </p>
 
+        <!-- Core Mechanics Grid -->
         <div class="about-grid">
           <article class="feature-card">
             <div class="card-icon">📐</div>
-            <h3 class="card-title">2.5D Stylized Visual Depth</h3>
+            <h3 class="card-title">2.5D Visual Depth &amp; Parallax</h3>
             <p class="card-desc">
-              Every level features custom multi-layer procedural depth: 3D sunlit top platform rims, front bevel 
-              extrusions, faceted metallic hazard spikes with lighting glints, and a real-time parallax desert background.
+              Rendered with custom multi-layer procedural depth: 3D sunlit platform rim highlights, front depth bevel extrusions, 
+              faceted metallic hazard spikes with lighting glints, and a dynamic real-time parallax desert background that shifts with player momentum.
             </p>
           </article>
 
           <article class="feature-card">
             <div class="card-icon">🧠</div>
-            <h3 class="card-title">Pure Handcrafted Puzzle Design</h3>
+            <h3 class="card-title">Observation &amp; Pattern Deduction</h3>
             <p class="card-desc">
-              Zero algorithmic or procedural generation. Every single block, spike trigger, spring bounce, and crusher 
-              placement in World 1 was manually composed and tuned for a balanced, hilarious trial-and-error progression.
+              Surviving in OOPS! requires you to read the room. Subtle discoloration in sandstone tiles signals vanishing ground, 
+              while slight ceiling crevices hint at downward-crushing blocks. Success comes from analytical experimentation.
             </p>
           </article>
 
           <article class="feature-card">
             <div class="card-icon">🎵</div>
-            <h3 class="card-title">Procedural Web Audio Engine</h3>
+            <h3 class="card-title">Zero-Asset Web Audio Synthesis</h3>
             <p class="card-desc">
-              Powered by zero-dependency Web Audio API synthesis. Chiptune arpeggios, jump bleeps, crunching crusher 
-              thuds, and portal chimes are generated directly in browser math without heavy static audio file downloads.
+              Powered entirely by procedural Web Audio API synthesis. Chiptune melodies, bouncy spring oscillations, metallic crusher slams, 
+              and comic death thuds are generated mathematically in real time with zero external audio file latency.
             </p>
           </article>
+        </div>
+
+        <!-- Dedicated Puzzle Deep Dive Subsection -->
+        <div style="margin-top: 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px;">
+          <h3 style="font-size: 20px; font-weight: 700; color: var(--accent-gold); margin-bottom: 14px;">🧩 The Four Pillars of OOPS! Puzzle Solving</h3>
+          <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 20px;">
+            In traditional platformers, you run forward and jump across gaps. In OOPS!, that mindset guarantees a quick demise. 
+            Mastering the game requires adopting four analytical habits:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+            <div style="background: rgba(0,0,0,0.25); padding: 18px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 6px;">1. Environmental Observation</h4>
+              <p style="color: var(--text-muted); font-size: 13.5px;">Inspect tiles before moving. Unstable sandstone has faint hairline fractures, while ground with hidden spikes often exhibits subtle geometric tells.</p>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 18px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 6px;">2. Trigger Decoupling</h4>
+              <p style="color: var(--text-muted); font-size: 13.5px;">Not all traps trigger upon foot contact. Some drop when you pass beneath them, while others deploy precisely at the highest point of your jump arc.</p>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 18px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 6px;">3. Spatial Route Calibration</h4>
+              <p style="color: var(--text-muted); font-size: 13.5px;">The obvious route is often a decoy. Solving a level may require baiting a crusher into smashing first, clearing a safe alternate path to the real goal.</p>
+            </div>
+            <div style="background: rgba(0,0,0,0.25); padding: 18px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 6px;">4. Adaptive Failure</h4>
+              <p style="color: var(--text-muted); font-size: 13.5px;">Every death is a clue. When a door suddenly flees from your landing point, use your next attempt to anticipate its trajectory and intercept it mid-flight.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -155,12 +295,11 @@
     <!-- Section 3: How to Play & Controls -->
     <section class="controls-section" id="how-to-play">
       <div class="main-wrapper">
-        <span class="section-tag">Player Manual</span>
-        <h2 class="section-title">How to Play &amp; Controls</h2>
+        <span class="section-tag">Player Handbook</span>
+        <h2 class="section-title">How to Play &amp; Master Platform Puzzle Physics</h2>
         <p class="section-desc">
-          Mastering the tight physics engine is key to surviving the deceptive traps of Oops!. 
-          The engine incorporates <strong>0.1s coyote time</strong> (allowing you to jump briefly after leaving an edge) 
-          and <strong>0.1s jump buffering</strong> for responsive acrobatic leaps.
+          OOPS! features responsive platformer physics engineered with <strong>0.1s coyote time</strong> (allowing you to jump briefly after walking off an edge) 
+          and <strong>0.1s jump buffering</strong> (remembering your jump press right before touchdown) for surgical jumping precision.
         </p>
 
         <div class="controls-layout">
@@ -174,7 +313,7 @@
                   <td><span class="key-badge">A</span> / <span class="key-badge">D</span> or <span class="key-badge">←</span> / <span class="key-badge">→</span></td>
                 </tr>
                 <tr>
-                  <td>Jump</td>
+                  <td>Jump / Leap</td>
                   <td><span class="key-badge">W</span> / <span class="key-badge">Space</span> / <span class="key-badge">↑</span></td>
                 </tr>
                 <tr>
@@ -182,7 +321,7 @@
                   <td><span class="key-badge">R</span></td>
                 </tr>
                 <tr>
-                  <td>Toggle Fullscreen</td>
+                  <td>Toggle Fullscreen Mode</td>
                   <td><span class="key-badge">⛶ HUD Button</span></td>
                 </tr>
                 <tr>
@@ -200,11 +339,11 @@
               <tbody>
                 <tr>
                   <td>Directional Thumb Cluster</td>
-                  <td>Touch <span class="key-badge">◀</span> or <span class="key-badge">▶</span> (supports smooth thumb sliding)</td>
+                  <td>Touch <span class="key-badge">◀</span> or <span class="key-badge">▶</span> (supports smooth thumb sliding across buttons)</td>
                 </tr>
                 <tr>
-                  <td>Primary Action</td>
-                  <td>Large bottom-right <span class="key-badge">▲ JUMP</span> button</td>
+                  <td>Primary Jump Action</td>
+                  <td>Dedicated bottom-right <span class="key-badge">▲ JUMP</span> button</td>
                 </tr>
                 <tr>
                   <td>Quick Restart</td>
@@ -225,11 +364,11 @@
 
         <!-- Pro-Tips Card -->
         <div class="pro-tips-card">
-          <h4 class="pro-tips-title">💡 Pro-Tips for Surviving Troll Traps</h4>
+          <h4 class="pro-tips-title">💡 Tactical Tips for Difficult Puzzle Levels</h4>
           <ul class="pro-tips-list">
-            <li><strong>Watch for subtle platform cracks:</strong> Sandstone blocks that appear slightly darker or have hairline crevices will vanish 0.3s after your boots touch down.</li>
             <li><strong>Bait before leaping:</strong> When approaching high ceiling gaps, take a small step forward to trigger downward crushers before committing to a full leap.</li>
-            <li><strong>The Exit Gate isn't always stationary:</strong> If an exit door is placed suspiciously close to an edge, prepare for it to rocket into the air or glide backward on proximity!</li>
+            <li><strong>Expect the exit gate to move:</strong> If an exit door is placed suspiciously near a sheer drop, prepare for it to rocket into the air or glide backward on proximity!</li>
+            <li><strong>Spring trampolines store momentum:</strong> Hitting a mechanical spring coil launches you significantly higher than a standard jump. Adjust your horizontal drift carefully to avoid ceiling spikes.</li>
           </ul>
         </div>
       </div>
@@ -238,16 +377,16 @@
     <!-- Section 4: World 1 (Desert Ruins) -->
     <section class="world-section" id="world1">
       <div class="main-wrapper">
-        <span class="section-tag">Active Campaign</span>
+        <span class="section-tag">Active Puzzle Campaign</span>
         <h2 class="section-title">World 1: Desert Ruins (30 Handcrafted Stages)</h2>
         <p class="section-desc">
-          World 1 serves as the complete, frozen baseline for Oops! v1.03. 
-          Each stage introduces new mechanical twists, testing your reflexes, patience, and problem-solving skills.
+          World 1 serves as the complete, frozen baseline for OOPS! v1.03. 
+          All 30 levels are 100% handcrafted with zero procedural filler, progressively introducing new environmental puzzle mechanics.
         </p>
 
         <div class="world-tracker-wrap">
           <div class="world-header-row">
-            <div class="world-title-badge">🏜️ WORLD 1 CAMPAIGN BREAKDOWN</div>
+            <div class="world-title-badge">🏜️ WORLD 1 PUZZLE STAGE BREAKDOWN</div>
             <span class="world-status-tag">30/30 Levels Available Now</span>
           </div>
 
@@ -255,25 +394,25 @@
             <div class="tier-box">
               <div class="tier-range">STAGES 01 – 05</div>
               <h4 class="tier-name">First Steps &amp; The Hop</h4>
-              <p class="tier-desc">Learn fundamental running and jump physics while meeting the first sneaky pop-up ground spikes and vanishing sandstone ledges.</p>
+              <p class="tier-desc">Master fundamental running and jump buffering while meeting the first sneaky pop-up ground spikes and vanishing sandstone ledges.</p>
             </div>
 
             <div class="tier-box">
               <div class="tier-range">STAGES 06 – 10</div>
               <h4 class="tier-name">Crusher Alley &amp; Springs</h4>
-              <p class="tier-desc">Navigate heavy drop crushers with glowing eye slits, precision leaps over subterranean pit hazards, and spring-loaded trampolines.</p>
+              <p class="tier-desc">Navigate heavy drop crushers with glowing eye slits, precision leaps over subterranean pit hazards, and secret mechanical trampolines.</p>
             </div>
 
             <div class="tier-box">
               <div class="tier-range">STAGES 11 – 20</div>
               <h4 class="tier-name">Shifting Floors &amp; Fleeing Doors</h4>
-              <p class="tier-desc">False safety reigns supreme. Exit doors sprout thrusters and flee on proximity, requiring fast mid-air directional redirects.</p>
+              <p class="tier-desc">False safety reigns supreme. Exit doors sprout thrusters and flee on proximity, requiring fast mid-air directional redirects and spatial timing.</p>
             </div>
 
             <div class="tier-box">
               <div class="tier-range">STAGES 21 – 30</div>
               <h4 class="tier-name">The Master Desert Singularity</h4>
-              <p class="tier-desc">The ultimate test of precision platforming. Multi-tiered falling columns, staggered crushers, and the grand climax at Stage 30!</p>
+              <p class="tier-desc">The ultimate test of precision puzzle platforming. Multi-tiered falling columns, staggered crushers, and the grand climax at Stage 30!</p>
             </div>
           </div>
         </div>
@@ -284,8 +423,8 @@
     <section class="features-section" id="features">
       <div class="main-wrapper">
         <span class="section-tag">Core Capabilities</span>
-        <h2 class="section-title">Authentic Game Features</h2>
-        <p class="section-desc">Built purely with modern web standards, Oops! delivers a console-quality 60 FPS indie experience directly in any browser.</p>
+        <h2 class="section-title">Authentic Game Features &amp; Architecture</h2>
+        <p class="section-desc">Built purely with modern web standards, OOPS! delivers a console-quality 60 FPS indie experience directly in any browser.</p>
 
         <div class="about-grid">
           <article class="feature-card">
@@ -297,13 +436,13 @@
           <article class="feature-card">
             <div class="card-icon">📺</div>
             <h3 class="card-title">Fair Rewarded Level-Skip System</h3>
-            <p class="card-desc">Stuck on a punishing stage? After 7 deaths on the same level, an optional one-time rewarded video offer appears to skip ahead, or you can decline and keep trying with a persistent HUD skip button.</p>
+            <p class="card-desc">Stuck on a punishing puzzle? After 7 deaths on the same stage, an optional one-time rewarded video offer appears to skip ahead, or you can decline and keep trying with a persistent HUD skip button.</p>
           </article>
 
           <article class="feature-card">
             <div class="card-icon">💾</div>
             <h3 class="card-title">Persistent Local Progress</h3>
-            <p class="card-desc">Highest stage unlocked, total death counters, and world progress are securely saved in browser storage so you can pick up where you left off.</p>
+            <p class="card-desc">Highest stage unlocked, total death counters, and world progress are securely saved in browser storage so you can resume your campaign at any time.</p>
           </article>
 
           <article class="feature-card">
@@ -319,13 +458,13 @@
     <section class="gallery-section" id="screenshots">
       <div class="main-wrapper">
         <span class="section-tag">Visual Showcase</span>
-        <h2 class="section-title">In-Game Screenshots &amp; Gameplay</h2>
-        <p class="section-desc">Authentic captures directly from live gameplay in the Oops! engine.</p>
+        <h2 class="section-title">In-Game Screenshots &amp; Gameplay Showcase</h2>
+        <p class="section-desc">Authentic captures directly from live gameplay in the OOPS! 2.5D engine.</p>
 
         <div class="gallery-grid">
           <div class="gallery-card">
             <div class="gallery-img-wrap">
-              <img src="screenshots/01_title_screen.jpg" alt="Oops! Title Screen and Gamepad Interface" width="600" height="338" loading="lazy" />
+              <img src="screenshots/01_title_screen.jpg" alt="OOPS! title screen showing retro arcade UI and mobile touch controls" width="600" height="338" loading="lazy" />
             </div>
             <div class="gallery-meta">
               <h4 class="gallery-title">Title Screen &amp; Mobile Gamepad</h4>
@@ -335,7 +474,7 @@
 
           <div class="gallery-card">
             <div class="gallery-img-wrap">
-              <img src="screenshots/02_gameplay_traps.jpg" alt="Desert Ruins Platforming Traps and Sinking Sandstone" width="600" height="338" loading="lazy" />
+              <img src="screenshots/02_gameplay_traps.jpg" alt="Desert Ruins stage 2.5D platforming puzzle showing sinking sandstone blocks and ground spikes" width="600" height="338" loading="lazy" />
             </div>
             <div class="gallery-meta">
               <h4 class="gallery-title">Desert Ruins Platforming</h4>
@@ -345,7 +484,7 @@
 
           <div class="gallery-card">
             <div class="gallery-img-wrap">
-              <img src="screenshots/03_portal_mechanics.jpg" alt="Moving Hazards and Exit Portal Mechanics" width="600" height="338" loading="lazy" />
+              <img src="screenshots/03_portal_mechanics.jpg" alt="Puzzle trap mechanics showing dynamic mechanical crushers and fleeing exit portal door" width="600" height="338" loading="lazy" />
             </div>
             <div class="gallery-meta">
               <h4 class="gallery-title">Moving Hazards &amp; Portals</h4>
@@ -355,7 +494,7 @@
 
           <div class="gallery-card">
             <div class="gallery-img-wrap">
-              <img src="screenshots/04_death_screen.jpg" alt="Comic Ghost Death Screen and Troll Commentary" width="600" height="338" loading="lazy" />
+              <img src="screenshots/04_death_screen.jpg" alt="Comic ghost death screen in OOPS! with playful narrator commentary after a trap failure" width="600" height="338" loading="lazy" />
             </div>
             <div class="gallery-meta">
               <h4 class="gallery-title">Comic Death &amp; Ghost Effect</h4>
@@ -369,39 +508,39 @@
     <!-- Section 7: Player FAQ -->
     <section class="faq-section" id="faq">
       <div class="main-wrapper">
-        <span class="section-tag">Help &amp; Answers</span>
+        <span class="section-tag">Player Help &amp; FAQ</span>
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="section-desc">Common questions from players about gameplay, devices, and monetization.</p>
+        <p class="section-desc">Common questions from players regarding gameplay, devices, and puzzle mechanics.</p>
 
         <div class="faq-grid">
           <div class="faq-item">
-            <h3 class="faq-question">Is Oops! completely free to play?</h3>
-            <p class="faq-answer">Yes, 100%! Oops! is completely free to play in any modern desktop or mobile browser. There are no paywalls, subscriptions, or pay-to-win microtransactions.</p>
+            <h3 class="faq-question">Is OOPS! completely free to play?</h3>
+            <p class="faq-answer">Yes, 100%! OOPS! is completely free to play in any modern desktop or mobile web browser. There are no paywalls, subscriptions, or pay-to-win microtransactions.</p>
           </div>
 
           <div class="faq-item">
-            <h3 class="faq-question">How many levels are currently available?</h3>
-            <p class="faq-answer">In the current v1.03 release, World 1 (Desert Ruins) contains 30 individually handcrafted stages. All 30 stages are completely distinct with zero procedural repetition.</p>
+            <h3 class="faq-question">What makes OOPS! a puzzle platformer?</h3>
+            <p class="faq-answer">Rather than relying solely on speed, OOPS! requires you to observe environmental clues, deduce trap trigger conditions, learn deceptive movement patterns, and solve spatial timing challenges to clear each stage.</p>
           </div>
 
           <div class="faq-item">
-            <h3 class="faq-question">Can I play on my phone or tablet?</h3>
-            <p class="faq-answer">Absolutely. Oops! includes a responsive on-screen touch gamepad with directional slide clusters, jump button, and quick restart that automatically adapts to both portrait and landscape screen orientations.</p>
+            <h3 class="faq-question">How many levels are available in World 1?</h3>
+            <p class="faq-answer">In the current v1.03 release, World 1 (Desert Ruins) contains 30 individually handcrafted stages with zero algorithmic repetition, ending with the Stage 30 Master Singularity.</p>
+          </div>
+
+          <div class="faq-item">
+            <h3 class="faq-question">Can I play on mobile devices in portrait and landscape?</h3>
+            <p class="faq-answer">Yes. OOPS! features a fully responsive touch gamepad with directional slide clusters, jump button, and quick restart that automatically adapts to both portrait and landscape screen orientations without forcing screen rotation.</p>
           </div>
 
           <div class="faq-item">
             <h3 class="faq-question">How does the 7-death level skip work?</h3>
-            <p class="faq-answer">If you find yourself stuck and accumulate 7 deaths on the same level, an optional rewarded ad prompt appears. Watching a short video skips the level. If you decline, a persistent [📺 SKIP] button remains available on the HUD if you change your mind.</p>
+            <p class="faq-answer">If you find yourself stuck and accumulate 7 deaths on the same stage, an optional rewarded ad prompt appears. Watching a short video skips the level. If you decline, a persistent [📺 SKIP] button remains available on the HUD for later use.</p>
           </div>
 
           <div class="faq-item">
-            <h3 class="faq-question">Does Oops! track personal data?</h3>
-            <p class="faq-answer">No personal account is required to play. Level progress and death counts are stored locally on your device via HTML5 LocalStorage. Advertising is served via Google AdSense compliant with GDPR/EEA user consent choices.</p>
-          </div>
-
-          <div class="faq-item">
-            <h3 class="faq-question">How do I report a glitch or suggest a trap?</h3>
-            <p class="faq-answer">You can use the in-game "💬 Report" button or contact developer Khalid Abdullah directly via email at <a href="mailto:seamafridi123456789@gmail.com" style="color: var(--accent-green);">seamafridi123456789@gmail.com</a>.</p>
+            <h3 class="faq-question">Does OOPS! collect personal player data?</h3>
+            <p class="faq-answer">No account registration or personal data is collected. Level progress and death counts are stored locally on your device via HTML5 LocalStorage, and advertising complies with standard Google CMP user consent frameworks.</p>
           </div>
         </div>
       </div>
@@ -412,13 +551,13 @@
       <div class="main-wrapper">
         <span class="section-tag">Development Roadmap</span>
         <h2 class="section-title">Future Expansion Plans</h2>
-        <p class="section-desc">Transparent development status for upcoming multiverse expansions.</p>
+        <p class="section-desc">Transparent development status for upcoming puzzle platformer expansions.</p>
 
         <div class="roadmap-grid">
           <div class="roadmap-card active">
             <span class="roadmap-status">CURRENT RELEASE (v1.03)</span>
             <h3 class="roadmap-title">World 1: Desert Ruins</h3>
-            <p class="roadmap-desc">30 handcrafted levels featuring sandstone crumble, pop-up ground spikes, crushing hammers, spring trampolines, and fleeing exit portals. <strong>Available now.</strong></p>
+            <p class="roadmap-desc">30 handcrafted puzzle levels featuring sandstone crumble, pop-up ground spikes, crushing hammers, spring trampolines, and fleeing exit portals. <strong>Available now.</strong></p>
           </div>
 
           <div class="roadmap-card upcoming">
@@ -441,17 +580,17 @@
       <div class="main-wrapper">
         <div class="contact-card">
           <div class="contact-info">
-            <h3 class="contact-info-title">Built with Passion by Khalid Abdullah</h3>
+            <h3 class="contact-info-title">Developed by Khalid Abdullah</h3>
             <p class="contact-info-text">
-              Oops! is an independent game project built to explore high-performance 2D/2.5D canvas physics, 
+              OOPS! is an independent game project built to explore high-performance 2D/2.5D canvas physics, 
               procedural audio synthesis, and responsive mobile gamepad UI. Inquiries, feedback, and collaborations are warmly welcome.
             </p>
           </div>
 
           <div class="contact-links">
-            <a href="mailto:seamafridi123456789@gmail.com" class="contact-btn">✉️ Contact Email</a>
+            <a href="mailto:seamafridi123456789@gmail.com" class="contact-btn">✉️ Contact Developer</a>
             <a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener" class="contact-btn">📂 GitHub Repository</a>
-            <a href="about.html" class="contact-btn">👤 Full Developer Bio</a>
+            <a href="about.html" class="contact-btn">👤 Developer Profile</a>
           </div>
         </div>
       </div>
@@ -463,9 +602,9 @@
     <div class="main-wrapper">
       <div class="footer-top-grid">
         <div class="footer-col-brand">
-          <div class="footer-brand-title">Oops! 🎮</div>
+          <div class="footer-brand-title">OOPS! 🎮</div>
           <p class="footer-brand-desc">
-            A deceptive 2.5D troll platformer where questioning every block is the only way to survive. 
+            A free 2.5D puzzle platformer where questioning every block is the only way to survive. 
             30 handcrafted stages available free in your browser.
           </p>
         </div>
@@ -473,16 +612,16 @@
         <div class="footer-col">
           <div class="footer-col-title">Game Navigation</div>
           <ul class="footer-links-list">
-            <li><a href="play.html">▶ Play Game Now</a></li>
-            <li><a href="#about">About the Game</a></li>
+            <li><a href="play.html">▶ Play OOPS! Online</a></li>
+            <li><a href="#about">About Puzzle Mechanics</a></li>
             <li><a href="#how-to-play">Controls &amp; Physics</a></li>
             <li><a href="#world1">World 1 Campaign</a></li>
-            <li><a href="#screenshots">Screenshots</a></li>
+            <li><a href="#screenshots">Screenshots Gallery</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <div class="footer-col-title">Legal &amp; Policy</div>
+          <div class="footer-col-title">Legal &amp; Policies</div>
           <ul class="footer-links-list">
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms of Service</a></li>
@@ -492,17 +631,17 @@
         </div>
 
         <div class="footer-col">
-          <div class="footer-col-title">Developer</div>
+          <div class="footer-col-title">Connect</div>
           <ul class="footer-links-list">
             <li><a href="https://github.com/khalidabdullahh" target="_blank" rel="noopener">GitHub Profile</a></li>
-            <li><a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener">Oops! Source Code</a></li>
+            <li><a href="https://github.com/khalidabdullahh/Oops" target="_blank" rel="noopener">OOPS! Source Code</a></li>
             <li><a href="mailto:seamafridi123456789@gmail.com">Developer Email</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom-row">
-        <span>&copy; 2026 Oops! Platformer Game. All rights reserved. Developed by Khalid Abdullah.</span>
+        <span>&copy; 2026 OOPS! Platformer Game. All rights reserved. Developed by Khalid Abdullah.</span>
         <span>Version 1.03 &bull; Hosted on Vercel</span>
       </div>
     </div>

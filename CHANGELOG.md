@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3-seo] - 2026-08-28
+
+### 🔍 Long-Term Search Engine Optimization (SEO) Foundation
+- **2.5D Puzzle Platformer Semantic Positioning**: Reframed website content around search intent for free 2.5D puzzle platformers, tricky trap puzzles, and browser-based platform puzzle games.
+- **Indexable Multi-Page Architecture**: Established clear crawl paths between the main content portal (`/`) and dedicated gameplay environment (`/play`).
+- **Canonical URLs**: Implemented authoritative `<link rel="canonical">` across all 5 indexable routes (`/`, `/play`, `/about`, `/privacy`, `/terms`) matching Vercel Clean URLs.
+- **Sitemap & Robots**: Created XML sitemap (`sitemap.xml`) and crawl directives (`robots.txt`) ensuring complete search engine discoverability.
+- **Schema.org Structured Data (JSON-LD)**:
+  - Added `WebSite` and `VideoGame` schema declaring OOPS! as a free browser-based single-player 2.5D puzzle platformer.
+  - Added `FAQPage` schema on homepage matching the 6 player-focused Q&As.
+  - Added `BreadcrumbList` schema across `/play`, `/about`, `/privacy`, and `/terms`.
+- **Image & Content SEO**: Enhanced screenshot alt text with rich puzzle descriptions, explicit image dimensions, and descriptive internal anchor links.
+- **Phaser 3 & World 1 Preservation**: 100% preservation of all 30 handcrafted levels, 2.5D rendering pipeline, and working 7-death rewarded-ad monetization.
+
+---
+
 ## [1.0.3] - 2026-08-28
 
 ### 🌟 Stable Baseline Release

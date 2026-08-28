@@ -1,127 +1,196 @@
 # Oops! — AI Agent Development Guidelines & Project Documentation
 
-This documentation serves as a guide for any AI coding agent (such as Claude, Gemini, etc.) that interacts with, debugs, or extends this project. Do not modify, rewrite, or break the core systems of this codebase without fully understanding this document.
+This documentation serves as the master engineering guide for any AI coding agent (Claude, Gemini, Antigravity, etc.) that interacts with, debugs, or extends this project. Do not modify, rewrite, or break the core systems of this codebase without fully understanding this document.
 
 ---
 
-## 1. Project Overview
-**Oops!** (formerly *Chaos Realm*) is a deceptive puzzle-platformer inspired by games like *Level Devil*. It features hidden traps, vanishing platforms, shifting spikes, and teleportation portals designed to surprise the player.
-
-*   **Platform**: HTML5 Canvas (PWA-compliant for offline gameplay).
-*   **Mobile Shell**: Packaged for Android using **Capacitor 5**.
-*   **Visual Style**: Minimalist, flat, and monochromatic, featuring 3 unique world themes (Desert, Shadow, Void) and a cartoon-style player character.
-
----
-
-## 2. Architecture & Design Pattern
-The project uses a monolithic, zero-dependency, vanilla JavaScript game engine.
-
-*   **Virtual Canvas Resolution**: The internal game physics and coordinates run on a virtual size of **960x540** pixels (`VW` and `VH` constants). A resizing listener automatically letterboxes and scales the rendering viewport to fit the user's screen device ratio.
-*   **Single-File Core**: All gameplay loop controls, physical definitions, level maps, input readers, sound engines, and state updates reside in **`game.js`**.
-*   **State Coordination**: Managed globally via `gameState` (`"start"` $\rightarrow$ `"playing"` $\rightarrow$ `"dead"` / `"levelcomplete"` $\rightarrow$ `"gamecomplete"`).
-*   **HUD & Screens Overlay**: Managed via overlay HTML components inside `index.html`. Screen transitions are triggered by adding or removing the CSS class `.hidden`.
+## 1. Project Overview & Current Version
+* **Game Name**: **Oops!** (formerly *Chaos Realm*)
+* **Current Version**: **v1.03 (Stable Baseline Release)**
+* **Genre**: Deceptive, troll puzzle-platformer inspired by *Level Devil*.
+* **Core Philosophy**: Hidden surprise traps, vanishing platforms, pop-up spikes, mechanical crushers, and fleeing exit portals designed to comically challenge the player.
+* **Target Platforms**:
+  - **Modern Web Browsers** (Desktop, Mobile, Tablet) hosted on Vercel: [https://oops-snowy-three.vercel.app/](https://oops-snowy-three.vercel.app/)
+  - **Progressive Web App (PWA)** for offline homescreen play.
+  - **Android Shell** packaged using Capacitor 5 (`com.chaosrealm.game`).
 
 ---
 
-## 3. Important Files & Responsibilities
+## 2. Core Architecture & Tech Stack
 
-| File | Type | Responsibility |
+### Game Engine: Phaser 3.80.1
+* The game is built using **Phaser 3.80.1** with **Arcade Physics**.
+* **Local Engine Loading**: `phaser.min.js` (1.18 MB) is stored locally at the root and loaded directly in `index.html` to eliminate external CDN latency and offline stalls.
+* **Virtual Canvas Resolution**: Fixed logical resolution of **`960x540`** (`VW` / `VH`).
+* **Scale Manager**: Configured with `Phaser.Scale.FIT` and `Phaser.Scale.CENTER_BOTH`. The engine automatically letterboxes and scales the viewport cleanly to any screen aspect ratio without distortion.
+
+### 2.5D Stylized Visual Rendering
+The game utilizes a **2.5D depth architecture** built entirely using procedural graphics textures in `BootScene.createWorldAssets()`:
+1. **Platform Tiles (`plat_tex`)**: Multi-layer 3D top sunlit rim highlight (`#ffffff`, 45% opacity) + bottom front bevel extrusion (`#000000`, 28% opacity) + subtle horizontal strata lines.
+2. **Faceted Danger Spikes (`spike_up`)**: 3D faceted geometry with illuminated left facet (`#ff4757`), shadowed right facet (`#9c1000`), metallic ridge highlight (`#ffd32a`), and tip glint.
+3. **Riveted Steel Crushers (`crusher_tex`)**: Recessed inner eye cavity with menacing glowing red eye slits, steel rivets, and heavy bottom teeth.
+4. **3-Part Depth Portal Doorways**: Recessed dark chamber interior, depth-extruded outer archway frame, and pivoting animated door panel.
+5. **Spring Trampoline (`tramp_tex`)**: Metallic base plate, compressed mechanical coils, and bouncy rubber top pad.
+6. **Multi-Layer Parallax Desert**: In `GameScene.update()`, procedural far dunes and mid ruins scroll horizontally in real-time based on the player's position relative to the center (`-pRatio * 20` and `-pRatio * 50`).
+
+---
+
+## 3. Scene Pipeline & Lifecycle
+
+The game runs on 5 sequential Phaser scenes defined in `game.js`:
+
+```
+BootScene ──► IntroScene ──► WorldSelectScene ◄──► GameScene ──► WorldCompleteScene
+```
+
+| Scene | Class | Responsibility |
 |:---|:---|:---|
-| [`index.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/index.html) | View | The PWA DOM shell. Holds the viewport canvas, HTML menus, HUD elements, and touch button divs. |
-| [`game.js`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js) | Controller / Model | Core script. Houses physics, chiptune sound synthesis, level builders, update cycles, and rendering logic. |
-| [`style.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/style.css) | Style | Holds UI layouts, start-screen styling, HUD positioning, and custom touch button layouts. |
-| [`manifest.json`](file:///Users/khalidabdullah/AntiGravity/Oops!/manifest.json) | Config | Configuration specifying landscape fullscreen orientation and PWA descriptors. |
-| [`sw.js`](file:///Users/khalidabdullah/AntiGravity/Oops!/sw.js) | Service | basic caching worker allowing offline gameplay support. |
-| [`capacitor.config.json`](file:///Users/khalidabdullah/AntiGravity/Oops!/capacitor.config.json) | Config | Capacitor mapping configuration. Points to the sync directory (`www`). |
-| [`package.json`](file:///Users/khalidabdullah/AntiGravity/Oops!/package.json) | Config | Contains script build configurations and Capacitor core dependencies. |
-| [`build_apk.sh`](file:///Users/khalidabdullah/AntiGravity/Oops!/build_apk.sh) | Script | Downloads external developer binaries (JDK, Node, Android CLI) to `/tmp` and packages the APK. |
-| [`www/`](file:///Users/khalidabdullah/AntiGravity/Oops!/www) | Folder | **Required Sync Location**. Built HTML files must be cloned here for Capacitor to construct Android assets. |
+| `BootScene` | [`BootScene`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L933) | Generates all procedural 2.5D textures, registers animations, safely dismisses `#game-loader`, and transitions to `IntroScene`. |
+| `IntroScene` | [`IntroScene`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L1269) | High-octane 3-trap interactive troll showcase demonstrating floor vanish, crusher smash, trampoline ceiling spikes, and fleeing rocket door. Features instant `[ SKIP ⏩ ]` and touch-to-start. |
+| `WorldSelectScene` | [`WorldSelectScene`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L1664) | 30-level interactive island selector with 3 pages (1–10, 11–20, 21–30), death tally, audio toggle, and direct stage launching. |
+| `GameScene` | [`GameScene`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L1965) | Core platformer physics loop, trap state machines, boundaries, HUD overlays, mobile bridge sync, and 7-death ad monetization triggers. |
+| `WorldCompleteScene` | [`WorldCompleteScene`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L3169) | Grand World 1 victory screen triggered after clearing Level 30. Shows total run deaths, trophy animations, confetti blasters, and roadmap teaser. |
 
 ---
 
-## 4. Existing Gameplay Systems
-
-### Physics & Input
-*   **Update Loop**: Driven by `requestAnimationFrame`. Physics updates use a variable delta time `dt` clamped to a maximum step of `0.05` to prevent collision tunneling at low frame rates.
-*   **Platformer Engine**: Features coyote time ($0.1\text{s}$ grace period to jump after falling off platforms) and jump buffering ($0.1\text{s}$ window to queue jumps before landing).
-*   **Input Translation**: Both virtual touch listeners and standard keyboard keydown events write flags directly to the global `keys` object.
-
-### Platform Components
-Classified under the `TILE` enum mapping inside `Platform`:
-*   `SOLID` & `PLATFORM` (One-way top collisions)
-*   `VANISH` (Disappears shortly after player stands on it; respawns after $2.5\text{s}$)
-*   `FAKE` (Visually solid, collides with nothing, reveals on collision overlap)
-*   `TRAMPOLINE` (Gives player a high upward bounce velocity)
-*   `ICE` (Applies reduced friction values)
-*   `LAVA` (Triggers player instadeath)
-
----
-
-## 5. Development & Packaging Commands
-
-All terminal packaging triggers are defined inside `package.json`:
-
-*   **Synchronize assets to Capacitor**:
-    ```bash
-    npm run cap-sync
-    ```
-*   **Open the project inside Android Studio**:
-    ```bash
-    npm run cap-open
-    ```
-*   **Run Automated Android APK Build (via wrapper)**:
-    ```bash
-    ./build_apk.sh
-    ```
-
-### Package Config:
-*   **Capacitor App Name**: `"Chaos Realm"`
-*   **Package Domain Identifier**: `com.chaosrealm.game`
-*   **Target SDK version**: Android API 34.
-*   **Gradle Compiler version**: 8.0.2.
-
----
-
-## 6. Coding Conventions & Standards
-*   **Vanilla JS only**: Do not introduce compiler steps, bundling wrappers, or third-party engines (like Phaser/Pixi).
-*   **Sound Synthesis**: Keep SFX inside the procedural Web Audio API code structure (`playTone`). Do not attempt to import large static audio files.
-*   **PWA Cache Consistency**: Any newly introduced assets or configuration files must be appended to the cached assets array `ASSETS` in `sw.js`.
-*   **Save Key Persistence**: Do not modify the local storage save key `"chaosRealm_save_v1"`. Doing so will wipe the player's saved levels and death counts.
-
----
-
-## 7. Current Project Features
-*   **Multiverse Selector Dashboard**: Screen selection enabling access to three parallel universes (`Classic Realm`, `Gravity Nexus`, `Glitch Realm`) with independent level unlocks and death logs.
-*   **Gravity Inversion Physics**: Responsive upside-down gravity flips (triggered via Shift or mobile FLIP button) including inverted jumping mechanics, ceiling platform landing states, and ceiling boundaries.
-*   **Glitch Cycle Blocks**: Time-flickering platforms with active collision switches and chromatic wireframe rendering during inactive phases.
-*   **Opening Cinematic/Intro Animation**: Custom sequential entry animation featuring evil eyes opening in darkness, title slam with bounce, and crossfading overlays.
-*   **20 Handcrafted Levels**: 10 Classic, 5 Gravity-inversion, and 5 Glitch-speed levels.
-*   **Visual Themes**: 9 distinct universe themes (`DESERT`, `SHADOW`, `VOID`, `FROST`, `MATRIX`, `OBSIDIAN`, `SUNRISE`, `LAVA`, `TWILIGHT`) dynamically shifting every 3 levels.
-*   **Procedural Chiptune Background Music**: Sequenced retro minor key arpeggios that automatically toggle matching start/dead/win transitions.
-*   **Sound Control Integration**: HUD utility buttons featuring a `🔇/🔊` mute button to instantly override sound nodes.
-*   **Narrator Humorous Death Commentaries**: Dynamic, custom-tuned comments in place of simple death alerts.
-*   **Victory Confetti Blasters**: Confetti sprays of multiple colors on exit reach actions.
-*   **Logo Interaction Sandbox**: Clicking the main menu logo triggers comical squashes and bounces alongside sound effect alerts.
-*   **Persistant Progress saving**: Loads cumulative deaths and highest unlocked level index independently for each multiverse.
-*   **Responsive Joystick UI**: Multi-touch, circular joystick controls with haptic touch feedbacks.
-
----
-
-## 8. Current TODO / In-Progress Features
-*   **App Config Naming**: `capacitor.config.json` and `package.json` configurations still reference the old name `"Chaos Realm"`.
-
----
-
-## 9. Rules for Code Modification & Safety
+## 4. World 1 Status: FROZEN BASELINE (30 Levels)
 
 > [!IMPORTANT]
-> **Inspect Existing Implementations First**: Always search `game.js` for existing structures before implementing a feature. Do not write duplicate class wrappers or render configurations.
+> **World 1 (Desert Ruins) is 100% COMPLETE, TESTED, and FROZEN.**
+> Under NO circumstances should any AI agent redesign, renumber, delete, or alter the 30 handcrafted levels of World 1.
 
-> [!WARNING]
-> **Preserve Core Gameplay Behavior**: Do not modify the core gravity ($1400$), walk speed ($220$), jump velocity ($-560$), or collision resolution algorithms (`resolveX` / `resolveY`) unless explicitly requested. Doing so will break level designs and timing.
+* **Level Range**: Levels 1 to 30 (zero-indexed internally as `lvl = 0` to `lvl = 29`).
+* **Implementation Location**: [`buildWorld1Level(lvl)`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js#L2650-L3165).
+* **Trap Variety Across the 30 Stages**:
+  - *Levels 1–5*: Introductory deceptive physics, vanishing sandstones, and pop-up spikes.
+  - *Levels 6–10*: Mechanical drop crushers, surprise trampolines, and precision leaps.
+  - *Levels 11–20*: Shifting floors, fleeing exit doors (`fleeOnProximity`), and double-fake triggers.
+  - *Levels 21–29*: Master troll gauntlets, hidden ceiling spikes, decoy pathways, and multi-stage traps.
+  - *Level 30*: The Master Desert Singularity (Final World 1 Climax) transitioning to `WorldCompleteScene`.
+* **World 2 Status**: Planned for future releases (Frost Spire). Do NOT start implementing World 2 until explicitly directed.
 
-> [!WARNING]
-> **No Unnecessary Rewrites**: Under no circumstances should this codebase be migrated to framework engines (React, Vue, Phaser, PixiJS). It must remain simple, lightweight vanilla HTML5/Canvas-based code.
+---
 
-> [!IMPORTANT]
-> **Sync the `www/` Folder**: Always copy changes made to `index.html`, `style.css`, and `game.js` into the `www/` directory before building the APK. Capacitor reads exclusively from `www/`.
+## 5. Monetization & Rewarded Ad System
+
+* **Ad Network**: Official **Google AdSense / H5 Games Ads Placement API** (`adBreak`).
+* **Publisher ID**: `ca-pub-7942277005068512`
+* **`ads.txt`**: Hosted live at `https://oops-snowy-three.vercel.app/ads.txt`:
+  ```
+  google.com, pub-7942277005068512, DIRECT, f08c47fec0942fa0
+  ```
+* **Configuration (`MONETIZATION_CONFIG`)**:
+  - `enabled`: `true`
+  - `testMode`: `false` (Uses official Google `window.adBreak`; falls back safely to simulator in local dev/testing)
+  - `deathsThreshold`: `7`
+
+### 7-Death Gameplay Flow:
+```
+Player Enters Level ──► Dies 1..6 Times (Normal Respawn)
+                                 │
+                            7th Death
+                                 ▼
+                     One-Time Rewarded Ad Popup Offer
+                                 │
+           ┌─────────────────────┴─────────────────────┐
+           ▼                                           ▼
+      [ WATCH AD ]                               [ NO THANKS ]
+           │                                           │
+  Ad Views Successfully                     Modal Closes (No popup on 8+)
+           │                                           │
+  Level Cleared & Skipped!                  Persistent [ 📺 SKIP ] Unlocked
+  Deaths Reset to 0 for Next Level          on Deck Bar & HUD for Later Use
+```
+
+---
+
+## 6. Mobile & Desktop Responsive Controls
+
+* **Responsive Viewports**: Tested across Mobile Portrait, Mobile Landscape, Tablet, and Desktop.
+* **No Forced Landscape**: Players can play comfortably in both portrait and landscape modes.
+* **Mobile Touch Gamepad (`#mobile-gamepad`)**:
+  - Left Cluster: Directional buttons (`◀`, `▶`) with touch-sliding support.
+  - Right Cluster: Large jump button (`▲ JUMP`) and quick restart (`↺`).
+  - Top Deck Bar (Portrait): Displays `WORLD 1 · LV X  💀 Y`, quick restart, world map, and persistent `[ 📺 SKIP ]`.
+* **Desktop Controls**:
+  - Move: `←` / `→` or `A` / `D`
+  - Jump: `↑` / `W` / `Space`
+  - Restart: `R`
+  - Fullscreen Toggle: `⛶` button in HUD.
+
+---
+
+## 7. Sound & Audio Synthesis
+
+* **Engine**: Pure procedural **Web Audio API** (`AudioEngine`).
+* **No External Audio Assets**: All chiptune music, jump bleeps, death thuds, spring bounces, and portal chimes are synthesized mathematically in real-time.
+* **Audio Methods**:
+  - `AudioEngine.init()`: Unlocks audio context on first user interaction.
+  - `AudioEngine.sfxJump()`, `AudioEngine.sfxDie()`, `AudioEngine.sfxBounce()`, `AudioEngine.sfxSpring()`, `AudioEngine.sfxTrap()`, `AudioEngine.sfxWin()`, `AudioEngine.sfxPortal()`.
+  - `AudioEngine.startMusic()`, `AudioEngine.stopMusic()`, `AudioEngine.toggleMute()`.
+
+---
+
+## 8. Important Files & File Structure
+
+| File / Directory | Description |
+|:---|:---|
+| [`index.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/index.html) | Rich indie game website & publisher content portal (Hero, About, Controls guide, World 1, Screenshots, FAQ, Roadmap, Contact). |
+| [`play.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/play.html) | Dedicated playable Phaser 3 game container, 2.5D canvas, mobile gamepad, loader splash, and Google H5 Ads rewarded flow. |
+| [`portal.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/portal.css) | Responsive stylesheet for the main website, guides, and documentation portal. |
+| [`game.js`](file:///Users/khalidabdullah/AntiGravity/Oops!/game.js) | Core game script: Phaser scenes, 2.5D assets, 30 levels, physics, monetization manager. |
+| [`style.css`](file:///Users/khalidabdullah/AntiGravity/Oops!/style.css) | Responsive UI styling for playable game canvas, touch gamepad layout, and modals. |
+| [`ads.txt`](file:///Users/khalidabdullah/AntiGravity/Oops!/ads.txt) | Google AdSense authorized digital seller verification file. |
+| [`privacy.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/privacy.html) | Google AdSense GDPR/CCPA privacy policy compliance page. |
+| [`terms.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/terms.html) | Terms of Service compliance page. |
+| [`about.html`](file:///Users/khalidabdullah/AntiGravity/Oops!/about.html) | Game info, developer contact, and bug report guidelines. |
+| [`manifest.json`](file:///Users/khalidabdullah/AntiGravity/Oops!/manifest.json) | PWA web app manifest. |
+| [`sw.js`](file:///Users/khalidabdullah/AntiGravity/Oops!/sw.js) | Self-purging service worker preventing stale caching. |
+| [`package.json`](file:///Users/khalidabdullah/AntiGravity/Oops!/package.json) | Project metadata, dependencies, and Capacitor build scripts. |
+| [`CHANGELOG.md`](file:///Users/khalidabdullah/AntiGravity/Oops!/CHANGELOG.md) | Official release history and version tracking. |
+| [`www/`](file:///Users/khalidabdullah/AntiGravity/Oops!/www) | **Required Sync Location** for Capacitor Android builds. Must mirror web assets. |
+
+---
+
+## 9. Rules for AI Agents Working on This Codebase
+
+1. **World 1 is FROZEN**: Never alter World 1 level layouts, traps, or difficulty curves.
+2. **Preserve Phaser 3 & 2.5D**: Never revert to plain 2D or rewrite the rendering pipeline.
+3. **Preserve Rewarded Ad Logic**: The 7-death trigger, decline persistent unlock, and reward skip flow must remain intact.
+4. **Always Sync `www/`**: Whenever changes are made to `index.html`, `style.css`, `game.js`, `manifest.json`, or icons, immediately copy them to `www/`.
+5. **No Fake Credentials**: Always preserve the verified AdSense publisher ID (`ca-pub-7942277005068512`).
+6. **No Breaking Framework Migrations**: Keep the code vanilla JavaScript + Phaser 3. Do not introduce Webpack, Vite, React, or unnecessary bundlers.
+
+---
+
+## 10. SEO Architecture & Long-Term Search Strategy
+
+### Primary Semantic Positioning
+* **Primary Entity**: **A Free 2.5D Puzzle/Platformer Browser Game**.
+* **Search Intent Targets**: Puzzle platformer games, 2.5D puzzle games, platform puzzle gameplay, tricky puzzle games, challenging platformer puzzles, free browser puzzle games, trap-based puzzle games.
+* **Branded Search**: `OOPS!`, `Oops! Game`, `Oops platformer`.
+
+### Crawlable Routes & URL Structure
+All routes use Vercel Clean URLs (`cleanUrls: true` in `vercel.json`):
+* `https://oops-snowy-three.vercel.app/` (Home / Guide / Publisher Content Hub)
+* `https://oops-snowy-three.vercel.app/play` (Dedicated Game Container)
+* `https://oops-snowy-three.vercel.app/about` (About Game & Developer Bio)
+* `https://oops-snowy-three.vercel.app/privacy` (Privacy Policy)
+* `https://oops-snowy-three.vercel.app/terms` (Terms of Service)
+
+### Technical SEO Assets
+* [`robots.txt`](file:///Users/khalidabdullah/AntiGravity/Oops!/robots.txt): Explicitly allows crawling of all content routes, styles, scripts, and screenshots, while declaring the canonical sitemap.
+* [`sitemap.xml`](file:///Users/khalidabdullah/AntiGravity/Oops!/sitemap.xml): XML sitemap listing the 5 canonical indexable URLs with priorities and change frequencies.
+* **Canonical Tags**: Every page declares a single authoritative `<link rel="canonical" href="...">`.
+* **Phaser Canvas Separation Rule**: Web crawlers cannot parse interactive Phaser canvas frames as text. All essential descriptions, how-to-play guides, controls tables, level overviews, and FAQs must live in semantic HTML DOM outside the canvas.
+
+### Structured Data (Schema.org) Conventions
+* `index.html`: Contains `@graph` with `WebSite`, `VideoGame` (declaring genre, platforms, author, free offer), and `FAQPage` (matching visible Q&As).
+* `play.html`, `about.html`, `privacy.html`, `terms.html`: Include `BreadcrumbList` for breadcrumb rich snippets.
+* **No Fake Data**: Never inject fabricated ratings, player counts, awards, or fake reviews.
+
+### Editorial & Content Rules
+1. **No Keyword Stuffing**: Integrate puzzle-platformer keywords naturally within context.
+2. **No Doorway Pages or Thin Content**: Maintain comprehensive, genuine content on existing routes instead of generating dozens of thin programmatic pages.
+3. **Image SEO**: All screenshots in `screenshots/` must have descriptive, puzzle-focused `alt` text and explicit `width` and `height` attributes to prevent Cumulative Layout Shift (CLS).
+4. **Internal Linking**: Use descriptive anchor text (`Play OOPS! 2.5D Puzzle Platformer`, `Explore World 1 Stages`) rather than generic `click here`.
