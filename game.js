@@ -1091,18 +1091,18 @@ class BootScene extends Phaser.Scene {
   createWorldAssets() {
     // ── 🧱 2.5D PLATFORM TILE WITH 3D TOP HIGHLIGHT & FRONT BEVEL ──
     var platGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    platGfx.fillStyle(0xffffff, 1);
+    platGfx.fillStyle(0xd97c52, 1);
     platGfx.fillRect(0, 0, 32, 32);
-    // Subtle horizontal strata line
-    platGfx.fillStyle(0x000000, 0.08);
-    platGfx.fillRect(0, 10, 32, 3);
-    platGfx.fillRect(0, 22, 32, 2);
-    // 3D Top Sunlit Rim (Light Highlight)
-    platGfx.fillStyle(0xffffff, 0.45);
-    platGfx.fillRect(0, 0, 32, 3);
+    // Subtle horizontal strata lines
+    platGfx.fillStyle(0x9e4318, 0.5);
+    platGfx.fillRect(0, 9, 32, 3);
+    platGfx.fillRect(0, 20, 32, 2);
+    // 3D Top Sunlit Rim (Golden Highlight)
+    platGfx.fillStyle(0xf5a27d, 1);
+    platGfx.fillRect(0, 0, 32, 4);
     // 3D Bottom Front Bevel (Depth Extrusion)
-    platGfx.fillStyle(0x000000, 0.28);
-    platGfx.fillRect(0, 27, 32, 5);
+    platGfx.fillStyle(0x6e2405, 0.7);
+    platGfx.fillRect(0, 26, 32, 6);
     platGfx.generateTexture("plat_tex", 32, 32);
     platGfx.destroy();
 
@@ -1306,7 +1306,6 @@ class IntroScene extends Phaser.Scene {
 
     // Floor Platform
     var floor = this.add.tileSprite(width / 2, 450, width + 100, 80, "plat_tex");
-    floor.setTint(0xe5825b);
 
     // Exit Gate
     var door = this.add.container(750, 390);
@@ -2660,7 +2659,6 @@ class GameScene extends Phaser.Scene {
         self.add.rectangle(x + w/2, y + h + 3, w - 2, 6, 0x000000, 0.24).setDepth(2);
       }
       var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
-      p.setTint(theme.platform);
       p.setDepth(10);
       self.platforms.add(p);
       return p;
@@ -2671,7 +2669,6 @@ class GameScene extends Phaser.Scene {
         self.add.rectangle(x + w/2, y + h + 3, w - 2, 6, 0x000000, 0.24).setDepth(2);
       }
       var p = self.add.tileSprite(x + w/2, y + h/2, w, h, "plat_tex");
-      p.setTint(theme.platform);
       p.setDepth(10);
       p.isFallingPlat = true;
       p.stepped = false;

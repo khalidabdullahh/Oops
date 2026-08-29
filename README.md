@@ -66,6 +66,10 @@
 |:---:|:---:|
 | ![7-Death Offer](screenshots/12_rewarded_ad_level_skip_modal.png) | ![Feedback Modal](screenshots/13_in_game_feedback_modal.png) |
 
+| Official Web Portal (Desktop) | Official Web Portal (Mobile) |
+|:---:|:---:|
+| ![Website Desktop](screenshots/14_publisher_website_desktop.png) | ![Website Mobile](screenshots/15_publisher_website_mobile.png) |
+
 ---
 
 ## 🕹️ Controls
