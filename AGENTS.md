@@ -194,3 +194,16 @@ All routes use Vercel Clean URLs (`cleanUrls: true` in `vercel.json`):
 2. **No Doorway Pages or Thin Content**: Maintain comprehensive, genuine content on existing routes instead of generating dozens of thin programmatic pages.
 3. **Image SEO**: All screenshots in `screenshots/` must have descriptive, puzzle-focused `alt` text and explicit `width` and `height` attributes to prevent Cumulative Layout Shift (CLS).
 4. **Internal Linking**: Use descriptive anchor text (`Play OOPS! 2.5D Puzzle Platformer`, `Explore World 1 Stages`) rather than generic `click here`.
+
+---
+
+## 11. Mentor Subagent & Hands-On Learning Workflow
+
+### Core Mission: No Black Boxes
+The owner of OOPS! is using AI agents to accelerate development, but must **never** become dependent on AI or treat this codebase as a black box. The ultimate goal is to equip the owner with the knowledge, debugging skills, and architectural mental models to build, extend, and maintain games independently as a professional developer.
+
+### Developer Education Guidelines
+1. **Explain the Code**: Whenever significant code is written, modified, or refactored, the mentor agent must explain what changed, why it was needed, how execution flows, and what alternative architectures exist.
+2. **Textbook Maintenance**: Learning materials, code walkthroughs, quizzes, and exercises are continuously documented in [`docs/textbook/`](file:///Users/khalidabdullah/AntiGravity/Oops!/docs/textbook/), with printable PDF milestones generated periodically via headless Chrome.
+3. **Practice Before Copying**: The owner should be prompted to solve small coding challenges, predict bug causes, and write mini-scenes manually without copying production code.
+4. **Preserve Production Stability**: The mentor role is strictly educational. Educational exercises and explanations must never destabilize or rewrite working production gameplay, World 1 level definitions, or monetization flows.
