@@ -48,6 +48,26 @@
 
 ---
 
+## 📸 In-Game Screenshots Showcase
+
+| World 1 Map (30 Stages) | Stage 1: Desert Ruins |
+|:---:|:---:|
+| ![World 1 Map](screenshots/02_world_select_map.png) | ![Stage 1 Gameplay](screenshots/03_stage_01_desert_ruins.png) |
+
+| Stage 6: Crusher Alley | Stage 15: Fleeing Exit Door |
+|:---:|:---:|
+| ![Stage 6 Crusher](screenshots/04_stage_06_crusher_alley.png) | ![Stage 15 Fleeing Door](screenshots/06_stage_15_fleeing_portal.png) |
+
+| Stage 30: Master Singularity | World 1 Victory Celebration |
+|:---:|:---:|
+| ![Stage 30 Climax](screenshots/09_stage_30_master_singularity.png) | ![Victory Climax](screenshots/11_world_complete_celebration.png) |
+
+| 7-Death Rewarded Ad Offer | In-Game Player Feedback Modal |
+|:---:|:---:|
+| ![7-Death Offer](screenshots/12_rewarded_ad_level_skip_modal.png) | ![Feedback Modal](screenshots/13_in_game_feedback_modal.png) |
+
+---
+
 ## 🕹️ Controls
 
 | Action | PC / Mac Keyboard | Mobile Touch Gamepad |
