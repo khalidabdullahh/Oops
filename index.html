@@ -152,6 +152,15 @@
     ]
   }
   </script>
+
+  <!-- Instant Theme Detector: matches user device context immediately -->
+  <script>
+    (function() {
+      var stored = localStorage.getItem('oops_theme');
+      var systemTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', stored || systemTheme);
+    })();
+  </script>
 </head>
 <body>
 
@@ -164,17 +173,22 @@
         <span class="brand-badge">v1.03</span>
       </a>
 
-      <nav aria-label="Main Website Navigation">
-        <ul class="nav-menu">
-          <li><a href="#about" class="nav-link">About Puzzle Mechanics</a></li>
-          <li><a href="#how-to-play" class="nav-link">Controls &amp; Physics</a></li>
-          <li><a href="#world1" class="nav-link">World 1 Stages</a></li>
-          <li><a href="#features" class="nav-link">Features</a></li>
-          <li><a href="#screenshots" class="nav-link">Screenshots</a></li>
-          <li><a href="#faq" class="nav-link">FAQ</a></li>
-          <li><a href="play.html" class="nav-play-btn"><span>▶</span> PLAY OOPS! FREE</a></li>
-        </ul>
-      </nav>
+      <div class="nav-actions">
+        <nav aria-label="Main Website Navigation">
+          <ul class="nav-menu">
+            <li><a href="#about" class="nav-link">About Puzzle Mechanics</a></li>
+            <li><a href="#how-to-play" class="nav-link">Controls &amp; Physics</a></li>
+            <li><a href="#world1" class="nav-link">World 1 Stages</a></li>
+            <li><a href="#features" class="nav-link">Features</a></li>
+            <li><a href="#screenshots" class="nav-link">Screenshots</a></li>
+            <li><a href="#faq" class="nav-link">FAQ</a></li>
+          </ul>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Dark or Light Theme" title="Toggle Theme">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -708,6 +722,45 @@
     if (window.Capacitor) {
       window.location.replace("play.html");
     }
+
+    // Theme Toggle and Device System Theme Sync
+    (function initTheme() {
+      var toggleBtn = document.getElementById('theme-toggle');
+      if (!toggleBtn) return;
+
+      function getEffectiveTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        if (current) return current;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      }
+
+      function updateButtonState(theme) {
+        var isDark = theme === 'dark';
+        toggleBtn.setAttribute('aria-label', isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme');
+        toggleBtn.setAttribute('title', isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme');
+      }
+
+      updateButtonState(getEffectiveTheme());
+
+      toggleBtn.addEventListener('click', function() {
+        var current = getEffectiveTheme();
+        var nextTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('oops_theme', nextTheme);
+        updateButtonState(nextTheme);
+      });
+
+      // Synchronize dynamically if the user changes their phone/OS theme and has not manually chosen an override
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('oops_theme')) {
+            var newTheme = e.matches ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            updateButtonState(newTheme);
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
