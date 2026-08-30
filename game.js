@@ -110,7 +110,8 @@ var SaveManager = {
   getInitialState: function() {
     return {
       worlds: {
-        0: { maxUnlocked: 0, cleared: [] }
+        0: { maxUnlocked: 0, cleared: [] },
+        1: { maxUnlocked: 0, cleared: [] }
       },
       deaths: 0,
       currentWorld: 0,
@@ -124,6 +125,8 @@ var SaveManager = {
       if (!raw) return this.getInitialState();
       var data = JSON.parse(raw);
       if (!data || !data.worlds) return this.getInitialState();
+      if (!data.worlds[0]) data.worlds[0] = { maxUnlocked: 0, cleared: [] };
+      if (!data.worlds[1]) data.worlds[1] = { maxUnlocked: 0, cleared: [] };
       return data;
     } catch(e) {
       return this.getInitialState();
@@ -140,8 +143,17 @@ var SaveManager = {
       if (!w.cleared.includes(levelIdx)) {
         w.cleared.push(levelIdx);
       }
-      w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, 29));
+      var maxL = (worldIdx === 1) ? 49 : 29;
+      w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, maxL));
       data.deaths = deaths;
+      data.currentWorld = worldIdx;
+      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
+  },
+
+  saveCurrentWorld: function(worldIdx) {
+    try {
+      var data = this.load();
       data.currentWorld = worldIdx;
       SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
@@ -185,6 +197,7 @@ var SaveManager = {
     } catch(e) {}
   }
 };
+window.SaveManager = SaveManager;
 
 // ─── 2. Web Audio Synthesizer ────────────────────────────────
 var AudioEngine = {
@@ -925,6 +938,9 @@ var WORLD_1_THEME = {
 };
 
 function getTheme(wIdx) {
+  if (wIdx === 1 && typeof WORLD_2_THEME !== "undefined") {
+    return WORLD_2_THEME;
+  }
   return WORLD_1_THEME;
 }
 
@@ -938,6 +954,9 @@ class BootScene extends Phaser.Scene {
     try {
       this.createCartoonHero();
       this.createWorldAssets();
+      if (typeof World2Assets !== "undefined") {
+        World2Assets.create(this);
+      }
       this.createAnimations();
     } catch(err) {
       console.warn("Texture creation notice:", err);
@@ -1662,7 +1681,7 @@ class IntroScene extends Phaser.Scene {
 class WorldSelectScene extends Phaser.Scene {
   constructor() {
     super("WorldSelectScene");
-    this.currentWorldIdx = 0;
+    this.currentWorldIdx = (SaveManager.load && SaveManager.load().currentWorld) ? SaveManager.load().currentWorld : 0;
     this.pageIdx = 0;
   }
 
@@ -1690,13 +1709,14 @@ class WorldSelectScene extends Phaser.Scene {
     var size = this.scale;
     var width = size.width;
     var height = size.height;
-    var theme = WORLD_1_THEME;
+    var theme = getTheme(this.currentWorldIdx);
 
     this.bgGfx.clear();
     this.bgGfx.fillStyle(theme.bg, 1);
     this.bgGfx.fillRect(0, 0, width, height);
 
     if (this.particles) this.particles.destroy();
+    var pColor = (this.currentWorldIdx === 1) ? 0x00d2d3 : 0xffa502;
     this.particles = this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
@@ -1704,7 +1724,7 @@ class WorldSelectScene extends Phaser.Scene {
       speedY: { min: -15, max: 15 },
       scale: { start: 0.6, end: 0 },
       alpha: { start: 0.25, end: 0 },
-      tint: 0xffa502,
+      tint: pColor,
       frequency: 200
     });
   }
@@ -1716,13 +1736,15 @@ class WorldSelectScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    var theme = WORLD_1_THEME;
-    var maxUnlocked = SaveManager.getWorldUnlocked(0);
+    var theme = getTheme(this.currentWorldIdx);
+    syncBodyBackground(theme);
+    var maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
+    var maxLevelCount = (this.currentWorldIdx === 1) ? 50 : 30;
 
-    // ── CENTER TITLE: Clean & Spacious (No Overlap) ──
-    var titleText = this.add.text(width / 2, 34, "Oops! - WORLD 1: DESERT RUINS", {
+    // ── CENTER TITLE: Clean & Spacious ──
+    var titleText = this.add.text(width / 2, 34, "Oops! - " + theme.badge + ": " + theme.name, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "14px",
+      fontSize: "13px",
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 5
@@ -1730,7 +1752,6 @@ class WorldSelectScene extends Phaser.Scene {
     this.islandContainer.add(titleText);
 
     // ── LEFT-SIDE BUTTON CLUSTER: [ 🎬 INTRO ]  [ 💬 REPORT ] ──
-    // [ 🎬 INTRO ] Button (Compact, on Left)
     var introBtn = this.add.container(58, 34);
     var inGfx = this.add.graphics();
     inGfx.fillStyle(0x161822, 0.9);
@@ -1751,7 +1772,6 @@ class WorldSelectScene extends Phaser.Scene {
     introBtn.add([inGfx, inLabel, inZone]);
     this.islandContainer.add(introBtn);
 
-    // [ 💬 REPORT ] Button (Compact, on Left next to Intro)
     var fbBtn = this.add.container(146, 34);
     var fbGfx = this.add.graphics();
     fbGfx.fillStyle(0x161822, 0.9);
@@ -1803,25 +1823,92 @@ class WorldSelectScene extends Phaser.Scene {
     islGfx.strokeRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     this.islandContainer.add(islGfx);
 
-    var worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, "WORLD 1: DESERT RUINS (30 UNIQUE LEVELS)", {
+    // ── WORLD SWITCHER CONTROLS ──
+    // [ ◀ WORLD 1 ] (When on World 2)
+    if (this.currentWorldIdx > 0) {
+      var prevWorldBtn = this.add.container(islandX - islandW / 2 + 82, islandY - islandH / 2 + 28);
+      var pwGfx = this.add.graphics();
+      pwGfx.fillStyle(0x161822, 0.92);
+      pwGfx.fillRoundedRect(-60, -13, 120, 26, 8);
+      pwGfx.lineStyle(1.5, 0xffd32a, 0.9);
+      pwGfx.strokeRoundedRect(-60, -13, 120, 26, 8);
+      var pwTxt = this.add.text(0, 0, "◀ WORLD 1", {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "7px",
+        color: "#ffd32a"
+      }).setOrigin(0.5);
+      var pwZone = this.add.zone(0, 0, 120, 26).setInteractive({ cursor: "pointer" });
+      pwZone.on("pointerdown", function() {
+        AudioEngine.init();
+        AudioEngine.sfxJump();
+        self.currentWorldIdx = 0;
+        self.pageIdx = 0;
+        SaveManager.saveCurrentWorld(0);
+        self.drawBackground();
+        self.renderWorldIsland();
+      });
+      prevWorldBtn.add([pwGfx, pwTxt, pwZone]);
+      this.islandContainer.add(prevWorldBtn);
+    }
+
+    // [ WORLD 2 ▶ ] or [ 🔒 WORLD 3 ]
+    var nextWorldBtn = this.add.container(islandX + islandW / 2 - 82, islandY - islandH / 2 + 28);
+    var nwGfx = this.add.graphics();
+    nwGfx.fillStyle(0x161822, 0.92);
+    nwGfx.fillRoundedRect(-60, -13, 120, 26, 8);
+    var nwBorderCol = (this.currentWorldIdx === 0) ? 0x00d2d3 : 0x555555;
+    nwGfx.lineStyle(1.5, nwBorderCol, 0.9);
+    nwGfx.strokeRoundedRect(-60, -13, 120, 26, 8);
+    var nwLabel = (this.currentWorldIdx === 0) ? "WORLD 2 ▶" : "🔒 WORLD 3";
+    var nwCol = (this.currentWorldIdx === 0) ? "#00d2d3" : "#888888";
+    var nwTxt = this.add.text(0, 0, nwLabel, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "13px",
-      color: "#ffd32a",
+      fontSize: "7px",
+      color: nwCol
+    }).setOrigin(0.5);
+    var nwZone = this.add.zone(0, 0, 120, 26).setInteractive({ cursor: "pointer" });
+    nwZone.on("pointerdown", function() {
+      AudioEngine.init();
+      AudioEngine.sfxJump();
+      if (self.currentWorldIdx === 0) {
+        self.currentWorldIdx = 1;
+        self.pageIdx = 0;
+        SaveManager.saveCurrentWorld(1);
+        self.drawBackground();
+        self.renderWorldIsland();
+      } else {
+        self.showTrollToast("🔒 WORLD 3: COMING SOON!\nConquer all 50 levels of World 2 first!");
+      }
+    });
+    nextWorldBtn.add([nwGfx, nwTxt, nwZone]);
+    this.islandContainer.add(nextWorldBtn);
+
+    // World Badge Center
+    var worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, "WORLD " + (this.currentWorldIdx + 1) + ": " + theme.name + " (" + maxLevelCount + " UNIQUE LEVELS)", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "12px",
+      color: (this.currentWorldIdx === 1) ? "#00d2d3" : "#ffd32a",
       stroke: "#000000",
       strokeThickness: 4
     }).setOrigin(0.5);
     this.islandContainer.add(worldBadge);
 
-    var subText = this.add.text(islandX, islandY - islandH / 2 + 48, "✦ ALL 30 LEVELS ARE INDIVIDUALLY HANDCRAFTED (NO REPEATS) ✦", {
+    var subText = this.add.text(islandX, islandY - islandH / 2 + 48, (this.currentWorldIdx === 1) ? "✦ 50 HANDCRAFTED 2.5D LEVELS OF MIRRORS, TIME, ECHO & MAGNETISM ✦" : "✦ ALL 30 LEVELS ARE INDIVIDUALLY HANDCRAFTED (NO REPEATS) ✦", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8px",
+      fontSize: "7.5px",
       color: "#ffffff"
     }).setOrigin(0.5);
     this.islandContainer.add(subText);
 
-    var tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
-    var tabW = 160, tabGap = 12;
-    var tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
+    // Dynamic Tab Pagination
+    var tabLabels = (this.currentWorldIdx === 1)
+      ? ["LV 1-10", "LV 11-20", "LV 21-30", "LV 31-40", "LV 41-50"]
+      : ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
+
+    var numTabs = tabLabels.length;
+    var tabW = (numTabs === 5) ? 126 : 160;
+    var tabGap = (numTabs === 5) ? 8 : 12;
+    var tabStartX = islandX - (numTabs * tabW + (numTabs - 1) * tabGap) / 2 + tabW / 2;
     var tabY = islandY - islandH / 2 + 78;
 
     tabLabels.forEach(function(label, p) {
@@ -1829,14 +1916,15 @@ class WorldSelectScene extends Phaser.Scene {
       var isSelected = (self.pageIdx === p);
 
       var tabGfx = self.add.graphics();
-      tabGfx.fillStyle(isSelected ? 0xffd32a : 0x111111, isSelected ? 1 : 0.6);
+      var tabFill = isSelected ? ((self.currentWorldIdx === 1) ? 0x00d2d3 : 0xffd32a) : 0x111111;
+      tabGfx.fillStyle(tabFill, isSelected ? 1 : 0.65);
       tabGfx.fillRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
       tabGfx.lineStyle(2, isSelected ? 0xffffff : theme.islandBorder, 1);
       tabGfx.strokeRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
 
       var tText = self.add.text(tx, tabY, label, {
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: "8px",
+        fontSize: (numTabs === 5) ? "7px" : "8px",
         color: isSelected ? "#000000" : "#ffffff"
       }).setOrigin(0.5);
 
@@ -1866,14 +1954,14 @@ class WorldSelectScene extends Phaser.Scene {
           var nx = nodesStartX + col * (nodeSize + gapX);
           var ny = nodesStartY + row * (nodeSize + gapY);
 
-          var isCleared = SaveManager.isLevelCleared(0, lvlIdx);
+          var isCleared = SaveManager.isLevelCleared(self.currentWorldIdx, lvlIdx);
           var isCurrent = lvlIdx === maxUnlocked;
           var isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
 
           var nodeContainer = self.add.container(nx, ny);
 
           var nodeGfx = self.add.graphics();
-          var fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
+          var fillCol = isCleared ? 0x2ed573 : isCurrent ? ((self.currentWorldIdx === 1) ? 0x00d2d3 : 0xffd32a) : 0x222226;
           var borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
 
           nodeGfx.fillStyle(fillCol, isLocked ? 0.4 : 1);
@@ -1901,7 +1989,7 @@ class WorldSelectScene extends Phaser.Scene {
             var arrow = self.add.text(0, -nodeSize / 2 - 14, "▼", {
               fontFamily: "'Press Start 2P', monospace",
               fontSize: "14px",
-              color: "#ffd32a"
+              color: (self.currentWorldIdx === 1) ? "#00d2d3" : "#ffd32a"
             }).setOrigin(0.5);
             self.tweens.add({
               targets: arrow,
@@ -1925,7 +2013,7 @@ class WorldSelectScene extends Phaser.Scene {
             hitZone.on("pointerdown", function() {
               AudioEngine.init();
               AudioEngine.sfxJump();
-              self.scene.start("GameScene", { world: 0, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
+              self.scene.start("GameScene", { world: self.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
             });
             nodeContainer.add(hitZone);
           }
@@ -1952,21 +2040,41 @@ class WorldSelectScene extends Phaser.Scene {
     plZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      self.scene.start("GameScene", { world: 0, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
+      self.scene.start("GameScene", { world: self.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
     });
     playBtn.add([plGfx, plLabel, plZone]);
     this.islandContainer.add(playBtn);
   }
+
+  showTrollToast(msg) {
+    var size = this.scale;
+    var toast = this.add.text(size.width / 2, 70, msg, {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "10px",
+      color: "#ffd32a",
+      backgroundColor: "#111111ee",
+      padding: { x: 14, y: 8 },
+      align: "center"
+    }).setOrigin(0.5).setDepth(300);
+
+    this.tweens.add({
+      targets: toast,
+      alpha: 0,
+      y: 50,
+      delay: 1800,
+      duration: 500,
+      onComplete: function() { toast.destroy(); }
+    });
+  }
 }
 
-// ─── 9. GameScene: Core Platformer & 30 Unique Handcrafted Levels ──
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
   }
 
   init(data) {
-    this.currentWorld = 0;
+    this.currentWorld = (typeof data.world === "number") ? data.world : ((SaveManager.load && SaveManager.load().currentWorld) ? SaveManager.load().currentWorld : 0);
     this.currentLevel = (typeof data.level === "number") ? data.level : 0;
     this.deaths = (typeof data.deaths === "number") ? data.deaths : SaveManager.getTotalDeaths();
     this.levelDeaths = (typeof data.levelDeaths === "number") ? data.levelDeaths : 0;
@@ -1990,16 +2098,13 @@ class GameScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    var theme = WORLD_1_THEME;
+    var theme = getTheme(this.currentWorld);
     syncBodyBackground(theme);
 
     AudioEngine.init();
     AudioEngine.startMusic();
     MobileGamepad.show(this);
     MonetizationManager.setActiveScene(this);
-
-    // ── 🏜️ 2.5D MULTI-LAYER PARALLAX DESERT ATMOSPHERE ──
-    this.draw2DParallaxBackground();
 
     this.platforms = this.physics.add.staticGroup();
     this.spikes = this.physics.add.staticGroup();
@@ -2008,7 +2113,13 @@ class GameScene extends Phaser.Scene {
     this.fallingPlatforms = [];
     this.customTriggers = [];
 
-    this.buildWorld1Level(this.currentLevel);
+    if (this.currentWorld === 1 && typeof World2Engine !== "undefined") {
+      World2Engine.init(this, this.currentLevel);
+      World2Engine.buildLevel(this, this.currentLevel);
+    } else {
+      this.draw2DParallaxBackground();
+      this.buildWorld1Level(this.currentLevel);
+    }
 
     this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "hero_idle_1");
     this.player.setCollideWorldBounds(false);
@@ -2040,7 +2151,7 @@ class GameScene extends Phaser.Scene {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
+      deckInfo.textContent = "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
   }
 
@@ -2131,7 +2242,7 @@ class GameScene extends Phaser.Scene {
     var size = this.scale;
     var width = size.width;
 
-    this.levelText = this.add.text(25, 20, "WORLD 1 · LV " + (this.currentLevel + 1), {
+    this.levelText = this.add.text(25, 20, "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ffffff"
@@ -2190,8 +2301,12 @@ class GameScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    // ── 🏜️ 2.5D PARALLAX SCROLLING DEPTH ──
-    if (this.farParallaxGfx && this.midParallaxGfx && this.player) {
+    if (this.currentWorld === 1 && typeof World2Engine !== "undefined") {
+      World2Engine.update(this, dt);
+    }
+
+    // ── 🏜️ 2.5D PARALLAX SCROLLING DEPTH (World 1) ──
+    if (this.currentWorld === 0 && this.farParallaxGfx && this.midParallaxGfx && this.player) {
       var pRatio = (this.player.x - width / 2) / width;
       this.drawFarDunes(this.farParallaxGfx, width, height, -pRatio * 20);
       this.drawMidRuins(this.midParallaxGfx, width, height, -pRatio * 50);
@@ -2472,7 +2587,7 @@ class GameScene extends Phaser.Scene {
 
   restartLevel() {
     this.scene.restart({
-      world: 0,
+      world: this.currentWorld,
       level: this.currentLevel,
       deaths: this.deaths,
       levelDeaths: this.levelDeaths,
@@ -2494,7 +2609,7 @@ class GameScene extends Phaser.Scene {
       this.player.body.moves = false;
     }
 
-    SaveManager.saveLevelClear(0, this.currentLevel, this.deaths);
+    SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
     AudioEngine.sfxWin();
     AudioEngine.sfxPortal();
 
@@ -2510,12 +2625,13 @@ class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(700, function() {
       var nextLvl = self.currentLevel + 1;
-      if (nextLvl >= 30) {
+      var maxL = (self.currentWorld === 1) ? 50 : 30;
+      if (nextLvl >= maxL) {
         MobileGamepad.hide();
-        self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
+        self.scene.start("WorldCompleteScene", { world: self.currentWorld, totalDeaths: self.deaths });
       } else {
         self.scene.restart({
-          world: 0,
+          world: self.currentWorld,
           level: nextLvl,
           deaths: self.deaths,
           levelDeaths: 0,
