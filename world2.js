@@ -1,7 +1,8 @@
 // =============================================================================
-//  Oops! – World 2: The Shift (v2.0)
+//  Oops! – World 2: The Shift (v2.1 Complete Production Rebuild)
 //  "A beautiful world that slowly becomes wrong."
-//  50 Handcrafted Levels of Mirror World, Time Zones, Echo Ghost & Magnetism
+//  50 Handcrafted Levels, 6 Dynamic Biomes, Animated 2.5D Parallax,
+//  Interactive Mirror World, Localized Time Zones, Echo Ghost, Magnetic Mechanics
 // =============================================================================
 "use strict";
 
@@ -24,6 +25,61 @@ var WORLD_2_THEME = {
   accent: 0x00d2d3
 };
 
+var WORLD_2_BIOMES = {
+  GARDEN: {
+    id: "GARDEN",
+    name: "FLOATING GARDEN / SKY RUINS",
+    skyTop: 0x061426, skyBot: 0x0f2b48,
+    sunColor: 0x00d2d3, islandColor: 0x133852, ruinColor: 0x1a4664,
+    leafTint: 0x2ed573, cloudAlpha: 0.45
+  },
+  DISTORTION: {
+    id: "DISTORTION",
+    name: "DISTORTED VALLEY",
+    skyTop: 0x180a2b, skyBot: 0x2d124d,
+    sunColor: 0xff9f43, islandColor: 0x2c1945, ruinColor: 0x3d2260,
+    leafTint: 0xff9f43, cloudAlpha: 0.35
+  },
+  ECHO: {
+    id: "ECHO",
+    name: "ECHO FOREST",
+    skyTop: 0x060c18, skyBot: 0x0f1c33,
+    sunColor: 0x55efc4, islandColor: 0x10223d, ruinColor: 0x173154,
+    leafTint: 0x00cec9, cloudAlpha: 0.55
+  },
+  COLLAPSE: {
+    id: "COLLAPSE",
+    name: "BROKEN RUINS",
+    skyTop: 0x0a0c10, skyBot: 0x1c212a,
+    sunColor: 0x0984e3, islandColor: 0x202633, ruinColor: 0x2d3648,
+    leafTint: 0x74b9ff, cloudAlpha: 0.3
+  },
+  UNSTABLE: {
+    id: "UNSTABLE",
+    name: "UNSTABLE WORLD",
+    skyTop: 0x05020c, skyBot: 0x1a062e,
+    sunColor: 0xa55eea, islandColor: 0x240938, ruinColor: 0x380f54,
+    leafTint: 0xd980fa, cloudAlpha: 0.4
+  },
+  DESCENT: {
+    id: "DESCENT",
+    name: "THE DESCENT",
+    skyTop: 0x020106, skyBot: 0x0b0314,
+    sunColor: 0x8854d0, islandColor: 0x14041f, ruinColor: 0x210833,
+    leafTint: 0x6c5ce7, cloudAlpha: 0.25
+  }
+};
+
+function getBiomeForLevel(lvl) {
+  if (lvl < 10) return WORLD_2_BIOMES.GARDEN;
+  if (lvl < 20) return WORLD_2_BIOMES.DISTORTION;
+  if (lvl < 30) return WORLD_2_BIOMES.ECHO;
+  if (lvl < 40) return WORLD_2_BIOMES.COLLAPSE;
+  if (lvl < 45) return WORLD_2_BIOMES.UNSTABLE;
+  return WORLD_2_BIOMES.DESCENT;
+}
+
+// ─── Procedural Asset Generation Pipeline ──────────────────────
 var World2Assets = {
   created: false,
 
@@ -31,7 +87,7 @@ var World2Assets = {
     if (this.created) return;
     this.created = true;
 
-    // ── 🌿 2.5D SKY RUIN PLATFORM WITH MOSS/GRASS FRINGE ──
+    // 🌿 2.5D Sky Ruin Platform with 3D Bevel & Moss
     var platGfx = scene.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0x1b4965, 1);
     platGfx.fillRect(0, 0, 32, 32);
@@ -49,66 +105,77 @@ var World2Assets = {
     platGfx.generateTexture("plat_w2_tex", 32, 32);
     platGfx.destroy();
 
-    // ── 🪞 MIRROR CRYSTAL PLATFORM (Shimmering Glass) ──
+    // 🪞 Shimmering Mirror Glass Platform
     var mirrPlatGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    mirrPlatGfx.fillStyle(0x00d2d3, 0.38);
+    mirrPlatGfx.fillStyle(0x00d2d3, 0.4);
     mirrPlatGfx.fillRect(0, 0, 32, 32);
-    mirrPlatGfx.lineStyle(1.5, 0xffffff, 0.85);
+    mirrPlatGfx.lineStyle(2, 0xffffff, 0.9);
     mirrPlatGfx.strokeRect(1, 1, 30, 30);
-    mirrPlatGfx.lineStyle(1, 0xffffff, 0.6);
+    mirrPlatGfx.lineStyle(1, 0xffffff, 0.7);
     mirrPlatGfx.lineBetween(4, 28, 28, 4);
     mirrPlatGfx.lineBetween(10, 28, 28, 10);
     mirrPlatGfx.generateTexture("mirror_plat_tex", 32, 32);
     mirrPlatGfx.destroy();
 
-    // ── 👻 PHANTOM PLATFORM ──
+    // 👻 Holographic Phantom Platform
     var phantGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    phantGfx.fillStyle(0x9b59b6, 0.25);
+    phantGfx.fillStyle(0x9b59b6, 0.15);
     phantGfx.fillRect(0, 0, 32, 32);
-    phantGfx.lineStyle(1.5, 0xe056fd, 0.7);
+    phantGfx.lineStyle(1.5, 0xe056fd, 0.85);
     phantGfx.strokeRoundedRect(2, 2, 28, 28, 4);
+    phantGfx.lineBetween(6, 6, 26, 26);
     phantGfx.generateTexture("phantom_plat_tex", 32, 32);
     phantGfx.destroy();
 
-    // ── ⏳ TIME ZONE: SLOW FIELD (Indigo/Cyan Pulsing Vortex) ──
+    // ☁️ Volumetric Cloud Puff
+    var cloudGfx = scene.make.graphics({ x: 0, y: 0, add: false });
+    cloudGfx.fillStyle(0xffffff, 0.25);
+    cloudGfx.fillCircle(40, 24, 20);
+    cloudGfx.fillCircle(65, 20, 24);
+    cloudGfx.fillCircle(90, 24, 18);
+    cloudGfx.fillRoundedRect(20, 20, 90, 20, 10);
+    cloudGfx.generateTexture("w2_cloud_puff", 120, 48);
+    cloudGfx.destroy();
+
+    // ⏳ Time Zone: Slow Field
     var slowGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    slowGfx.fillStyle(0x3867d6, 0.25);
+    slowGfx.fillStyle(0x3867d6, 0.22);
     slowGfx.fillCircle(32, 32, 30);
     slowGfx.lineStyle(2, 0x45aaf2, 0.85);
     slowGfx.strokeCircle(32, 32, 28);
     slowGfx.lineStyle(1, 0xffffff, 0.6);
     slowGfx.strokeCircle(32, 32, 16);
-    slowGfx.fillStyle(0xffffff, 0.9);
+    slowGfx.fillStyle(0xffffff, 0.95);
     slowGfx.fillTriangle(26, 22, 38, 22, 32, 30);
     slowGfx.fillTriangle(26, 42, 38, 42, 32, 34);
     slowGfx.generateTexture("time_zone_slow", 64, 64);
     slowGfx.destroy();
 
-    // ── ⚡ TIME ZONE: FAST FIELD (Amber/Gold Hyper Vortex) ──
+    // ⚡ Time Zone: Fast Field
     var fastGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    fastGfx.fillStyle(0xffa502, 0.26);
+    fastGfx.fillStyle(0xffa502, 0.25);
     fastGfx.fillCircle(32, 32, 30);
     fastGfx.lineStyle(2, 0xffd32a, 0.85);
     fastGfx.strokeCircle(32, 32, 28);
-    fastGfx.fillStyle(0xffffff, 0.9);
+    fastGfx.fillStyle(0xffffff, 0.95);
     fastGfx.fillTriangle(24, 24, 31, 32, 24, 40);
     fastGfx.fillTriangle(33, 24, 40, 32, 33, 40);
     fastGfx.generateTexture("time_zone_fast", 64, 64);
     fastGfx.destroy();
 
-    // ── 👤 ECHO SHADOW PLAYER SPRITE ──
+    // 👤 Echo Shadow Player Sprite
     var echoGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    echoGfx.fillStyle(0x00d2d3, 0.6);
+    echoGfx.fillStyle(0x00d2d3, 0.65);
     echoGfx.fillRoundedRect(6, 6, 20, 24, 6);
-    echoGfx.fillStyle(0xffffff, 0.85);
+    echoGfx.fillStyle(0xffffff, 0.9);
     echoGfx.fillCircle(12, 14, 2.5);
     echoGfx.fillCircle(20, 14, 2.5);
-    echoGfx.lineStyle(1.5, 0x55efc4, 0.9);
+    echoGfx.lineStyle(1.5, 0x55efc4, 0.95);
     echoGfx.strokeRoundedRect(5, 5, 22, 26, 6);
     echoGfx.generateTexture("echo_hero_ghost", 32, 36);
     echoGfx.destroy();
 
-    // ── 🧲 MAGNETIC POLAR NODE (Attract / Repel) ──
+    // 🧲 Magnetic Polar Node (Attract / Repel)
     var magGfx = scene.make.graphics({ x: 0, y: 0, add: false });
     magGfx.fillStyle(0x2d3436, 1);
     magGfx.fillCircle(16, 16, 14);
@@ -116,12 +183,12 @@ var World2Assets = {
     magGfx.fillRect(4, 10, 10, 12);
     magGfx.fillStyle(0xd63031, 1);
     magGfx.fillRect(18, 10, 10, 12);
-    magGfx.lineStyle(2, 0xffffff, 0.9);
+    magGfx.lineStyle(2, 0xffffff, 0.95);
     magGfx.strokeCircle(16, 16, 14);
     magGfx.generateTexture("magnet_node", 32, 32);
     magGfx.destroy();
 
-    // ── 📦 MOVABLE METAL CRATE ──
+    // 📦 Movable Metal Crate
     var crateGfx = scene.make.graphics({ x: 0, y: 0, add: false });
     crateGfx.fillStyle(0x4b6584, 1);
     crateGfx.fillRoundedRect(0, 0, 28, 28, 4);
@@ -132,7 +199,7 @@ var World2Assets = {
     crateGfx.generateTexture("metal_crate_tex", 28, 28);
     crateGfx.destroy();
 
-    // ── 🔘 PUZZLE FLOOR PEDESTAL SWITCH ──
+    // 🔘 Floor Pedestal Switch (Off / On)
     var swOffGfx = scene.make.graphics({ x: 0, y: 0, add: false });
     swOffGfx.fillStyle(0x2f3542, 1);
     swOffGfx.fillRoundedRect(0, 6, 28, 10, 3);
@@ -149,147 +216,307 @@ var World2Assets = {
     swOnGfx.generateTexture("switch_on_tex", 28, 16);
     swOnGfx.destroy();
 
-    // ── ⚡ ENERGY BARRIER GATE ──
+    // ⚡ Energy Barrier Gate
     var gateGfx = scene.make.graphics({ x: 0, y: 0, add: false });
     gateGfx.fillStyle(0x00d2d3, 0.7);
     gateGfx.fillRect(4, 0, 8, 64);
-    gateGfx.fillStyle(0xffffff, 0.9);
+    gateGfx.fillStyle(0xffffff, 0.95);
     gateGfx.fillRect(6, 0, 4, 64);
     gateGfx.lineStyle(1.5, 0x55efc4, 1);
     gateGfx.strokeRect(2, 0, 12, 64);
     gateGfx.generateTexture("energy_barrier_tex", 16, 64);
     gateGfx.destroy();
 
-    // ── 🌌 WORLD 3 MONOLITH ARTIFACT ──
+    // 🌌 World 3 Monolith Artifact
     var monoGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    monoGfx.fillStyle(0x000000, 1);
-    monoGfx.fillRoundedRect(0, 0, 40, 90, 8);
+    monoGfx.fillStyle(0x030308, 1);
+    monoGfx.fillRoundedRect(0, 0, 42, 94, 8);
     monoGfx.lineStyle(2, 0xa55eea, 1);
-    monoGfx.strokeRoundedRect(0, 0, 40, 90, 8);
-    monoGfx.fillStyle(0x8854d0, 0.5);
-    monoGfx.fillCircle(20, 35, 12);
-    monoGfx.fillStyle(0xffffff, 0.9);
-    monoGfx.fillCircle(20, 35, 4);
-    monoGfx.generateTexture("monolith_tex", 40, 90);
+    monoGfx.strokeRoundedRect(0, 0, 42, 94, 8);
+    monoGfx.fillStyle(0x8854d0, 0.55);
+    monoGfx.fillCircle(21, 36, 13);
+    monoGfx.fillStyle(0xffffff, 0.95);
+    monoGfx.fillCircle(21, 36, 4);
+    monoGfx.generateTexture("monolith_tex", 42, 94);
     monoGfx.destroy();
 
-    // ── 🍃 FOREGROUND FLOATING LEAF ──
+    // 🍃 Drifting Foliage Leaf
     var leafGfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    leafGfx.fillStyle(0x2ed573, 0.85);
+    leafGfx.fillStyle(0x2ed573, 0.9);
     leafGfx.fillEllipse(8, 6, 8, 4);
-    leafGfx.fillStyle(0x7bed9f, 0.9);
+    leafGfx.fillStyle(0x7bed9f, 0.95);
     leafGfx.fillCircle(8, 6, 2);
     leafGfx.generateTexture("foliage_leaf", 16, 12);
     leafGfx.destroy();
+
+    // 💧 Waterfall Stream Droplet
+    var dropGfx = scene.make.graphics({ x: 0, y: 0, add: false });
+    dropGfx.fillStyle(0x48dbfb, 0.75);
+    dropGfx.fillRoundedRect(0, 0, 4, 14, 2);
+    dropGfx.generateTexture("waterfall_drop", 4, 14);
+    dropGfx.destroy();
   }
 };
 
+// ─── Dedicated Cinematic World 2 Intro Scene (5-8 Seconds) ─────
+class World2IntroScene extends Phaser.Scene {
+  constructor() {
+    super("World2IntroScene");
+  }
 
-// ─── World 2 Core Engine Subsystem ───────────────────────────
-var World2Engine = {
-  active: false,
+  create() {
+    var self = this;
+    var width = this.scale.width;
+    var height = this.scale.height;
+
+    AudioEngine.init();
+    AudioEngine.stopMusic();
+    MobileGamepad.hide();
+    removeLoaderSplash();
+
+    World2Assets.create(this);
+
+    // Initial Darkness
+    var bg = this.add.graphics();
+    bg.fillGradientStyle(0x050c18, 0x050c18, 0x0a192f, 0x0a192f, 1);
+    bg.fillRect(0, 0, width, height);
+
+    // Atmospheric Synth Hum
+    AudioEngine.playTone(55, "sine", 4.0, 0.4);
+    AudioEngine.playTone(110, "triangle", 3.0, 0.25, 0.3);
+
+    // Drifting Clouds
+    this.clouds = [];
+    for (var c = 0; c < 4; c++) {
+      var cloud = this.add.sprite(c * 260 + 50, 70 + (c % 2) * 40, "w2_cloud_puff").setDepth(5).setAlpha(0.45).setScale(1.2);
+      this.clouds.push(cloud);
+    }
+
+    // Distant Sky Ruins & Islands
+    var islGfx = this.add.graphics().setDepth(10);
+    islGfx.fillStyle(0x133852, 0.85);
+    islGfx.fillRoundedRect(width * 0.15, 140, 160, 36, 12);
+    islGfx.fillTriangle(width * 0.15 + 20, 176, width * 0.15 + 140, 176, width * 0.15 + 80, 220);
+    islGfx.fillRoundedRect(width * 0.65, 110, 200, 42, 14);
+    islGfx.fillTriangle(width * 0.65 + 30, 152, width * 0.65 + 170, 152, width * 0.65 + 100, 205);
+
+    // Cascading Waterfall Particles
+    this.add.particles(width * 0.22, 175, "waterfall_drop", {
+      speedY: { min: 40, max: 90 },
+      speedX: { min: -4, max: 4 },
+      scale: { start: 0.8, end: 0.2 },
+      alpha: { start: 0.8, end: 0 },
+      lifespan: 1200,
+      frequency: 180
+    }).setDepth(11);
+
+    // Player Hero on Floating Platform Island
+    var heroPlatform = this.add.tileSprite(width / 2, height * 0.65, 180, 32, "plat_w2_tex").setDepth(20);
+    var hero = this.add.sprite(width / 2, height * 0.65 - 28, "hero_idle_1").setDepth(25);
+    hero.anims.play("hero_anim_idle");
+
+    // Camera Starts Pulled Back and Zooms In
+    this.cameras.main.setZoom(0.75);
+    this.cameras.main.pan(width / 2, height * 0.55, 3200, "Cubic.easeOut");
+    this.cameras.main.zoomTo(1.0, 3200, "Cubic.easeOut");
+
+    // Skip Button
+    var skipBtn = this.add.container(width - 65, 30).setDepth(200);
+    var sGfx = this.add.graphics();
+    sGfx.fillStyle(0x161822, 0.85);
+    sGfx.fillRoundedRect(-45, -12, 90, 24, 6);
+    sGfx.lineStyle(1.5, 0x00d2d3, 0.9);
+    sGfx.strokeRoundedRect(-45, -12, 90, 24, 6);
+    var sTxt = this.add.text(0, 0, "SKIP ▶", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "7.5px",
+      color: "#00d2d3"
+    }).setOrigin(0.5);
+    var sZone = this.add.zone(0, 0, 90, 24).setInteractive({ cursor: "pointer" });
+    sZone.on("pointerdown", function() {
+      self.finishIntro();
+    });
+    skipBtn.add([sGfx, sTxt, sZone]);
+
+    // Phase 2: The Mirror Anomaly (At 3.2s)
+    this.time.delayedCall(3200, function() {
+      AudioEngine.playTone(280, "sawtooth", 0.15, 0.25);
+      AudioEngine.playTone(140, "sawtooth", 0.25, 0.3, 0.08);
+
+      var ripple = self.add.graphics().setDepth(50);
+      ripple.lineStyle(3, 0x00d2d3, 0.9);
+      ripple.lineBetween(0, height * 0.65, width, height * 0.65);
+      
+      var reflectionGhost = self.add.sprite(width / 2, height * 0.65 + 32, "hero_idle_1").setDepth(24).setTint(0x00d2d3).setAlpha(0.6).setFlipY(true);
+
+      self.cameras.main.shake(350, 0.015);
+
+      self.tweens.add({
+        targets: [ripple, reflectionGhost],
+        alpha: 0,
+        duration: 900,
+        onComplete: function() {
+          ripple.destroy();
+          reflectionGhost.destroy();
+        }
+      });
+
+      // Phase 3: Title Slam (At 4.2s)
+      self.time.delayedCall(900, function() {
+        var titleGroup = self.add.container(width / 2, height * 0.32).setDepth(150).setScale(0.6).setAlpha(0);
+
+        var tBadge = self.add.text(0, -28, "CHAPTER II", {
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "10px",
+          color: "#00d2d3"
+        }).setOrigin(0.5);
+
+        var tTitle = self.add.text(0, 0, "THE SHIFT", {
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "26px",
+          color: "#ffffff",
+          stroke: "#000000",
+          strokeThickness: 8
+        }).setOrigin(0.5);
+
+        var tSub = self.add.text(0, 26, "A beautiful world that slowly becomes wrong.", {
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: "7.5px",
+          color: "#7bed9f"
+        }).setOrigin(0.5);
+
+        titleGroup.add([tBadge, tTitle, tSub]);
+
+        AudioEngine.sfxBoom();
+
+        self.tweens.add({
+          targets: titleGroup,
+          alpha: 1,
+          scaleX: 1.0,
+          scaleY: 1.0,
+          duration: 450,
+          ease: "Back.easeOut"
+        });
+
+        // Phase 4: Smooth Fade to Level 1 (At 7.0s)
+        self.time.delayedCall(2200, function() {
+          self.finishIntro();
+        });
+      });
+    });
+  }
+
+  update(time, delta) {
+    if (this.clouds) {
+      for (var i = 0; i < this.clouds.length; i++) {
+        this.clouds[i].x += (0.2 + i * 0.08);
+        if (this.clouds[i].x > this.scale.width + 80) {
+          this.clouds[i].x = -80;
+        }
+      }
+    }
+  }
+
+  finishIntro() {
+    var self = this;
+    if (this.finished) return;
+    this.finished = true;
+
+    try {
+      var data = SaveManager.load();
+      data.introSeenWorld2 = true;
+      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
+
+    this.cameras.main.fade(450, 0, 0, 0);
+    this.time.delayedCall(450, function() {
+      self.scene.start("GameScene", { world: 1, level: 0 });
+    });
+  }
+}
+
+// ─── 2.5D Animated Parallax Biome Manager ─────────────────────
+var World2ThemeManager = {
   scene: null,
   levelIdx: 0,
-  
-  // Parallax elements
+  biome: null,
+
   skyGfx: null,
+  sunGfx: null,
   clouds: [],
   distantIslandsGfx: null,
   midRuinsGfx: null,
   foliageEmitters: null,
-
-  // Mechanics tracking
-  mirrorActive: false,
-  mirrorY: 460,
-  mirrorReflectionSprite: null,
-  phantomPlatforms: [],
-  
-  timeZones: [],
-  timeZoneSprites: [],
-
-  echoActive: false,
-  echoGhost: null,
-  echoBuffer: [],
-  echoDelaySec: 2.0,
-
-  magneticNodes: [],
-  metalCrates: [],
-
-  switches: [],
-  gates: [],
-  customUpdateHandlers: [],
+  waterfallEmitters: null,
 
   init: function(scene, levelIdx) {
-    this.active = true;
     this.scene = scene;
     this.levelIdx = levelIdx;
-    
-    this.mirrorActive = false;
-    this.mirrorReflectionSprite = null;
-    this.phantomPlatforms = [];
+    this.biome = getBiomeForLevel(levelIdx);
+    this.clouds = [];
 
-    this.timeZones = [];
-    this.timeZoneSprites = [];
-
-    this.echoActive = false;
-    this.echoGhost = null;
-    this.echoBuffer = [];
-
-    this.magneticNodes = [];
-    this.metalCrates = [];
-
-    this.switches = [];
-    this.gates = [];
-    this.customUpdateHandlers = [];
-
-    World2Assets.create(scene);
-    this.draw2DParallax(scene);
+    this.buildParallaxLayers();
   },
 
-  draw2DParallax: function(scene) {
+  buildParallaxLayers: function() {
+    var scene = this.scene;
     var width = scene.scale.width;
     var height = scene.scale.height;
+    var biome = this.biome;
 
-    // Layer 0: Sky Gradient (Deep Twilight to Cyan)
-    // Progressively darken sky for later levels (41-50)
-    var skyTop = 0x050c18;
-    var skyBot = 0x0a192f;
-    if (this.levelIdx >= 40) {
-      skyTop = 0x040308; // Deep ominous purple/black
-      skyBot = 0x120824;
-    }
-
+    // Layer 0: Biome Sky Gradient
     this.skyGfx = scene.add.graphics().setDepth(-40);
-    this.skyGfx.fillGradientStyle(skyTop, skyTop, skyBot, skyBot, 1);
+    this.skyGfx.fillGradientStyle(biome.skyTop, biome.skyTop, biome.skyBot, biome.skyBot, 1);
     this.skyGfx.fillRect(0, 0, width, height);
 
-    // Celestial Sun / Void Halo
-    var haloColor = (this.levelIdx >= 40) ? 0xa55eea : 0x00d2d3;
-    var sun = scene.add.graphics().setDepth(-38);
-    sun.fillStyle(haloColor, 0.16);
-    sun.fillCircle(width * 0.78, height * 0.22, 100);
-    sun.fillStyle(haloColor, 0.32);
-    sun.fillCircle(width * 0.78, height * 0.22, 48);
+    // Layer 1: Celestial Sun / Anomaly Halo
+    this.sunGfx = scene.add.graphics().setDepth(-38);
+    this.sunGfx.fillStyle(biome.sunColor, 0.14);
+    this.sunGfx.fillCircle(width * 0.78, height * 0.22, 105);
+    this.sunGfx.fillStyle(biome.sunColor, 0.32);
+    this.sunGfx.fillCircle(width * 0.78, height * 0.22, 46);
 
-    // Layer 1: Distant Floating Islands & Waterfalls
+    // Layer 2: Drifting Volumetric Cloud Sprites
+    for (var c = 0; c < 5; c++) {
+      var cloud = scene.add.sprite(c * 220 + 40, 65 + (c % 3) * 35, "w2_cloud_puff").setDepth(-35);
+      cloud.setAlpha(biome.cloudAlpha);
+      cloud.setScale(1.1 + (c % 2) * 0.3);
+      cloud.driftSpeed = 0.25 + (c * 0.12);
+      this.clouds.push(cloud);
+    }
+
+    // Layer 3: Distant Floating Islands & Animated Waterfalls
     this.distantIslandsGfx = scene.add.graphics().setDepth(-30);
     this.drawDistantIslands(this.distantIslandsGfx, width, height, 0);
 
-    // Layer 2: Midground Celestial Ruin Pillars
+    if (this.levelIdx < 30) {
+      try {
+        this.waterfallEmitters = scene.add.particles(width * 0.18, 175, "waterfall_drop", {
+          speedY: { min: 45, max: 90 },
+          scale: { start: 0.7, end: 0.1 },
+          alpha: { start: 0.75, end: 0 },
+          lifespan: 1100,
+          frequency: 220
+        }).setDepth(-29);
+      } catch(e) {}
+    }
+
+    // Layer 4: Midground Ruin Pillars & Floating Arches
     this.midRuinsGfx = scene.add.graphics().setDepth(-20);
     this.drawMidRuins(this.midRuinsGfx, width, height, 0);
 
-    // Layer 3: Foreground Floating Foliage Particles
+    // Layer 5: Foreground Floating Foliage Particles
     try {
       this.foliageEmitters = scene.add.particles(0, 0, "foliage_leaf", {
         x: { min: 0, max: width },
         y: -20,
         lifespan: 6000,
-        speedY: { min: 30, max: 70 },
-        speedX: { min: -25, max: 25 },
+        speedY: { min: 30, max: 65 },
+        speedX: { min: -20, max: 20 },
         rotate: { min: 0, max: 360 },
-        scale: { start: 0.8, end: 0.2 },
+        scale: { start: 0.75, end: 0.2 },
         alpha: { start: 0.7, end: 0 },
+        tint: biome.leafTint,
         frequency: 450
       }).setDepth(150);
     } catch(e) {}
@@ -297,67 +524,147 @@ var World2Engine = {
 
   drawDistantIslands: function(gfx, width, height, offsetX) {
     gfx.clear();
-    var islandColor = (this.levelIdx >= 40) ? 0x180b2c : 0x0e2f44;
-    gfx.fillStyle(islandColor, 0.8);
-    
-    // Island 1 (Left)
-    gfx.fillRoundedRect(width * 0.12 + offsetX, 130, 180, 42, 16);
-    gfx.fillTriangle(width * 0.12 + offsetX + 20, 172, width * 0.12 + offsetX + 160, 172, width * 0.12 + offsetX + 90, 225);
-    
-    // Island 2 (Center High)
-    gfx.fillRoundedRect(width * 0.44 + offsetX * 1.2, 85, 220, 48, 18);
-    gfx.fillTriangle(width * 0.44 + offsetX * 1.2 + 30, 133, width * 0.44 + offsetX * 1.2 + 190, 133, width * 0.44 + offsetX * 1.2 + 110, 195);
-    
-    // Island 3 (Right)
-    gfx.fillRoundedRect(width * 0.76 + offsetX * 0.8, 155, 160, 38, 14);
-    gfx.fillTriangle(width * 0.76 + offsetX * 0.8 + 20, 193, width * 0.76 + offsetX * 0.8 + 140, 193, width * 0.76 + offsetX * 0.8 + 80, 235);
+    var biome = this.biome;
+    gfx.fillStyle(biome.islandColor, 0.88);
+
+    gfx.fillRoundedRect(width * 0.10 + offsetX, 135, 170, 40, 14);
+    gfx.fillTriangle(width * 0.10 + offsetX + 20, 175, width * 0.10 + offsetX + 150, 175, width * 0.10 + offsetX + 85, 222);
+
+    gfx.fillRoundedRect(width * 0.42 + offsetX * 1.2, 90, 210, 46, 16);
+    gfx.fillTriangle(width * 0.42 + offsetX * 1.2 + 25, 136, width * 0.42 + offsetX * 1.2 + 185, 136, width * 0.42 + offsetX * 1.2 + 105, 195);
+
+    gfx.fillRoundedRect(width * 0.75 + offsetX * 0.8, 150, 160, 36, 12);
+    gfx.fillTriangle(width * 0.75 + offsetX * 0.8 + 20, 186, width * 0.75 + offsetX * 0.8 + 140, 186, width * 0.75 + offsetX * 0.8 + 80, 230);
   },
 
   drawMidRuins: function(gfx, width, height, offsetX) {
     gfx.clear();
-    var ruinColor = (this.levelIdx >= 40) ? 0x22133c : 0x143952;
-    var accentGlow = (this.levelIdx >= 40) ? 0x8854d0 : 0x00d2d3;
-    gfx.fillStyle(ruinColor, 0.95);
+    var biome = this.biome;
+    gfx.fillStyle(biome.ruinColor, 0.95);
 
-    // Ancient Ruin Column 1
-    gfx.fillRect(width * 0.06 + offsetX, 230, 32, 180);
-    gfx.fillRect(width * 0.04 + offsetX, 220, 48, 12);
-    gfx.lineStyle(1.5, accentGlow, 0.6);
-    gfx.lineBetween(width * 0.06 + offsetX + 16, 240, width * 0.06 + offsetX + 16, 380);
+    gfx.fillRect(width * 0.05 + offsetX, 235, 32, 175);
+    gfx.fillRect(width * 0.03 + offsetX, 225, 48, 12);
+    gfx.lineStyle(1.5, biome.sunColor, 0.6);
+    gfx.lineBetween(width * 0.05 + offsetX + 16, 245, width * 0.05 + offsetX + 16, 385);
 
-    // Floating Bridge Arch
-    gfx.fillRect(width * 0.35 + offsetX * 1.1, 280, 140, 24);
-    gfx.fillRect(width * 0.38 + offsetX * 1.1, 304, 20, 80);
-    gfx.fillRect(width * 0.45 + offsetX * 1.1, 304, 20, 80);
+    gfx.fillRect(width * 0.36 + offsetX * 1.1, 285, 130, 22);
+    gfx.fillRect(width * 0.39 + offsetX * 1.1, 307, 18, 75);
+    gfx.fillRect(width * 0.45 + offsetX * 1.1, 307, 18, 75);
 
-    // Ancient Ruin Column 2
-    gfx.fillRect(width * 0.88 + offsetX * 0.9, 210, 36, 200);
-    gfx.fillRect(width * 0.86 + offsetX * 0.9, 200, 52, 14);
+    gfx.fillRect(width * 0.89 + offsetX * 0.9, 215, 34, 195);
+    gfx.fillRect(width * 0.87 + offsetX * 0.9, 205, 50, 14);
   },
 
-  // ── Mirror System ──────────────────────────────────────────
-  setupMirrorPlane: function(scene, mirrorY) {
-    this.mirrorActive = true;
-    this.mirrorY = mirrorY;
+  update: function(player, dt) {
+    if (!player) return;
+    var width = this.scene.scale.width;
+    var height = this.scene.scale.height;
 
-    // Glowing mirror horizon line
-    var line = scene.add.graphics().setDepth(5);
-    line.lineStyle(2, 0x00d2d3, 0.7);
-    line.lineBetween(0, mirrorY, scene.scale.width, mirrorY);
-    line.lineStyle(1, 0xffffff, 0.9);
-    line.lineBetween(0, mirrorY, scene.scale.width, mirrorY);
+    for (var i = 0; i < this.clouds.length; i++) {
+      this.clouds[i].x += this.clouds[i].driftSpeed;
+      if (this.clouds[i].x > width + 80) {
+        this.clouds[i].x = -80;
+      }
+    }
 
-    // Reflection avatar sprite
-    this.mirrorReflectionSprite = scene.add.sprite(scene.spawnX, mirrorY + 30, "hero_idle_1");
-    this.mirrorReflectionSprite.setDepth(6);
-    this.mirrorReflectionSprite.setAlpha(0.45);
-    this.mirrorReflectionSprite.setTint(0x00d2d3);
-    this.mirrorReflectionSprite.setFlipY(true);
+    var pRatio = (player.x - width / 2) / width;
+    if (this.distantIslandsGfx) this.drawDistantIslands(this.distantIslandsGfx, width, height, -pRatio * 22);
+    if (this.midRuinsGfx) this.drawMidRuins(this.midRuinsGfx, width, height, -pRatio * 52);
+  }
+};
+
+// ─── Authentic Mechanics Engines ──────────────────────────────
+var MirrorEngine = {
+  active: false,
+  scene: null,
+  mirrorY: 460,
+  reflectionSprite: null,
+  mirrorLineGfx: null,
+  phantomPlats: [],
+
+  init: function(scene, mirrorY) {
+    this.active = true;
+    this.scene = scene;
+    this.mirrorY = mirrorY || 460;
+    this.phantomPlats = [];
+
+    this.mirrorLineGfx = scene.add.graphics().setDepth(6);
+    this.mirrorLineGfx.lineStyle(2.5, 0x00d2d3, 0.85);
+    this.mirrorLineGfx.lineBetween(0, this.mirrorY, scene.scale.width, this.mirrorY);
+    this.mirrorLineGfx.lineStyle(1, 0xffffff, 0.95);
+    this.mirrorLineGfx.lineBetween(0, this.mirrorY, scene.scale.width, this.mirrorY);
+
+    this.reflectionSprite = scene.add.sprite(scene.spawnX, this.mirrorY + 30, "hero_idle_1");
+    this.reflectionSprite.setDepth(7);
+    this.reflectionSprite.setAlpha(0.55);
+    this.reflectionSprite.setTint(0x00d2d3);
+    this.reflectionSprite.setFlipY(true);
   },
 
-  // ── Time Zone System ───────────────────────────────────────
-  addTimeZone: function(scene, x, y, type, radius) {
-    if (!radius) radius = 80;
+  addPhantomPlatform: function(scene, x, y, w, h, isReal) {
+    var p = scene.add.tileSprite(x + w/2, y + h/2, w, h, isReal ? "mirror_plat_tex" : "phantom_plat_tex");
+    p.setDepth(10);
+    p.isPhantom = true;
+    p.isReal = isReal;
+
+    if (isReal) {
+      scene.platforms.add(p);
+    } else {
+      p.stepped = false;
+      this.phantomPlats.push(p);
+    }
+
+    var refY = this.mirrorY + (this.mirrorY - y);
+    var refIndicator = scene.add.tileSprite(x + w/2, refY - h/2, w, h, "mirror_plat_tex");
+    if (refIndicator) {
+      if (refIndicator.setDepth) refIndicator.setDepth(7);
+      if (refIndicator.setAlpha) refIndicator.setAlpha(0.45);
+      if (refIndicator.setFlipY) refIndicator.setFlipY(true);
+      if (refIndicator.setTint) refIndicator.setTint(isReal ? 0x2ed573 : 0xff4757);
+    }
+
+    return p;
+  },
+
+  update: function(player, dt) {
+    if (!this.active || !this.reflectionSprite || !player) return;
+
+    this.reflectionSprite.x = player.x;
+    var distY = player.y - this.mirrorY;
+    this.reflectionSprite.y = this.mirrorY - distY;
+    this.reflectionSprite.setFlipX(player.flipX);
+
+    if (player.anims && player.anims.currentAnim) {
+      this.reflectionSprite.anims.play(player.anims.currentAnim.key, true);
+    }
+
+    for (var i = 0; i < this.phantomPlats.length; i++) {
+      var ph = this.phantomPlats[i];
+      if (!ph.stepped && Math.abs(player.x - ph.x) < ph.width / 2 && Math.abs(player.y - ph.y) < 26) {
+        ph.stepped = true;
+        AudioEngine.sfxGlassShatter();
+        this.scene.showTrollToast("DECEPTIVE MIRROR: That was a phantom illusion!");
+        this.scene.tweens.add({
+          targets: ph,
+          alpha: 0,
+          scaleY: 0.1,
+          duration: 250,
+          onComplete: function() { ph.destroy(); }
+        });
+      }
+    }
+  }
+};
+
+var ChronoEngine = {
+  timeZones: [],
+
+  init: function(scene) {
+    this.timeZones = [];
+  },
+
+  addZone: function(scene, x, y, type, radius) {
+    if (!radius) radius = 85;
     var texKey = (type === "slow") ? "time_zone_slow" : "time_zone_fast";
     var sprite = scene.add.sprite(x, y, texKey).setDepth(8);
     sprite.setDisplaySize(radius * 2, radius * 2);
@@ -366,154 +673,31 @@ var World2Engine = {
     scene.tweens.add({
       targets: sprite,
       angle: 360,
-      duration: (type === "slow") ? 12000 : 3000,
+      duration: (type === "slow") ? 14000 : 3200,
       repeat: -1
     });
 
     scene.tweens.add({
       targets: sprite,
-      scaleX: 1.08,
-      scaleY: 1.08,
-      duration: 800,
+      scaleX: 1.07,
+      scaleY: 1.07,
+      duration: 750,
       yoyo: true,
       repeat: -1,
       ease: "Sine.easeInOut"
     });
 
-    var tzObj = { x: x, y: y, radius: radius, type: type, sprite: sprite };
-    this.timeZones.push(tzObj);
-    return tzObj;
+    var tz = { x: x, y: y, radius: radius, type: type, sprite: sprite };
+    this.timeZones.push(tz);
+    return tz;
   },
 
-  // ── Echo Player System ─────────────────────────────────────
-  setupEchoSystem: function(scene) {
-    this.echoActive = true;
-    this.echoBuffer = [];
-    this.echoGhost = scene.physics.add.sprite(scene.spawnX, scene.spawnY, "echo_hero_ghost");
-    this.echoGhost.setDepth(90);
-    this.echoGhost.setAlpha(0);
-    this.echoGhost.body.setAllowGravity(false);
-    this.echoGhost.body.setSize(22, 34);
-  },
+  update: function(scene, player, dt) {
+    if (!player || scene.isDead || scene.isComplete) return;
 
-  // ── Magnetic Node System ───────────────────────────────────
-  addMagnetNode: function(scene, x, y, type, strength) {
-    if (!strength) strength = 260;
-    var node = scene.add.sprite(x, y, "magnet_node").setDepth(12);
-    node.magnetType = type; // 'attract' or 'repel'
-    node.magnetStrength = strength;
-
-    var ringGfx = scene.add.graphics().setDepth(11);
-    var ringColor = (type === "attract") ? 0x0984e3 : 0xd63031;
-    ringGfx.lineStyle(1.5, ringColor, 0.6);
-    ringGfx.strokeCircle(x, y, 70);
-
-    scene.tweens.add({
-      targets: ringGfx,
-      scaleX: 1.15,
-      scaleY: 1.15,
-      alpha: 0.2,
-      duration: 900,
-      yoyo: true,
-      repeat: -1
-    });
-
-    var magObj = { x: x, y: y, type: type, strength: strength, node: node };
-    this.magneticNodes.push(magObj);
-    return magObj;
-  },
-
-  // ── Moveable Metal Crate ───────────────────────────────────
-  addMetalCrate: function(scene, x, y) {
-    var crate = scene.physics.add.sprite(x, y, "metal_crate_tex");
-    crate.setDepth(15);
-    crate.body.setGravityY(1200);
-    crate.body.setBounce(0.1);
-    crate.body.setFriction(0.8);
-    crate.body.setCollideWorldBounds(true);
-    scene.physics.add.collider(crate, scene.platforms);
-    scene.physics.add.collider(scene.player, crate);
-    this.metalCrates.push(crate);
-    return crate;
-  },
-
-  // ── Puzzle Switch & Energy Gate ────────────────────────────
-  addPuzzleSwitch: function(scene, x, y, id) {
-    var sw = scene.physics.add.sprite(x, y, "switch_off_tex");
-    sw.setDepth(14);
-    sw.switchId = id;
-    sw.isPressed = false;
-    sw.body.setAllowGravity(false);
-    sw.body.setImmovable(true);
-    sw.body.setSize(28, 12);
-    this.switches.push(sw);
-    return sw;
-  },
-
-  addEnergyGate: function(scene, x, y, id) {
-    var gate = scene.physics.add.sprite(x, y, "energy_barrier_tex");
-    gate.setDepth(16);
-    gate.gateId = id;
-    gate.isOpen = false;
-    gate.body.setAllowGravity(false);
-    gate.body.setImmovable(true);
-    scene.physics.add.collider(scene.player, gate, null, function(pl, g) {
-      return !g.isOpen;
-    }, scene);
-    this.gates.push(gate);
-    return gate;
-  },
-
-  activateSwitch: function(scene, sw) {
-    if (sw.isPressed) return;
-    sw.isPressed = true;
-    sw.setTexture("switch_on_tex");
-    AudioEngine.sfxBounce();
-    scene.showTrollToast("⚡ SWITCH ACTIVATED!");
-
-    // Open linked gates
-    this.gates.forEach(function(g) {
-      if (g.gateId === sw.switchId) {
-        g.isOpen = true;
-        scene.tweens.add({
-          targets: g,
-          alpha: 0,
-          scaleY: 0.1,
-          duration: 350,
-          onComplete: function() {
-            if (g.body) g.body.enable = false;
-          }
-        });
-      }
-    });
-  },
-
-  // ── Main World 2 Per-Frame Update Loop ─────────────────────
-  update: function(scene, dt) {
-    if (!this.active || scene.isDead || scene.isComplete) return;
-
-    var width = scene.scale.width;
-    var height = scene.scale.height;
-    var player = scene.player;
-
-    // 1. Parallax update
-    if (this.distantIslandsGfx && this.midRuinsGfx) {
-      var pRatio = (player.x - width / 2) / width;
-      this.drawDistantIslands(this.distantIslandsGfx, width, height, -pRatio * 22);
-      this.drawMidRuins(this.midRuinsGfx, width, height, -pRatio * 52);
-    }
-
-    // 2. Mirror reflection update
-    if (this.mirrorActive && this.mirrorReflectionSprite) {
-      this.mirrorReflectionSprite.x = player.x;
-      var distY = player.y - this.mirrorY;
-      this.mirrorReflectionSprite.y = this.mirrorY - distY;
-      this.mirrorReflectionSprite.setFlipX(player.flipX);
-    }
-
-    // 3. Time Zone physics modulation
     var inSlow = false;
     var inFast = false;
+
     for (var i = 0; i < this.timeZones.length; i++) {
       var tz = this.timeZones[i];
       var d = Phaser.Math.Distance.Between(player.x, player.y, tz.x, tz.y);
@@ -521,121 +705,225 @@ var World2Engine = {
         if (tz.type === "slow") inSlow = true;
         if (tz.type === "fast") inFast = true;
       }
-    }
 
-    if (inSlow) {
-      player.body.gravity.y = 500;
-      if (Math.abs(player.body.velocity.x) > 110) {
-        player.body.velocity.x *= 0.6;
-      }
-      if (player.body.velocity.y < -300) {
-        player.body.velocity.y = -300;
-      }
-    } else if (inFast) {
-      player.body.gravity.y = 2100;
-      if (Math.abs(player.body.velocity.x) > 10) {
-        player.body.velocity.x *= 1.45;
-      }
-    } else {
-      player.body.gravity.y = 1400;
-    }
-
-    // 4. Echo Player trajectory record & replay
-    if (this.echoActive && this.echoGhost) {
-      this.echoBuffer.push({
-        x: player.x,
-        y: player.y,
-        time: scene.levelTime,
-        flipX: player.flipX
-      });
-
-      // Target playback frame: 2.0 seconds ago
-      var targetTime = scene.levelTime - this.echoDelaySec;
-      if (targetTime > 0) {
-        this.echoGhost.setAlpha(0.65);
-        // Find closest recorded frame
-        for (var b = 0; b < this.echoBuffer.length; b++) {
-          if (this.echoBuffer[b].time >= targetTime) {
-            var f = this.echoBuffer[b];
-            this.echoGhost.x = f.x;
-            this.echoGhost.y = f.y;
-            this.echoGhost.setFlipX(f.flipX);
-            break;
-          }
-        }
-
-        // Echo switch triggers
-        var self = this;
-        this.switches.forEach(function(sw) {
-          if (!sw.isPressed) {
-            var ed = Phaser.Math.Distance.Between(self.echoGhost.x, self.echoGhost.y, sw.x, sw.y);
-            if (ed < 24) {
-              self.activateSwitch(scene, sw);
+      if (scene.platforms) {
+        scene.platforms.getChildren().forEach(function(p) {
+          if (p.isMovingPlatform) {
+            var pd = Phaser.Math.Distance.Between(p.x, p.y, tz.x, tz.y);
+            if (pd < tz.radius) {
+              if (p.moveTween) p.moveTween.timeScale = (tz.type === "slow") ? 0.35 : 1.8;
             }
           }
         });
       }
 
-      // Memory trim: discard frames older than 4.0s
-      while (this.echoBuffer.length > 0 && this.echoBuffer[0].time < scene.levelTime - 4.0) {
-        this.echoBuffer.shift();
+      if (scene.crushers) {
+        scene.crushers.getChildren().forEach(function(c) {
+          var cd = Phaser.Math.Distance.Between(c.x, c.y, tz.x, tz.y);
+          if (cd < tz.radius) {
+            c.chronoScale = (tz.type === "slow") ? 0.35 : 1.8;
+          } else {
+            c.chronoScale = 1.0;
+          }
+        });
       }
     }
 
-    // Live player switch trigger
-    var self = this;
-    this.switches.forEach(function(sw) {
-      if (!sw.isPressed) {
-        var pd = Phaser.Math.Distance.Between(player.x, player.y, sw.x, sw.y);
-        if (pd < 22) {
-          self.activateSwitch(scene, sw);
-        }
+    if (inSlow) {
+      player.body.gravity.y = 520;
+      if (Math.abs(player.body.velocity.x) > 115) {
+        player.body.velocity.x *= 0.62;
       }
-    });
-
-    // 5. Magnetic Nodes Attraction / Repulsion
-    for (var m = 0; m < this.magneticNodes.length; m++) {
-      var node = this.magneticNodes[m];
-      var mDist = Phaser.Math.Distance.Between(player.x, player.y, node.x, node.y);
-      if (mDist < 160 && mDist > 8) {
-        var force = (node.strength / mDist) * 14;
-        var angle = Phaser.Math.Angle.Between(player.x, player.y, node.x, node.y);
-        if (node.type === "repel") angle += Math.PI; // Push away
-
-        player.body.velocity.x += Math.cos(angle) * force;
-        player.body.velocity.y += Math.sin(angle) * force * 0.7;
+      if (player.body.velocity.y < -310) {
+        player.body.velocity.y = -310;
       }
-
-      // Apply to metal crates
-      for (var c = 0; c < this.metalCrates.length; c++) {
-        var crate = this.metalCrates[c];
-        var cDist = Phaser.Math.Distance.Between(crate.x, crate.y, node.x, node.y);
-        if (cDist < 180 && cDist > 10) {
-          var cForce = (node.strength / cDist) * 16;
-          var cAngle = Phaser.Math.Angle.Between(crate.x, crate.y, node.x, node.y);
-          if (node.type === "repel") cAngle += Math.PI;
-          crate.body.velocity.x += Math.cos(cAngle) * cForce;
-          crate.body.velocity.y += Math.sin(cAngle) * cForce * 0.7;
-        }
+    } else if (inFast) {
+      player.body.gravity.y = 2100;
+      if (Math.abs(player.body.velocity.x) > 10) {
+        player.body.velocity.x *= 1.42;
       }
+    } else {
+      player.body.gravity.y = 1400;
     }
+  }
+};
 
-    // 6. Atmospheric Glitches for Levels 41-44
-    if (this.levelIdx >= 40 && this.levelIdx <= 43) {
-      if (Math.random() < 0.04) {
-        scene.cameras.main.scrollX = (Math.random() - 0.5) * 4;
-        scene.cameras.main.scrollY = (Math.random() - 0.5) * 4;
-      } else {
-        scene.cameras.main.scrollX = 0;
-        scene.cameras.main.scrollY = 0;
-      }
-    }
+var EchoEngine = {
+  active: false,
+  scene: null,
+  echoGhost: null,
+  recordBuffer: [],
+  echoDelaySec: 2.0,
 
-    // 7. Custom level update handlers
-    this.customUpdateHandlers.forEach(function(fn) { fn(scene, dt); });
+  init: function(scene) {
+    this.active = true;
+    this.scene = scene;
+    this.recordBuffer = [];
+    this.echoGhost = scene.physics.add.sprite(scene.spawnX, scene.spawnY, "echo_hero_ghost");
+    this.echoGhost.setDepth(90);
+    this.echoGhost.setAlpha(0);
+    this.echoGhost.body.setAllowGravity(false);
+    this.echoGhost.body.setSize(22, 34);
   },
 
-  // ── Level 45 Reveal Sequence & World 3 Cinematic Teaser ─────
+  update: function(scene, player, dt) {
+    if (!this.active || !this.echoGhost || !player || scene.isDead) return;
+
+    this.recordBuffer.push({
+      x: player.x,
+      y: player.y,
+      time: scene.levelTime,
+      flipX: player.flipX,
+      animKey: (player.anims && player.anims.currentAnim) ? player.anims.currentAnim.key : "hero_anim_idle"
+    });
+
+    var targetTime = scene.levelTime - this.echoDelaySec;
+    if (targetTime > 0) {
+      this.echoGhost.setAlpha(0.7);
+
+      for (var i = 0; i < this.recordBuffer.length; i++) {
+        if (this.recordBuffer[i].time >= targetTime) {
+          var f = this.recordBuffer[i];
+          this.echoGhost.x = f.x;
+          this.echoGhost.y = f.y;
+          if (this.echoGhost.setFlipX) this.echoGhost.setFlipX(f.flipX);
+          break;
+        }
+      }
+
+      var self = this;
+      if (scene.switches) {
+        scene.switches.forEach(function(sw) {
+          var ed = Phaser.Math.Distance.Between(self.echoGhost.x, self.echoGhost.y, sw.x, sw.y);
+          if (ed < 24) {
+            scene.activateSwitch(sw, true);
+          }
+        });
+      }
+
+      if (scene.pressurePlates) {
+        scene.pressurePlates.forEach(function(pp) {
+          var pd = Phaser.Math.Distance.Between(self.echoGhost.x, self.echoGhost.y, pp.x, pp.y);
+          pp.isPressedByEcho = (pd < 24);
+        });
+      }
+    }
+
+    while (this.recordBuffer.length > 0 && this.recordBuffer[0].time < scene.levelTime - 4.5) {
+      this.recordBuffer.shift();
+    }
+  }
+};
+
+var MagnetEngine = {
+  nodes: [],
+  crates: [],
+
+  init: function(scene) {
+    this.nodes = [];
+    this.crates = [];
+  },
+
+  addNode: function(scene, x, y, type, strength) {
+    if (!strength) strength = 280;
+    var node = scene.add.sprite(x, y, "magnet_node").setDepth(12);
+    node.magnetType = type;
+    node.strength = strength;
+
+    var ringGfx = scene.add.graphics().setDepth(11);
+    var ringColor = (type === "attract") ? 0x0984e3 : 0xd63031;
+    ringGfx.lineStyle(2, ringColor, 0.7);
+    ringGfx.strokeCircle(x, y, 75);
+
+    scene.tweens.add({
+      targets: ringGfx,
+      scaleX: 1.14,
+      scaleY: 1.14,
+      alpha: 0.25,
+      duration: 850,
+      yoyo: true,
+      repeat: -1
+    });
+
+    node.ringGfx = ringGfx;
+    this.nodes.push(node);
+    return node;
+  },
+
+  addCrate: function(scene, x, y) {
+    var crate = scene.physics.add.sprite(x, y, "metal_crate_tex");
+    crate.setDepth(15);
+    crate.body.setGravityY(1200);
+    crate.body.setBounce(0.12);
+    crate.body.setFriction(0.85);
+    crate.body.setCollideWorldBounds(true);
+    scene.physics.add.collider(crate, scene.platforms);
+    scene.physics.add.collider(scene.player, crate);
+    this.crates.push(crate);
+    return crate;
+  },
+
+  togglePolarity: function() {
+    this.nodes.forEach(function(node) {
+      node.magnetType = (node.magnetType === "attract") ? "repel" : "attract";
+      if (node.ringGfx) {
+        node.ringGfx.clear();
+        var ringColor = (node.magnetType === "attract") ? 0x0984e3 : 0xd63031;
+        node.ringGfx.lineStyle(2, ringColor, 0.7);
+        node.ringGfx.strokeCircle(node.x, node.y, 75);
+      }
+    });
+  },
+
+  update: function(scene, player, dt) {
+    if (!player || scene.isDead) return;
+
+    for (var m = 0; m < this.nodes.length; m++) {
+      var node = this.nodes[m];
+      var dist = Phaser.Math.Distance.Between(player.x, player.y, node.x, node.y);
+      if (dist < 170 && dist > 10) {
+        var force = (node.strength / dist) * 14.5;
+        var angle = Phaser.Math.Angle.Between(player.x, player.y, node.x, node.y);
+        if (node.magnetType === "repel") angle += Math.PI;
+
+        player.body.velocity.x += Math.cos(angle) * force;
+        player.body.velocity.y += Math.sin(angle) * force * 0.72;
+      }
+
+      for (var c = 0; c < this.crates.length; c++) {
+        var crate = this.crates[c];
+        var cDist = Phaser.Math.Distance.Between(crate.x, crate.y, node.x, node.y);
+        if (cDist < 190 && cDist > 12) {
+          var cForce = (node.strength / cDist) * 16.5;
+          var cAngle = Phaser.Math.Angle.Between(crate.x, crate.y, node.x, node.y);
+          if (node.magnetType === "repel") cAngle += Math.PI;
+          crate.body.velocity.x += Math.cos(cAngle) * cForce;
+          crate.body.velocity.y += Math.sin(cAngle) * cForce * 0.72;
+        }
+      }
+    }
+  }
+};
+
+var ShiftEngine = {
+  rotateAssembly: function(scene, platforms, targetAngle, duration) {
+    if (!duration) duration = 1200;
+    scene.cameras.main.shake(duration * 0.8, 0.015);
+    AudioEngine.playTone(90, "sawtooth", duration / 1000, 0.35);
+
+    platforms.forEach(function(p) {
+      scene.tweens.add({
+        targets: p,
+        angle: targetAngle,
+        duration: duration,
+        ease: "Cubic.easeInOut"
+      });
+    });
+  }
+};
+
+// ─── Level 45 Reveal & World 3 Teaser ─────────────────────────
+var World2Cinematics = {
   triggerLevel45Sequence: function(scene) {
     var self = this;
     scene.isComplete = true;
@@ -643,59 +931,53 @@ var World2Engine = {
     if (scene.player.body) scene.player.body.setEnable(false);
 
     AudioEngine.stopMusic();
-    AudioEngine.playTone(90, "sawtooth", 0.4, 0.3);
+    AudioEngine.playTone(90, "sawtooth", 0.4, 0.35);
 
-    // 1. Reality Freeze & Sound Blackout
     var flash = scene.add.rectangle(scene.scale.width/2, scene.scale.height/2, scene.scale.width, scene.scale.height, 0xffffff, 1).setDepth(999);
     scene.tweens.add({
       targets: flash,
       alpha: 0,
-      duration: 700,
+      duration: 650,
       onComplete: function() { flash.destroy(); }
     });
 
-    scene.showTrollToast("⚠ ERROR: DIMENSIONAL MEMBRANE CORRUPTED");
+    scene.showTrollToast("⚠ CRITICAL ERROR: REALITY MEMBRANE FRACTURING");
 
-    // 2. Camera zoom out & Reality Shatter
-    scene.cameras.main.zoomTo(0.65, 1600, "Cubic.easeInOut");
-    scene.cameras.main.shake(1200, 0.035);
+    scene.cameras.main.zoomTo(0.6, 1800, "Cubic.easeInOut");
+    scene.cameras.main.shake(1400, 0.03);
 
-    // Drop and shatter visible platforms
     scene.platforms.getChildren().forEach(function(p) {
       scene.tweens.add({
         targets: p,
-        y: p.y + 350 + Math.random() * 200,
-        angle: (Math.random() - 0.5) * 45,
+        y: p.y + 360 + Math.random() * 220,
+        angle: (Math.random() - 0.5) * 50,
         alpha: 0,
         duration: 1400,
-        delay: Math.random() * 400
+        delay: Math.random() * 450
       });
     });
 
-    // 3. Emerge Monolith Portal
-    scene.time.delayedCall(1600, function() {
+    scene.time.delayedCall(1800, function() {
       var mono = scene.add.sprite(scene.scale.width/2, scene.scale.height/2, "monolith_tex").setDepth(200).setScale(0.1);
       AudioEngine.playTone(180, "sine", 1.2, 0.4);
-      AudioEngine.playTone(220, "triangle", 1.4, 0.3, 0.2);
+      AudioEngine.playTone(240, "triangle", 1.5, 0.3, 0.2);
 
       scene.tweens.add({
         targets: mono,
         scaleX: 2.2,
         scaleY: 2.2,
-        duration: 1200,
+        duration: 1300,
         ease: "Back.easeOut"
       });
 
-      // Swirling particles
       scene.add.particles(scene.scale.width/2, scene.scale.height/2, "part_dot", {
-        speed: { min: 40, max: 180 },
-        scale: { start: 1.5, end: 0 },
-        lifespan: 1200,
-        tint: [0xa55eea, 0x45aaf2, 0xffffff],
-        frequency: 60
+        speed: { min: 50, max: 200 },
+        scale: { start: 1.6, end: 0 },
+        lifespan: 1300,
+        tint: [0xa55eea, 0x45aaf2, 0xffffff, 0xd980fa],
+        frequency: 50
       }).setDepth(201);
 
-      // 4. Whiteout to World 3 Cinematic Teaser (15-20s)
       scene.time.delayedCall(2200, function() {
         self.launchWorld3Teaser(scene);
       });
@@ -707,65 +989,59 @@ var World2Engine = {
     var height = scene.scale.height;
 
     var overlay = scene.add.container(0, 0).setDepth(9999);
-    var bg = scene.add.rectangle(width/2, height/2, width, height, 0x030307, 1);
+    var bg = scene.add.rectangle(width/2, height/2, width, height, 0x020106, 1);
     overlay.add(bg);
 
-    // Audio hum
-    AudioEngine.playTone(65, "sawtooth", 3.0, 0.4);
-    AudioEngine.playTone(130, "sine", 4.0, 0.3, 0.5);
+    AudioEngine.playTone(60, "sawtooth", 3.5, 0.4);
+    AudioEngine.playTone(120, "sine", 4.5, 0.3, 0.4);
 
-    // Quantum Monolith Centerpiece
-    var monoCenter = scene.add.sprite(width/2, height/2 - 20, "monolith_tex").setScale(2.4);
+    var monoCenter = scene.add.sprite(width/2, height/2 - 25, "monolith_tex").setScale(2.5);
     overlay.add(monoCenter);
 
     scene.tweens.add({
       targets: monoCenter,
-      y: height/2 - 40,
-      scaleX: 2.7,
-      scaleY: 2.7,
-      duration: 3500,
+      y: height/2 - 45,
+      scaleX: 2.8,
+      scaleY: 2.8,
+      duration: 3200,
       yoyo: true,
       repeat: -1,
       ease: "Sine.easeInOut"
     });
 
-    // Teaser Text Sequence
-    var t1 = scene.add.text(width/2, height/2 + 90, "OOPS! — WORLD 3", {
+    var t1 = scene.add.text(width/2, height/2 + 85, "OOPS! — WORLD 3", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "18px",
+      fontSize: "19px",
       color: "#a55eea",
       stroke: "#000000",
       strokeThickness: 6
     }).setOrigin(0.5).setAlpha(0);
 
-    var t2 = scene.add.text(width/2, height/2 + 130, "YOU'RE NOT READY.", {
+    var t2 = scene.add.text(width/2, height/2 + 125, "YOU'RE NOT READY.", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "12px",
       color: "#ffffff"
     }).setOrigin(0.5).setAlpha(0);
 
-    var t3 = scene.add.text(width/2, height/2 + 165, "🔒 COMING SOON", {
+    var t3 = scene.add.text(width/2, height/2 + 160, "🔒 COMING SOON", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ffd32a"
     }).setOrigin(0.5).setAlpha(0);
 
-    overlay.add([t1, t2, t3]);
-
-    scene.tweens.add({ targets: t1, alpha: 1, duration: 1000, delay: 800 });
-    scene.tweens.add({ targets: t2, alpha: 1, duration: 1000, delay: 2200 });
-    scene.tweens.add({ targets: t3, alpha: 1, duration: 1000, delay: 3600 });
-
-    // Progress counter text: 45 / 50
-    var tProgress = scene.add.text(width/2, height/2 + 205, "CHAPTER PROGRESS: 45 / 50 LEVELS", {
+    var tProgress = scene.add.text(width/2, height/2 + 200, "CHAPTER PROGRESS: 45 / 50 LEVELS", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "8.5px",
       color: "#2ed573"
     }).setOrigin(0.5).setAlpha(0);
-    overlay.add(tProgress);
-    scene.tweens.add({ targets: tProgress, alpha: 1, duration: 800, delay: 5000 });
 
-    // Continue Button to Descent Levels 46-50
+    overlay.add([t1, t2, t3, tProgress]);
+
+    scene.tweens.add({ targets: t1, alpha: 1, duration: 900, delay: 800 });
+    scene.tweens.add({ targets: t2, alpha: 1, duration: 900, delay: 2000 });
+    scene.tweens.add({ targets: t3, alpha: 1, duration: 900, delay: 3200 });
+    scene.tweens.add({ targets: tProgress, alpha: 1, duration: 800, delay: 4400 });
+
     var contBtn = scene.add.container(width/2, height - 38);
     var cGfx = scene.add.graphics();
     cGfx.fillStyle(0x2ed573, 1);
@@ -780,26 +1056,125 @@ var World2Engine = {
     contBtn.setAlpha(0);
     overlay.add(contBtn);
 
-    scene.tweens.add({ targets: contBtn, alpha: 1, duration: 800, delay: 6000 });
+    scene.tweens.add({ targets: contBtn, alpha: 1, duration: 800, delay: 5200 });
 
     cZone.on("pointerdown", function() {
       SaveManager.saveLevelClear(1, 44, scene.deaths);
       scene.scene.restart({
         world: 1,
-        level: 45, // Level 46 (0-indexed 45)
+        level: 45,
         deaths: scene.deaths,
         levelDeaths: 0
       });
     });
+  }
+};
+
+// ─── Main World 2 Engine ──────────────────────────────────────
+var World2Engine = {
+  active: false,
+  scene: null,
+  levelIdx: 0,
+  biome: null,
+
+  init: function(scene, levelIdx) {
+    this.active = true;
+    this.scene = scene;
+    this.levelIdx = levelIdx;
+    this.biome = getBiomeForLevel(levelIdx);
+
+    World2Assets.create(scene);
+    World2ThemeManager.init(scene, levelIdx);
+
+    MirrorEngine.active = false;
+    ChronoEngine.init(scene);
+    EchoEngine.active = false;
+    MagnetEngine.init(scene);
+
+    scene.switches = [];
+    scene.pressurePlates = [];
+    scene.energyGates = [];
+    scene.customUpdateHandlers = [];
   },
 
-  // ─── 50 Handcrafted Level Definitions for World 2 ───────────
+  update: function(scene, dt) {
+    if (!this.active || scene.isDead || scene.isComplete) return;
+
+    var player = scene.player;
+    if (!player) return;
+
+    World2ThemeManager.update(player, dt);
+
+    if (MirrorEngine.active) {
+      MirrorEngine.update(player, dt);
+    }
+
+    ChronoEngine.update(scene, player, dt);
+
+    if (EchoEngine.active) {
+      EchoEngine.update(scene, player, dt);
+    }
+
+    MagnetEngine.update(scene, player, dt);
+
+    if (scene.pressurePlates) {
+      scene.pressurePlates.forEach(function(pp) {
+        var pDist = Phaser.Math.Distance.Between(player.x, player.y, pp.x, pp.y);
+        var isPlayerOn = (pDist < 24);
+        var isPressed = isPlayerOn || pp.isPressedByEcho;
+
+        if (isPressed !== pp.wasPressed) {
+          pp.wasPressed = isPressed;
+          pp.setTexture(isPressed ? "switch_on_tex" : "switch_off_tex");
+          if (isPressed) AudioEngine.sfxBounce();
+
+          if (scene.energyGates) {
+            scene.energyGates.forEach(function(g) {
+              if (g.gateId === pp.targetGateId) {
+                g.isOpen = isPressed;
+                g.setAlpha(isPressed ? 0.15 : 0.85);
+                if (g.body) g.body.enable = !isPressed;
+              }
+            });
+          }
+        }
+      });
+    }
+
+    if (scene.switches) {
+      scene.switches.forEach(function(sw) {
+        if (!sw.isPressed) {
+          var dist = Phaser.Math.Distance.Between(player.x, player.y, sw.x, sw.y);
+          if (dist < 24) {
+            scene.activateSwitch(sw, false);
+          }
+        }
+      });
+    }
+
+    if (this.levelIdx >= 40 && this.levelIdx <= 43) {
+      if (Math.random() < 0.05) {
+        scene.cameras.main.scrollX = (Math.random() - 0.5) * 5;
+        scene.cameras.main.scrollY = (Math.random() - 0.5) * 5;
+      } else {
+        scene.cameras.main.scrollX = 0;
+        scene.cameras.main.scrollY = 0;
+      }
+    }
+
+    scene.customUpdateHandlers.forEach(function(fn) { fn(scene, dt); });
+  },
+
+  triggerLevel45Sequence: function(scene) {
+    World2Cinematics.triggerLevel45Sequence(scene);
+  },
+
+  // ─── 50 HANDCRAFTED INDIVIDUAL LEVEL DEFINITIONS ─────────────
   buildLevel: function(scene, lvl) {
     var self = this;
     var width = scene.scale.width;
     var height = scene.scale.height;
 
-    // Helper builder functions
     var addPlat = function(x, y, w, h) {
       if (y < 420) {
         scene.add.rectangle(x + w/2, y + h + 3, w - 2, 6, 0x000000, 0.28).setDepth(2);
@@ -810,38 +1185,19 @@ var World2Engine = {
       return p;
     };
 
-    var addMirrorPlat = function(x, y, w, h) {
-      var p = scene.add.tileSprite(x + w/2, y + h/2, w, h, "mirror_plat_tex");
-      p.setDepth(10);
-      scene.platforms.add(p);
+    var addMovingPlat = function(x, y, w, h, targetX, targetY, duration) {
+      var p = addPlat(x, y, w, h);
+      p.isMovingPlatform = true;
+      p.moveTween = scene.tweens.add({
+        targets: p,
+        x: targetX + w/2,
+        y: targetY + h/2,
+        duration: duration || 1800,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut"
+      });
       return p;
-    };
-
-    var addPhantomPlat = function(x, y, w, h) {
-      var p = scene.add.tileSprite(x + w/2, y + h/2, w, h, "phantom_plat_tex");
-      p.setDepth(10);
-      scene.platforms.add(p);
-      return p;
-    };
-
-    var addFallingPlat = function(x, y, w, h) {
-      var p = scene.add.tileSprite(x + w/2, y + h/2, w, h, "plat_w2_tex");
-      p.setDepth(10);
-      p.isFallingPlat = true;
-      p.stepped = false;
-      p.hasFallen = false;
-      p.shakeTimer = 0.38;
-      scene.platforms.add(p);
-      scene.fallingPlatforms.push(p);
-      return p;
-    };
-
-    var addSpike = function(x, y) {
-      var s = scene.spikes.create(x, y, "spike_up");
-      s.setTint(WORLD_2_THEME.spike);
-      s.setDepth(15);
-      s.body.setSize(18, 14).setOffset(1, 6);
-      return s;
     };
 
     var addCrusher = function(x, startY) {
@@ -849,530 +1205,614 @@ var World2Engine = {
       c.startY = startY;
       c.isDropping = false;
       c.isRetracting = false;
+      c.chronoScale = 1.0;
       c.body.setImmovable(true);
       c.body.setSize(52, 60);
       c.setDepth(20);
       return c;
     };
 
-    var addTrampoline = function(x, y) {
-      var tr = scene.trampolines.create(x, y, "tramp_tex");
-      tr.setDepth(12);
-      tr.body.setSize(32, 12).setOffset(0, 4);
-      return tr;
+    var addSwitch = function(x, y, gateId) {
+      var sw = scene.physics.add.sprite(x, y, "switch_off_tex");
+      sw.setDepth(14);
+      sw.switchId = gateId;
+      sw.isPressed = false;
+      sw.body.setAllowGravity(false);
+      sw.body.setImmovable(true);
+      sw.body.setSize(28, 12);
+      scene.switches.push(sw);
+      return sw;
+    };
+
+    var addPressurePlate = function(x, y, targetGateId) {
+      var pp = scene.physics.add.sprite(x, y, "switch_off_tex");
+      pp.setDepth(14);
+      pp.targetGateId = targetGateId;
+      pp.wasPressed = false;
+      pp.isPressedByEcho = false;
+      pp.body.setAllowGravity(false);
+      pp.body.setImmovable(true);
+      pp.body.setSize(28, 12);
+      scene.pressurePlates.push(pp);
+      return pp;
+    };
+
+    var addEnergyGate = function(x, y, gateId) {
+      var gate = scene.physics.add.sprite(x, y, "energy_barrier_tex");
+      gate.setDepth(16);
+      gate.gateId = gateId;
+      gate.isOpen = false;
+      gate.body.setAllowGravity(false);
+      gate.body.setImmovable(true);
+      scene.physics.add.collider(scene.player, gate, null, function(pl, g) {
+        return !g.isOpen;
+      }, scene);
+      scene.energyGates.push(gate);
+      return gate;
+    };
+
+    scene.activateSwitch = function(sw, byEcho) {
+      if (sw.isPressed) return;
+      sw.isPressed = true;
+      sw.setTexture("switch_on_tex");
+      AudioEngine.sfxBounce();
+      scene.showTrollToast(byEcho ? "👤 ECHO ACTIVATED SWITCH!" : "⚡ SWITCH ACTIVATED!");
+
+      scene.energyGates.forEach(function(g) {
+        if (g.gateId === sw.switchId) {
+          g.isOpen = true;
+          scene.tweens.add({
+            targets: g,
+            alpha: 0,
+            scaleY: 0.08,
+            duration: 350,
+            onComplete: function() {
+              if (g.body) g.body.enable = false;
+            }
+          });
+        }
+      });
     };
 
     scene.spawnX = 60;
     scene.spawnY = 410;
 
-    // ── CHAPTER 1: THE SHIFT (Levels 1 - 10) ───────────────────
-    if (lvl === 0) { // Level 1: Reflections (Tutorial)
+    // =========================================================================
+    //  CHAPTER 1: THE SHIFT (Levels 1 - 10: Mirror World)
+    //  Biome: Floating Garden / Sky Ruins
+    // =========================================================================
+    if (lvl === 0) { // Level 1: Reflections (Pure Mirror Intro)
       addPlat(-80, 460, width + 160, 80);
-      this.setupMirrorPlane(scene, 460);
+      MirrorEngine.init(scene, 460);
       scene.exitGate = scene.createExitDoor(880, 435);
-      scene.showTrollToast("WORLD 2: THE SHIFT\nNotice your reflection... 🪞");
+      scene.showTrollToast("WORLD 2: THE SHIFT\nLook closely at your reflection... 🪞");
     }
-    else if (lvl === 1) { // Level 2: The Twin Spikes
-      addPlat(-80, 460, 360, 80);
-      addPlat(420, 460, 180, 80);
-      addPlat(660, 460, 380, 80);
-      this.setupMirrorPlane(scene, 460);
-      addSpike(380, 450);
-      addSpike(630, 450);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 2) { // Level 3: Phantom Leap
+    else if (lvl === 1) { // Level 2: The Looking Glass (Reflection Clues)
       addPlat(-80, 460, 260, 80);
-      addMirrorPlat(280, 460, 120, 30);
-      addPhantomPlat(440, 430, 110, 30);
-      addPlat(600, 460, 440, 80);
-      this.setupMirrorPlane(scene, 460);
-      for (var sx = 260; sx <= 580; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(890, 435);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 280, 430, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 420, 400, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 560, 430, 90, 26, true);
+      addPlat(680, 460, 360, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("Check the mirror: Green reflections are solid! 🌿");
     }
-    else if (lvl === 3) { // Level 4: Mirror Flip (Fleeing Door)
-      addPlat(-80, 460, width + 160, 80);
-      this.setupMirrorPlane(scene, 460);
+    else if (lvl === 2) { // Level 3: Phantom Leap (First Deceptive Fake Mirror)
+      addPlat(-80, 460, 240, 80);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 270, 440, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 400, 410, 90, 26, false);
+      MirrorEngine.addPhantomPlatform(scene, 400, 470, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 540, 430, 90, 26, true);
+      addPlat(660, 460, 380, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("Red reflections in the mirror are illusions! 🪞");
+    }
+    else if (lvl === 3) { // Level 4: Deceptive Horizon (Fleeing Mirror Door)
+      addPlat(-80, 460, 320, 80);
+      MirrorEngine.init(scene, 460);
+      addPlat(420, 430, 140, 26);
+      addPlat(640, 460, 400, 80);
       scene.exitGate = scene.createExitDoor(720, 435);
       scene.exitGate.fleeOnProximity = true;
-      scene.exitGate.targetX = 860;
+      scene.exitGate.targetX = 880;
       scene.exitGate.targetY = 365;
-      scene.exitGate.fleeMessage = "Oops! Reflected higher! 🪞";
-      addMirrorPlat(800, 395, 180, 30);
+      scene.exitGate.fleeMessage = "Oops! Reflected upward! 🪞";
+      MirrorEngine.addPhantomPlatform(scene, 820, 395, 120, 26, true);
     }
-    else if (lvl === 4) { // Level 5: Glass Chasm
+    else if (lvl === 4) { // Level 5: Moving Mirror Steps
       addPlat(-80, 460, 220, 80);
-      addMirrorPlat(220, 440, 90, 25);
-      addMirrorPlat(360, 410, 90, 25);
-      addMirrorPlat(500, 380, 90, 25);
-      addPlat(660, 460, 380, 80);
-      this.setupMirrorPlane(scene, 460);
-      addSpike(690, 450);
+      MirrorEngine.init(scene, 460);
+      var mp1 = addMovingPlat(260, 440, 100, 26, 380, 440, 1600);
+      var mp2 = addMovingPlat(480, 390, 100, 26, 600, 390, 1600);
+      addPlat(720, 460, 320, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 5) { // Level 6: Reverse Horizon
-      addPlat(-80, 460, width + 160, 80);
-      this.setupMirrorPlane(scene, 460);
-      addCrusher(420, 60);
-      addCrusher(680, 60);
-      scene.exitGate = scene.createExitDoor(910, 435);
+    else if (lvl === 5) { // Level 6: The Reverse Horizon (Inverted Mirror Perspective)
+      addPlat(-80, 460, 280, 80);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 320, 420, 100, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 460, 380, 100, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 600, 420, 100, 26, true);
+      addPlat(740, 460, 300, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 6) { // Level 7: Shattered Steps
+    else if (lvl === 6) { // Level 7: Shattered Crystal Steps
       addPlat(-80, 460, 240, 80);
-      addFallingPlat(240, 460, 90, 25);
-      addFallingPlat(380, 430, 90, 25);
-      addFallingPlat(520, 460, 90, 25);
-      addPlat(680, 460, 360, 80);
-      for (var sx = 200; sx <= 660; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(890, 435);
-    }
-    else if (lvl === 7) { // Level 8: Mirrored Springs
-      addPlat(-80, 460, 260, 80);
-      addTrampoline(300, 452);
-      addPlat(420, 280, 180, 30);
-      addTrampoline(550, 272);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 280, 450, 80, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 400, 420, 80, 26, false);
+      MirrorEngine.addPhantomPlatform(scene, 400, 470, 80, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 520, 430, 80, 26, true);
       addPlat(660, 460, 380, 80);
-      for (var sx = 240; sx <= 640; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 8) { // Level 9: The Twin Trap
-      addPlat(-80, 460, 320, 80);
-      addPlat(400, 460, 220, 80);
-      addPlat(700, 460, 340, 80);
-      this.setupMirrorPlane(scene, 460);
-      addCrusher(510, 60);
-      addSpike(360, 450);
-      addSpike(660, 450);
+    else if (lvl === 7) { // Level 8: Mirrored Route Selection
+      addPlat(-80, 460, 260, 80);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 300, 350, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 440, 330, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 300, 450, 90, 26, false);
+      MirrorEngine.addPhantomPlatform(scene, 440, 450, 90, 26, true);
+      addPlat(600, 460, 440, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 8) { // Level 9: The Twin Mirage
+      addPlat(-80, 460, 280, 80);
+      MirrorEngine.init(scene, 460);
+      addMovingPlat(320, 420, 90, 26, 460, 420, 1500);
+      MirrorEngine.addPhantomPlatform(scene, 540, 390, 90, 26, true);
+      addPlat(680, 460, 360, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
     else if (lvl === 9) { // Level 10: 💀 BRUTAL CHALLENGE #1 — The Grand Prism
-      addPlat(-80, 460, 200, 80);
-      this.setupMirrorPlane(scene, 460);
-      addMirrorPlat(200, 430, 80, 25);
-      addCrusher(340, 60);
-      addMirrorPlat(390, 390, 80, 25);
-      addFallingPlat(520, 360, 80, 25);
-      addCrusher(620, 40);
-      addMirrorPlat(680, 330, 80, 25);
-      addPlat(800, 460, 240, 80);
-      for (var sx = 180; sx <= 780; sx += 35) addSpike(sx, 520);
+      addPlat(-80, 460, 180, 80);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 220, 430, 75, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 330, 390, 75, 26, false);
+      MirrorEngine.addPhantomPlatform(scene, 330, 460, 75, 26, true);
+      addMovingPlat(440, 380, 80, 26, 540, 380, 1200);
+      MirrorEngine.addPhantomPlatform(scene, 620, 340, 80, 26, true);
+      addPlat(740, 460, 300, 80);
       scene.exitGate = scene.createExitDoor(880, 435);
-      scene.showTrollToast("💀 BRUTAL CHALLENGE: THE GRAND PRISM");
+      scene.showTrollToast("💀 BRUTAL CHALLENGE #1: THE GRAND PRISM\nTrust only the verified mirror reflections!");
     }
 
-    // ── CHAPTER 2: DISTORTION (Levels 11 - 20) ──────────────────
-    else if (lvl === 10) { // Level 11: Slow Motion
-      addPlat(-80, 460, width + 160, 80);
-      this.addTimeZone(scene, 480, 380, "slow", 110);
-      addCrusher(420, 60);
-      addCrusher(540, 60);
+    // =========================================================================
+    //  CHAPTER 2: DISTORTION (Levels 11 - 20: Time Zones & Moving World)
+    //  Biome: Distorted Valley
+    // =========================================================================
+    else if (lvl === 10) { // Level 11: Slow Motion (First Slow Zone)
+      addPlat(-80, 460, 300, 80);
+      ChronoEngine.addZone(scene, 450, 390, "slow", 100);
+      var slowPlat = addMovingPlat(360, 420, 120, 26, 520, 420, 2400);
+      addPlat(660, 460, 380, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("CHRONO DISTORTION: SLOW ZONE ⏳");
+      scene.showTrollToast("DISTORTED VALLEY: SLOW ZONE ⏳\nObjects inside move at 0.35x speed!");
     }
-    else if (lvl === 11) { // Level 12: Hyper Velocity
-      addPlat(-80, 460, 280, 80);
-      this.addTimeZone(scene, 450, 420, "fast", 100);
-      addPlat(640, 460, 400, 80);
-      for (var sx = 260; sx <= 620; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("HYPER VELOCITY: FAST ZONE ⚡");
-    }
-    else if (lvl === 12) { // Level 13: Chrono Shift
-      addPlat(-80, 460, 240, 80);
-      this.addTimeZone(scene, 320, 400, "slow", 80);
-      addMirrorPlat(280, 420, 100, 25);
-      this.addTimeZone(scene, 520, 360, "fast", 80);
-      addMirrorPlat(480, 370, 100, 25);
-      addPlat(680, 460, 360, 80);
-      for (var sx = 220; sx <= 660; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(890, 435);
-    }
-    else if (lvl === 13) { // Level 14: The Clockwork Pillar
-      addPlat(-80, 460, 220, 80);
-      var lift = addPlat(340, 420, 120, 30);
-      scene.tweens.add({ targets: lift, y: 220, duration: 1800, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      this.addTimeZone(scene, 400, 320, "slow", 90);
-      addPlat(620, 300, 420, 80);
-      for (var sx = 200; sx <= 600; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(900, 275);
-    }
-    else if (lvl === 14) { // Level 15: Rotating Spire
+    else if (lvl === 11) { // Level 12: Hyper Velocity (First Fast Zone)
       addPlat(-80, 460, 260, 80);
-      var oscPlat = addPlat(400, 380, 140, 25);
-      scene.tweens.add({ targets: oscPlat, x: 560, duration: 1400, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      addPlat(720, 460, 320, 80);
-      for (var sx = 240; sx <= 700; sx += 40) addSpike(sx, 520);
+      ChronoEngine.addZone(scene, 440, 430, "fast", 95);
+      addPlat(640, 460, 400, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("HYPER VELOCITY: FAST ZONE ⚡\nSprint into the field for a boosted leap!");
     }
-    else if (lvl === 15) { // Level 16: Mirror of Time
-      addPlat(-80, 460, width + 160, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.addTimeZone(scene, 480, 390, "slow", 90);
-      addCrusher(480, 60);
-      scene.exitGate = scene.createExitDoor(890, 435);
-    }
-    else if (lvl === 16) { // Level 17: Desynchronized
+    else if (lvl === 12) { // Level 13: Chrono Shift (Alternating Slow & Fast)
       addPlat(-80, 460, 240, 80);
-      var p1 = addPlat(280, 430, 90, 25);
-      var p2 = addPlat(480, 400, 90, 25);
-      this.addTimeZone(scene, 320, 430, "fast", 80);
-      this.addTimeZone(scene, 520, 400, "slow", 80);
+      ChronoEngine.addZone(scene, 320, 410, "slow", 80);
+      addPlat(280, 430, 90, 26);
+      ChronoEngine.addZone(scene, 520, 370, "fast", 80);
+      addPlat(480, 380, 90, 26);
       addPlat(680, 460, 360, 80);
-      for (var sx = 220; sx <= 660; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 17) { // Level 18: Temporal Crushers
-      addPlat(-80, 460, width + 160, 80);
-      this.addTimeZone(scene, 360, 380, "slow", 80);
-      this.addTimeZone(scene, 620, 380, "fast", 80);
-      addCrusher(360, 60);
-      addCrusher(620, 60);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 18) { // Level 19: The Moving Sky
+    else if (lvl === 13) { // Level 14: The Clockwork Spire (Vertical Lift)
       addPlat(-80, 460, 220, 80);
-      var m1 = addPlat(260, 440, 100, 25);
-      var m2 = addPlat(440, 400, 100, 25);
-      var m3 = addPlat(620, 360, 100, 25);
-      scene.tweens.add({ targets: [m1, m2, m3], y: "-=50", duration: 1600, yoyo: true, repeat: -1 });
-      addPlat(780, 460, 260, 80);
-      for (var sx = 200; sx <= 760; sx += 40) addSpike(sx, 520);
+      var lift14 = addPlat(320, 420, 110, 28);
+      lift14.isMovingPlatform = true;
+      lift14.moveTween = scene.tweens.add({ targets: lift14, y: 220, duration: 2000, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      ChronoEngine.addZone(scene, 380, 320, "slow", 90);
+      addPlat(580, 300, 460, 80);
+      scene.exitGate = scene.createExitDoor(880, 275);
+    }
+    else if (lvl === 14) { // Level 15: Rotating Bridges (Oscillating Spire)
+      addPlat(-80, 460, 240, 80);
+      var b15 = addMovingPlat(360, 400, 120, 26, 520, 400, 1600);
+      ChronoEngine.addZone(scene, 440, 400, "slow", 85);
+      addPlat(680, 460, 360, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 15) { // Level 16: Mirror of Time (Mirror + Time Combination)
+      addPlat(-80, 460, 280, 80);
+      MirrorEngine.init(scene, 460);
+      ChronoEngine.addZone(scene, 450, 400, "slow", 85);
+      MirrorEngine.addPhantomPlatform(scene, 380, 420, 100, 26, true);
+      addPlat(620, 460, 420, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 16) { // Level 17: Desynchronized (Fast vs Slow Timing)
+      addPlat(-80, 460, 220, 80);
+      ChronoEngine.addZone(scene, 320, 430, "fast", 75);
+      addPlat(280, 430, 85, 26);
+      ChronoEngine.addZone(scene, 510, 390, "slow", 75);
+      addPlat(470, 400, 85, 26);
+      addPlat(660, 460, 380, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 17) { // Level 18: Temporal Hazard Dash
+      addPlat(-80, 460, 260, 80);
+      ChronoEngine.addZone(scene, 380, 390, "slow", 80);
+      addMovingPlat(340, 420, 100, 26, 440, 420, 1800);
+      ChronoEngine.addZone(scene, 580, 390, "fast", 80);
+      addPlat(680, 460, 360, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 18) { // Level 19: The Shifting Room (Geometry Displacement)
+      addPlat(-80, 460, 240, 80);
+      var roomBlock = addPlat(360, 420, 140, 28);
+      scene.tweens.add({ targets: roomBlock, x: 460, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      ChronoEngine.addZone(scene, 420, 420, "slow", 85);
+      addPlat(680, 460, 360, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
     else if (lvl === 19) { // Level 20: 💀 BRUTAL CHALLENGE #2 — Chrono-Collapse
       addPlat(-80, 460, 180, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.addTimeZone(scene, 260, 400, "fast", 75);
-      addMirrorPlat(230, 420, 80, 25);
-      addCrusher(360, 50);
-      this.addTimeZone(scene, 480, 360, "slow", 75);
-      addFallingPlat(450, 380, 80, 25);
-      addCrusher(580, 50);
-      addMirrorPlat(660, 340, 80, 25);
-      addPlat(780, 460, 260, 80);
-      for (var sx = 160; sx <= 760; sx += 35) addSpike(sx, 520);
+      MirrorEngine.init(scene, 460);
+      ChronoEngine.addZone(scene, 270, 410, "fast", 75);
+      MirrorEngine.addPhantomPlatform(scene, 230, 430, 80, 26, true);
+      ChronoEngine.addZone(scene, 460, 360, "slow", 80);
+      var m20 = addMovingPlat(380, 390, 90, 26, 480, 390, 2000);
+      MirrorEngine.addPhantomPlatform(scene, 580, 340, 80, 26, true);
+      addPlat(720, 460, 320, 80);
       scene.exitGate = scene.createExitDoor(880, 435);
-      scene.showTrollToast("💀 BRUTAL CHALLENGE: CHRONO-COLLAPSE");
+      scene.showTrollToast("💀 BRUTAL CHALLENGE #2: CHRONO-COLLAPSE\nAlternate between fast acceleration and slow precision!");
     }
 
-    // ── CHAPTER 3: ECHO (Levels 21 - 30) ───────────────────────
+    // =========================================================================
+    //  CHAPTER 3: ECHO (Levels 21 - 30: Shadow / Echo Player)
+    //  Biome: Echo Forest
+    // =========================================================================
     else if (lvl === 20) { // Level 21: Past Self (Echo Tutorial)
       addPlat(-80, 460, width + 160, 80);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 320, 452, "gate_21");
-      this.addEnergyGate(scene, 600, 410, "gate_21");
+      EchoEngine.init(scene);
+      addSwitch(300, 452, "gate_21");
+      addEnergyGate(580, 410, "gate_21");
       scene.exitGate = scene.createExitDoor(880, 435);
-      scene.showTrollToast("THE ECHO: Step on switch, then move forward...\nYour past ghost follows in 2s! 👤");
+      scene.showTrollToast("ECHO FOREST: Step on the switch, then move ahead...\nYour past self will trigger it 2.0s later! 👤");
     }
-    else if (lvl === 21) { // Level 22: Double Duty
-      addPlat(-80, 460, 300, 80);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 180, 452, "gate_22");
-      this.addEnergyGate(scene, 440, 410, "gate_22");
-      addPlat(480, 460, 560, 80);
-      addSpike(340, 450);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 22) { // Level 23: The Relay
-      addPlat(-80, 460, 260, 80);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 140, 452, "gate_23a");
-      this.addEnergyGate(scene, 380, 410, "gate_23a");
-      addPlat(420, 460, 200, 80);
-      this.addPuzzleSwitch(scene, 520, 452, "gate_23b");
-      this.addEnergyGate(scene, 680, 410, "gate_23b");
-      addPlat(720, 460, 320, 80);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 23) { // Level 24: Echo Bait
-      addPlat(-80, 460, width + 160, 80);
-      this.setupEchoSystem(scene);
-      addCrusher(450, 60);
-      this.addPuzzleSwitch(scene, 260, 452, "gate_24");
-      this.addEnergyGate(scene, 680, 410, "gate_24");
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 24) { // Level 25: Ghost Leap
+    else if (lvl === 21) { // Level 22: Pressure Hold (Hold to Open)
       addPlat(-80, 460, 280, 80);
-      this.setupEchoSystem(scene);
-      addTrampoline(220, 452);
-      this.addPuzzleSwitch(scene, 220, 280, "gate_25");
-      this.addEnergyGate(scene, 520, 410, "gate_25");
-      addPlat(560, 460, 480, 80);
+      EchoEngine.init(scene);
+      addPressurePlate(180, 452, "gate_22");
+      addEnergyGate(380, 410, "gate_22");
+      addPlat(420, 460, 620, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("Stand on the pressure plate for 3s, then run!\nEcho will hold it down for you!");
     }
-    else if (lvl === 25) { // Level 26: Mirror & Ghost
-      addPlat(-80, 460, width + 160, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 360, 452, "gate_26");
-      this.addEnergyGate(scene, 660, 410, "gate_26");
-      addSpike(480, 450);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 26) { // Level 27: Echo in Time
-      addPlat(-80, 460, width + 160, 80);
-      this.setupEchoSystem(scene);
-      this.addTimeZone(scene, 280, 430, "slow", 80);
-      this.addPuzzleSwitch(scene, 280, 452, "gate_27");
-      this.addEnergyGate(scene, 640, 410, "gate_27");
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 27) { // Level 28: The Triad Path
+    else if (lvl === 22) { // Level 23: The Relay (Two Sequential Gates)
       addPlat(-80, 460, 240, 80);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 120, 452, "gate_28a");
-      this.addEnergyGate(scene, 320, 410, "gate_28a");
-      addPlat(360, 460, 160, 80);
-      this.addPuzzleSwitch(scene, 420, 452, "gate_28b");
-      this.addEnergyGate(scene, 580, 410, "gate_28b");
-      addPlat(620, 460, 420, 80);
+      EchoEngine.init(scene);
+      addSwitch(140, 452, "gate_23a");
+      addEnergyGate(340, 410, "gate_23a");
+      addPlat(380, 460, 180, 80);
+      addSwitch(460, 452, "gate_23b");
+      addEnergyGate(620, 410, "gate_23b");
+      addPlat(660, 460, 380, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 28) { // Level 29: Phantom Corridor
+    else if (lvl === 23) { // Level 24: Echo Bait (Trigger Hazard Reset Window)
+      addPlat(-80, 460, width + 160, 80);
+      EchoEngine.init(scene);
+      var c24 = addCrusher(460, 60);
+      addSwitch(260, 452, "gate_24");
+      addEnergyGate(660, 410, "gate_24");
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 24) { // Level 25: Ghost Leap (Pressure Bridge)
       addPlat(-80, 460, 260, 80);
-      this.setupEchoSystem(scene);
-      addPhantomPlat(280, 430, 90, 25);
-      addPhantomPlat(420, 400, 90, 25);
-      this.addPuzzleSwitch(scene, 460, 392, "gate_29");
-      this.addEnergyGate(scene, 600, 410, "gate_29");
-      addPlat(640, 460, 400, 80);
-      for (var sx = 240; sx <= 600; sx += 40) addSpike(sx, 520);
+      EchoEngine.init(scene);
+      addPressurePlate(180, 452, "gate_25");
+      addEnergyGate(440, 410, "gate_25");
+      addPlat(480, 460, 560, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 25) { // Level 26: Mirror & Echo (Reflection Pressure)
+      addPlat(-80, 460, width + 160, 80);
+      MirrorEngine.init(scene, 460);
+      EchoEngine.init(scene);
+      addSwitch(340, 452, "gate_26");
+      addEnergyGate(640, 410, "gate_26");
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 26) { // Level 27: Echo in Time (Echo in Slow Zone)
+      addPlat(-80, 460, width + 160, 80);
+      EchoEngine.init(scene);
+      ChronoEngine.addZone(scene, 280, 430, "slow", 85);
+      addSwitch(280, 452, "gate_27");
+      addEnergyGate(620, 410, "gate_27");
+      scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("Echo in a Slow Zone activates switches longer!");
+    }
+    else if (lvl === 27) { // Level 28: The Triad Path (3 Gates)
+      addPlat(-80, 460, 220, 80);
+      EchoEngine.init(scene);
+      addSwitch(120, 452, "gate_28a");
+      addEnergyGate(300, 410, "gate_28a");
+      addPlat(340, 460, 140, 80);
+      addSwitch(380, 452, "gate_28b");
+      addEnergyGate(520, 410, "gate_28b");
+      addPlat(560, 460, 140, 80);
+      addSwitch(600, 452, "gate_28c");
+      addEnergyGate(740, 410, "gate_28c");
+      addPlat(780, 460, 260, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 28) { // Level 29: Phantom Coordination
+      addPlat(-80, 460, 240, 80);
+      EchoEngine.init(scene);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 280, 430, 90, 26, true);
+      addPressurePlate(310, 422, "gate_29");
+      addEnergyGate(520, 410, "gate_29");
+      addPlat(560, 460, 480, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
     else if (lvl === 29) { // Level 30: 💀 BRUTAL CHALLENGE #3 — Paradox Engine
-      addPlat(-80, 460, 220, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.setupEchoSystem(scene);
-      this.addPuzzleSwitch(scene, 140, 452, "gate_30a");
-      this.addTimeZone(scene, 300, 400, "fast", 75);
-      addCrusher(340, 50);
-      this.addEnergyGate(scene, 440, 410, "gate_30a");
-      addMirrorPlat(470, 390, 90, 25);
-      this.addPuzzleSwitch(scene, 510, 382, "gate_30b");
-      this.addEnergyGate(scene, 660, 410, "gate_30b");
-      addPlat(700, 460, 340, 80);
-      for (var sx = 180; sx <= 680; sx += 35) addSpike(sx, 520);
+      addPlat(-80, 460, 200, 80);
+      MirrorEngine.init(scene, 460);
+      EchoEngine.init(scene);
+      ChronoEngine.addZone(scene, 260, 410, "slow", 75);
+      addPressurePlate(140, 452, "gate_30a");
+      addEnergyGate(360, 410, "gate_30a");
+      MirrorEngine.addPhantomPlatform(scene, 400, 420, 85, 26, true);
+      addSwitch(430, 412, "gate_30b");
+      addEnergyGate(620, 410, "gate_30b");
+      addPlat(660, 460, 380, 80);
       scene.exitGate = scene.createExitDoor(890, 435);
-      scene.showTrollToast("💀 BRUTAL CHALLENGE: PARADOX ENGINE");
+      scene.showTrollToast("💀 BRUTAL CHALLENGE #3: PARADOX ENGINE\nSingle-player co-op synchronized with your past self!");
     }
 
-    // ── CHAPTER 4: COLLAPSE (Levels 31 - 40) ───────────────────
-    else if (lvl === 30) { // Level 31: Polarity (Magnet Tutorial)
-      addPlat(-80, 460, 320, 80);
-      this.addMagnetNode(scene, 260, 390, "repel", 300);
-      addPlat(480, 340, 200, 40);
+    // =========================================================================
+    //  CHAPTER 4: COLLAPSE (Levels 31 - 40: Magnetic Mechanics & Multi-Switches)
+    //  Biome: Broken Ruins
+    // =========================================================================
+    else if (lvl === 30) { // Level 31: Polarity (First Magnet Repulsion)
+      addPlat(-80, 460, 300, 80);
+      MagnetEngine.addNode(scene, 260, 390, "repel", 300);
+      addPlat(480, 340, 180, 36);
       addPlat(720, 460, 320, 80);
-      for (var sx = 300; sx <= 700; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("MAGNETIC COLLAPSE: Polar Repulsion Field 🧲");
+      scene.showTrollToast("BROKEN RUINS: Magnetic Repulsion Field 🧲\nRed node repels; ride the flux upward!");
     }
-    else if (lvl === 31) { // Level 32: Magnetic Rail
+    else if (lvl === 31) { // Level 32: Magnetic Rail (Moveable Metal Crate)
       addPlat(-80, 460, 260, 80);
-      this.addMagnetNode(scene, 420, 320, "attract", 280);
+      MagnetEngine.addNode(scene, 420, 330, "attract", 280);
+      MagnetEngine.addCrate(scene, 200, 430);
       addPlat(560, 460, 480, 80);
-      for (var sx = 240; sx <= 540; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 32) { // Level 33: Inverse Pull
+    else if (lvl === 32) { // Level 33: Inverse Pull (Attraction Across Void)
       addPlat(-80, 460, 240, 80);
-      this.addMagnetNode(scene, 380, 240, "attract", 320);
-      addPlat(520, 460, 160, 80);
-      this.addMagnetNode(scene, 680, 420, "repel", 280);
-      addPlat(780, 360, 260, 40);
-      for (var sx = 220; sx <= 760; sx += 40) addSpike(sx, 520);
+      MagnetEngine.addNode(scene, 390, 260, "attract", 320);
+      addPlat(540, 460, 160, 80);
+      MagnetEngine.addNode(scene, 700, 410, "repel", 280);
+      addPlat(800, 360, 240, 36);
       scene.exitGate = scene.createExitDoor(900, 335);
     }
-    else if (lvl === 33) { // Level 34: Circuitry (Multi-Switch)
+    else if (lvl === 33) { // Level 34: Circuitry (Multi-Switch Network)
       addPlat(-80, 460, width + 160, 80);
-      this.addPuzzleSwitch(scene, 280, 452, "gate_34a");
-      this.addEnergyGate(scene, 440, 410, "gate_34a");
-      this.addPuzzleSwitch(scene, 520, 452, "gate_34b");
-      this.addEnergyGate(scene, 680, 410, "gate_34b");
+      addSwitch(260, 452, "gate_34a");
+      addEnergyGate(420, 410, "gate_34a");
+      addSwitch(520, 452, "gate_34b");
+      addEnergyGate(680, 410, "gate_34b");
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 34) { // Level 35: The Gravity Well
+    else if (lvl === 34) { // Level 35: The Gravity Well (Dual Opposing Magnets)
       addPlat(-80, 460, 220, 80);
-      this.addMagnetNode(scene, 380, 220, "attract", 280);
-      this.addMagnetNode(scene, 540, 480, "repel", 280);
+      MagnetEngine.addNode(scene, 380, 220, "attract", 280);
+      MagnetEngine.addNode(scene, 540, 470, "repel", 280);
       addPlat(680, 460, 360, 80);
-      for (var sx = 200; sx <= 660; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 35) { // Level 36: Collapsing Spires
-      addPlat(-80, 460, 200, 80);
-      var sp1 = addPlat(260, 430, 90, 25);
-      var sp2 = addPlat(420, 390, 90, 25);
-      var sp3 = addPlat(580, 350, 90, 25);
-      this.addMagnetNode(scene, 420, 260, "attract", 250);
-      addPlat(720, 460, 320, 80);
-      for (var sx = 180; sx <= 700; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 36) { // Level 37: Magnetic Echo
-      addPlat(-80, 460, width + 160, 80);
-      this.setupEchoSystem(scene);
-      this.addMagnetNode(scene, 440, 380, "repel", 260);
-      this.addPuzzleSwitch(scene, 260, 452, "gate_37");
-      this.addEnergyGate(scene, 650, 410, "gate_37");
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 37) { // Level 38: Polarity Reversal
-      addPlat(-80, 460, 240, 80);
-      var mag38 = this.addMagnetNode(scene, 420, 360, "repel", 300);
-      this.addPuzzleSwitch(scene, 180, 452, "gate_38");
-      addPlat(620, 460, 420, 80);
-      for (var sx = 220; sx <= 600; sx += 40) addSpike(sx, 520);
-      scene.exitGate = scene.createExitDoor(900, 435);
-    }
-    else if (lvl === 38) { // Level 39: Tectonic Shift
+    else if (lvl === 35) { // Level 36: Room Rotation (Assembly Shift)
       addPlat(-80, 460, 220, 80);
-      var step1 = addPlat(280, 440, 100, 25);
-      var step2 = addPlat(440, 400, 100, 25);
-      var step3 = addPlat(600, 360, 100, 25);
-      this.addPuzzleSwitch(scene, 160, 452, "gate_39");
-      addPlat(760, 460, 280, 80);
-      for (var sx = 200; sx <= 740; sx += 40) addSpike(sx, 520);
+      var rot1 = addPlat(360, 420, 120, 26);
+      var rot2 = addPlat(520, 380, 120, 26);
+      addSwitch(160, 452, "gate_36");
+      scene.customUpdateHandlers.push(function() {
+        if (scene.switches[0] && scene.switches[0].isPressed && !scene.rotatedDone) {
+          scene.rotatedDone = true;
+          ShiftEngine.rotateAssembly(scene, [rot1, rot2], 90, 1200);
+        }
+      });
+      addPlat(720, 460, 320, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 36) { // Level 37: Magnetic Echo (Echo Moving Crate)
+      addPlat(-80, 460, width + 160, 80);
+      EchoEngine.init(scene);
+      MagnetEngine.addNode(scene, 440, 380, "repel", 260);
+      addSwitch(260, 452, "gate_37");
+      addEnergyGate(650, 410, "gate_37");
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 37) { // Level 38: Polarity Reversal (Toggle Inversion)
+      addPlat(-80, 460, 240, 80);
+      var mag38 = MagnetEngine.addNode(scene, 420, 360, "repel", 300);
+      addSwitch(180, 452, "gate_38");
+      scene.customUpdateHandlers.push(function() {
+        if (scene.switches[0] && scene.switches[0].isPressed && !scene.polaritySwapped) {
+          scene.polaritySwapped = true;
+          MagnetEngine.togglePolarity();
+          scene.showTrollToast("⚡ POLARITY REVERSED: Attract Mode!");
+        }
+      });
+      addPlat(640, 460, 400, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+    }
+    else if (lvl === 38) { // Level 39: Tectonic Shift (Stair Transformation)
+      addPlat(-80, 460, 220, 80);
+      var s1 = addPlat(280, 440, 95, 26);
+      var s2 = addPlat(430, 400, 95, 26);
+      var s3 = addPlat(580, 360, 95, 26);
+      addSwitch(160, 452, "gate_39");
+      addPlat(740, 460, 300, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
     else if (lvl === 39) { // Level 40: 💀 BRUTAL CHALLENGE #4 — Magnetic Labyrinth
       addPlat(-80, 460, 180, 80);
-      this.setupEchoSystem(scene);
-      this.addMagnetNode(scene, 260, 350, "repel", 280);
-      addMirrorPlat(220, 410, 80, 25);
-      this.addPuzzleSwitch(scene, 140, 452, "gate_40a");
-      this.addEnergyGate(scene, 380, 370, "gate_40a");
-      this.addMagnetNode(scene, 500, 260, "attract", 300);
-      addMirrorPlat(480, 360, 80, 25);
-      this.addPuzzleSwitch(scene, 520, 352, "gate_40b");
-      this.addEnergyGate(scene, 660, 370, "gate_40b");
+      EchoEngine.init(scene);
+      MagnetEngine.addNode(scene, 260, 350, "repel", 290);
+      addSwitch(140, 452, "gate_40a");
+      addEnergyGate(380, 370, "gate_40a");
+      MagnetEngine.addNode(scene, 500, 260, "attract", 310);
+      addPlat(470, 360, 80, 26);
+      addSwitch(500, 352, "gate_40b");
+      addEnergyGate(660, 370, "gate_40b");
       addPlat(740, 460, 300, 80);
-      for (var sx = 160; sx <= 720; sx += 35) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(890, 435);
-      scene.showTrollToast("💀 BRUTAL CHALLENGE: MAGNETIC LABYRINTH");
+      scene.showTrollToast("💀 BRUTAL CHALLENGE #4: MAGNETIC LABYRINTH\nThread the magnetic needle through the ruins!");
     }
 
-    // ── CHAPTER 5: SOMETHING IS WRONG... (Levels 41 - 44) ───────
-    else if (lvl === 40) { // Level 41: The Quiet Ruin (Atmosphere)
+    // =========================================================================
+    //  CHAPTER 5: SOMETHING IS WRONG... (Levels 41 - 44: Atmospheric Storytelling)
+    //  Biome: Unstable World
+    // =========================================================================
+    else if (lvl === 40) { // Level 41: The Quiet Ruin (Vanishing Sky Monument)
       addPlat(-80, 460, width + 160, 80);
+      var monument = scene.add.sprite(width * 0.6, 260, "monolith_tex").setDepth(5).setAlpha(0.35).setScale(0.9);
+      scene.customUpdateHandlers.push(function(sc) {
+        if (sc.player.x > 320 && monument.alpha > 0) {
+          monument.alpha -= 0.015;
+        }
+      });
       scene.exitGate = scene.createExitDoor(880, 435);
-      scene.showTrollToast("...The wind has stopped blowing.");
+      scene.showTrollToast("...The wind has stopped. Did something just vanish?");
     }
     else if (lvl === 41) { // Level 42: The Shadow That Follows
-      addPlat(-80, 460, 320, 80);
-      addPlat(400, 460, 240, 80);
-      addPlat(700, 460, 340, 80);
-      addSpike(360, 450);
-      addSpike(660, 450);
+      addPlat(-80, 460, 300, 80);
+      addPlat(380, 460, 220, 80);
+      addPlat(680, 460, 360, 80);
+      var bgShadow = scene.add.sprite(500, 220, "echo_hero_ghost").setDepth(4).setAlpha(0.25).setTint(0x000000);
+      scene.customUpdateHandlers.push(function(sc) {
+        bgShadow.x = 500 + (sc.player.x - 480) * 0.3;
+        bgShadow.y = 220 + (sc.player.y - 410) * 0.4;
+      });
       scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("Did something in the distance just move?");
+      scene.showTrollToast("A distant silhouette is mirroring your movements...");
     }
-    else if (lvl === 42) { // Level 43: Signal Glitch
-      addPlat(-80, 460, 280, 80);
-      addMirrorPlat(320, 430, 100, 25);
-      addMirrorPlat(500, 400, 100, 25);
+    else if (lvl === 42) { // Level 43: Signal Glitch (Audio & Geometry Warps)
+      addPlat(-80, 460, 260, 80);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 320, 430, 95, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 500, 400, 95, 26, true);
+      addPlat(680, 460, 360, 80);
+      scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("⚠ SIGNAL GLITCH DETECTED: Reality frequency desyncing...");
+    }
+    else if (lvl === 43) { // Level 44: Reality Tremor (Trembling Foundation)
+      addPlat(-80, 460, 300, 80);
+      var tremblingBlock = addPlat(420, 440, 140, 28);
+      scene.tweens.add({ targets: tremblingBlock, y: "-=8", duration: 80, yoyo: true, repeat: -1 });
       addPlat(660, 460, 380, 80);
-      for (var sx = 260; sx <= 640; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("⚠ SIGNAL GLITCH DETECTED");
-    }
-    else if (lvl === 43) { // Level 44: Reality Tremor
-      addPlat(-80, 460, width + 160, 80);
-      addCrusher(460, 60);
-      scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("Reality is destabilizing...");
+      scene.showTrollToast("The sky is tearing open... The apex is near!");
     }
 
-    // ── CHAPTER 6: LEVEL 45 — THE REVEAL & WORLD 3 TEASER ───────
-    else if (lvl === 44) { // Level 45: THE REVEAL (Cinematic Event)
+    // =========================================================================
+    //  CHAPTER 6: LEVEL 45 — THE REVEAL & WORLD 3 CINEMATIC TEASER
+    // =========================================================================
+    else if (lvl === 44) { // Level 45: THE THRESHOLD (The Apex Cinematic Story Event)
       addPlat(-80, 460, width + 160, 80);
       scene.exitGate = scene.createExitDoor(880, 435);
       scene.exitGate.isRevealEvent = true;
-      scene.showTrollToast("THE APEX OF WORLD 2");
+      scene.showTrollToast("THE APEX OF WORLD 2: ENTER THE THRESHOLD");
     }
 
-    // ── CHAPTER 7: THE DESCENT (Levels 46 - 50) ─────────────────
-    else if (lvl === 45) { // Level 46: Aftermath (Post-Reveal Breakdown)
+    // =========================================================================
+    //  CHAPTER 7: THE DESCENT (Levels 46 - 50: Reality Breakdown & Finale)
+    //  Biome: The Descent
+    // =========================================================================
+    else if (lvl === 45) { // Level 46: Aftermath (Post-Reveal Anomaly)
       addPlat(-80, 460, 260, 80);
-      addMirrorPlat(280, 430, 90, 25);
-      addMirrorPlat(420, 390, 90, 25);
-      addPlat(560, 460, 480, 80);
-      this.setupMirrorPlane(scene, 460);
-      for (var sx = 240; sx <= 540; sx += 40) addSpike(sx, 520);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 300, 430, 90, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 460, 390, 90, 26, true);
+      addPlat(620, 460, 420, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
-      scene.showTrollToast("THE DESCENT: 46 / 50 LEVELS");
+      scene.showTrollToast("THE DESCENT: 46 / 50 LEVELS\nReality has fractured...");
     }
-    else if (lvl === 46) { // Level 47: The Monolith's Shadow
+    else if (lvl === 46) { // Level 47: The Monolith's Shadow (Alien Gravity Well)
       addPlat(-80, 460, width + 160, 80);
-      var monolithShadow = scene.add.sprite(500, 240, "monolith_tex").setDepth(5).setAlpha(0.4).setScale(1.6);
-      scene.tweens.add({ targets: monolithShadow, y: 220, duration: 2500, yoyo: true, repeat: -1 });
-      this.addMagnetNode(scene, 500, 360, "attract", 280);
-      addSpike(420, 450);
-      addSpike(580, 450);
+      var monoShadow = scene.add.sprite(500, 230, "monolith_tex").setDepth(5).setAlpha(0.45).setScale(1.6);
+      scene.tweens.add({ targets: monoShadow, y: 210, duration: 2600, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+      MagnetEngine.addNode(scene, 500, 350, "attract", 290);
       scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("An alien artifact hovers in the rift...");
     }
-    else if (lvl === 47) { // Level 48: Dimension Rift
+    else if (lvl === 47) { // Level 48: Dimension Rift (Quantum Warp Platform)
       addPlat(-80, 460, 240, 80);
-      this.addTimeZone(scene, 360, 380, "slow", 90);
-      this.addTimeZone(scene, 560, 380, "fast", 90);
-      addMirrorPlat(320, 410, 90, 25);
-      addMirrorPlat(520, 410, 90, 25);
+      ChronoEngine.addZone(scene, 350, 380, "slow", 85);
+      ChronoEngine.addZone(scene, 550, 380, "fast", 85);
+      MirrorEngine.init(scene, 460);
+      MirrorEngine.addPhantomPlatform(scene, 320, 410, 85, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 520, 410, 85, 26, true);
       addPlat(680, 460, 360, 80);
-      for (var sx = 220; sx <= 660; sx += 40) addSpike(sx, 520);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
     else if (lvl === 48) { // Level 49: 💀 BRUTAL CHALLENGE #5 — Fractured Continuum
       addPlat(-80, 460, 180, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.setupEchoSystem(scene);
-      this.addTimeZone(scene, 280, 390, "fast", 70);
-      addMirrorPlat(230, 420, 80, 25);
-      addCrusher(360, 50);
-      this.addPuzzleSwitch(scene, 140, 452, "gate_49");
-      this.addEnergyGate(scene, 440, 380, "gate_49");
-      this.addMagnetNode(scene, 520, 260, "attract", 290);
-      addFallingPlat(480, 370, 80, 25);
-      addCrusher(600, 50);
-      addMirrorPlat(660, 340, 80, 25);
-      addPlat(760, 460, 280, 80);
-      for (var sx = 160; sx <= 740; sx += 35) addSpike(sx, 520);
+      MirrorEngine.init(scene, 460);
+      EchoEngine.init(scene);
+      ChronoEngine.addZone(scene, 270, 400, "fast", 75);
+      MirrorEngine.addPhantomPlatform(scene, 230, 420, 80, 26, true);
+      addSwitch(130, 452, "gate_49");
+      addEnergyGate(370, 380, "gate_49");
+      MagnetEngine.addNode(scene, 500, 270, "attract", 295);
+      MirrorEngine.addPhantomPlatform(scene, 480, 370, 80, 26, true);
+      MirrorEngine.addPhantomPlatform(scene, 620, 340, 80, 26, true);
+      addPlat(740, 460, 300, 80);
       scene.exitGate = scene.createExitDoor(890, 435);
-      scene.showTrollToast("💀 BRUTAL CHALLENGE: FRACTURED CONTINUUM");
+      scene.showTrollToast("💀 BRUTAL CHALLENGE #5: FRACTURED CONTINUUM\nMaster all dimensions to reach the finale!");
     }
     else if (lvl === 49) { // Level 50: 👑 GRAND MASTER FINALE — The Shift Complete
       addPlat(-80, 460, 180, 80);
-      this.setupMirrorPlane(scene, 460);
-      this.setupEchoSystem(scene);
-      
+      MirrorEngine.init(scene, 460);
+      EchoEngine.init(scene);
+
       // Multi-Chamber Master Climax
-      // Chamber 1: Echo Relay & Time Shift
-      this.addPuzzleSwitch(scene, 120, 452, "gate_50a");
-      this.addTimeZone(scene, 280, 410, "slow", 70);
-      addMirrorPlat(240, 420, 80, 25);
-      this.addEnergyGate(scene, 360, 390, "gate_50a");
+      // Chamber 1: Echo Relay & Mirror Precision
+      addPressurePlate(120, 452, "gate_50a");
+      MirrorEngine.addPhantomPlatform(scene, 240, 420, 80, 26, true);
+      addEnergyGate(350, 390, "gate_50a");
 
-      // Chamber 2: Magnetic Leap over Abyss
-      this.addMagnetNode(scene, 460, 260, "repel", 320);
-      addFallingPlat(430, 380, 80, 25);
-      this.addPuzzleSwitch(scene, 460, 372, "gate_50b");
-      this.addEnergyGate(scene, 580, 360, "gate_50b");
+      // Chamber 2: Chrono Leap & Magnetic Polarity
+      ChronoEngine.addZone(scene, 450, 340, "slow", 80);
+      MagnetEngine.addNode(scene, 470, 260, "repel", 320);
+      MirrorEngine.addPhantomPlatform(scene, 460, 380, 80, 26, true);
+      addSwitch(470, 372, "gate_50b");
+      addEnergyGate(590, 360, "gate_50b");
 
-      // Chamber 3: High-Speed Crusher Dash
-      this.addTimeZone(scene, 660, 350, "fast", 75);
-      addCrusher(650, 40);
-      addMirrorPlat(640, 350, 90, 25);
+      // Chamber 3: Hyper Sprint to Celestial Sanctuary
+      ChronoEngine.addZone(scene, 680, 350, "fast", 80);
+      MirrorEngine.addPhantomPlatform(scene, 660, 360, 90, 26, true);
 
-      // Sanctuary: The Grand Celestial Exit
+      // Sanctuary Gate
       addPlat(760, 460, 280, 80);
-      for (var sx = 160; sx <= 740; sx += 32) addSpike(sx, 520);
-
       scene.exitGate = scene.createExitDoor(890, 435);
-      scene.showTrollToast("👑 GRAND FINALE: CONQUER THE SHIFT!");
+      scene.showTrollToast("👑 GRAND FINALE: THE SHIFT COMPLETE!\nConquer the 5-chamber trial to achieve mastery!");
     }
   }
 };
 
+window.World2IntroScene = World2IntroScene;
+window.World2ThemeManager = World2ThemeManager;
+window.MirrorEngine = MirrorEngine;
+window.ChronoEngine = ChronoEngine;
+window.EchoEngine = EchoEngine;
+window.MagnetEngine = MagnetEngine;
+window.ShiftEngine = ShiftEngine;
+window.World2Cinematics = World2Cinematics;
+window.World2Engine = World2Engine;
 window.WORLD_2_THEME = WORLD_2_THEME;
 window.World2Assets = World2Assets;
-window.World2Engine = World2Engine;
-

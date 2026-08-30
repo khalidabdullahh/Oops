@@ -1767,7 +1767,11 @@ class WorldSelectScene extends Phaser.Scene {
     inZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      self.scene.start("IntroScene");
+      if (self.currentWorldIdx === 1 && typeof World2IntroScene !== "undefined") {
+        self.scene.start("World2IntroScene");
+      } else {
+        self.scene.start("IntroScene");
+      }
     });
     introBtn.add([inGfx, inLabel, inZone]);
     this.islandContainer.add(introBtn);
@@ -2013,7 +2017,11 @@ class WorldSelectScene extends Phaser.Scene {
             hitZone.on("pointerdown", function() {
               AudioEngine.init();
               AudioEngine.sfxJump();
-              self.scene.start("GameScene", { world: self.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
+              if (self.currentWorldIdx === 1 && lvlIdx === 0 && !SaveManager.load().introSeenWorld2 && typeof World2IntroScene !== "undefined") {
+                self.scene.start("World2IntroScene");
+              } else {
+                self.scene.start("GameScene", { world: self.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
+              }
             });
             nodeContainer.add(hitZone);
           }
@@ -2040,7 +2048,11 @@ class WorldSelectScene extends Phaser.Scene {
     plZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      self.scene.start("GameScene", { world: self.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
+      if (self.currentWorldIdx === 1 && maxUnlocked === 0 && !SaveManager.load().introSeenWorld2 && typeof World2IntroScene !== "undefined") {
+        self.scene.start("World2IntroScene");
+      } else {
+        self.scene.start("GameScene", { world: self.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
+      }
     });
     playBtn.add([plGfx, plLabel, plZone]);
     this.islandContainer.add(playBtn);
@@ -3485,7 +3497,9 @@ var config = {
       debug: false
     }
   },
-  scene: [BootScene, IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
+  scene: (typeof World2IntroScene !== "undefined")
+    ? [BootScene, IntroScene, World2IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
+    : [BootScene, IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
 };
 
 window.addEventListener("resize", function() {
