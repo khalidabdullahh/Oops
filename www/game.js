@@ -2644,6 +2644,12 @@ class GameScene extends Phaser.Scene {
   onReachExit() {
     var self = this;
     if (this.isComplete || this.isDead) return;
+
+    if (this.exitGate && this.exitGate.isRevealEvent && typeof World2Engine !== "undefined") {
+      World2Engine.triggerLevel45Sequence(this);
+      return;
+    }
+
     this.isComplete = true;
 
     this.player.setVelocity(0, 0);
@@ -2652,12 +2658,12 @@ class GameScene extends Phaser.Scene {
       this.player.body.moves = false;
     }
 
-    SaveManager.saveLevelClear(0, this.currentLevel, this.deaths);
+    SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
 
     AudioEngine.playTone(380, "sine", 0.09, 0.16);
     AudioEngine.playTone(540, "triangle", 0.12, 0.22, 0.04);
 
-    if (this.exitGate.doorPanel) {
+    if (this.exitGate && this.exitGate.doorPanel) {
       this.tweens.add({
         targets: this.exitGate.doorPanel,
         scaleX: 0.06,
@@ -2672,8 +2678,8 @@ class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.player,
-      x: this.exitGate.x,
-      y: this.exitGate.y + 4,
+      x: this.exitGate ? this.exitGate.x : (this.player.x + 20),
+      y: this.exitGate ? (this.exitGate.y + 4) : this.player.y,
       scaleX: 0.85,
       scaleY: 0.85,
       duration: 320,
@@ -2681,51 +2687,29 @@ class GameScene extends Phaser.Scene {
       onComplete: function() {
         self.player.anims.play("hero_anim_idle", true);
 
-        if (self.exitGate.doorPanel) {
-          self.tweens.add({
-            targets: self.exitGate.doorPanel,
-            scaleX: 1,
-            duration: 140,
-            ease: "Back.easeOut",
-            onComplete: function() {
-              AudioEngine.sfxLand();
-              AudioEngine.sfxWin();
-
-              self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
-                speed: { min: 70, max: 220 },
-                scale: { start: 1.2, end: 0 },
-                lifespan: 550,
-                quantity: 26,
-                tint: [0xffd32a, 0x2ed573, 0xffffff]
-              });
-
-              self.time.delayedCall(450, function() {
-                var nextLvl = self.currentLevel + 1;
-                if (nextLvl >= 30) {
-                  MobileGamepad.hide();
-                  self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
-                } else {
-                  self.scene.restart({
-                    world: 0,
-                    level: nextLvl,
-                    deaths: self.deaths,
-                    levelDeaths: 0,
-                    skipOfferUnlocked: false
-                  });
-                }
-              });
-            }
-          });
-        } else {
+        var onExitAnimDone = function() {
+          AudioEngine.sfxLand();
           AudioEngine.sfxWin();
-          self.time.delayedCall(400, function() {
+
+          if (self.exitGate) {
+            self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
+              speed: { min: 70, max: 220 },
+              scale: { start: 1.2, end: 0 },
+              lifespan: 550,
+              quantity: 26,
+              tint: [0xffd32a, 0x2ed573, 0xffffff]
+            });
+          }
+
+          self.time.delayedCall(450, function() {
             var nextLvl = self.currentLevel + 1;
-            if (nextLvl >= 30) {
+            var maxL = (self.currentWorld === 1) ? 50 : 30;
+            if (nextLvl >= maxL) {
               MobileGamepad.hide();
-              self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
+              self.scene.start("WorldCompleteScene", { world: self.currentWorld, totalDeaths: self.deaths });
             } else {
               self.scene.restart({
-                world: 0,
+                world: self.currentWorld,
                 level: nextLvl,
                 deaths: self.deaths,
                 levelDeaths: 0,
@@ -2733,6 +2717,18 @@ class GameScene extends Phaser.Scene {
               });
             }
           });
+        };
+
+        if (self.exitGate && self.exitGate.doorPanel) {
+          self.tweens.add({
+            targets: self.exitGate.doorPanel,
+            scaleX: 1,
+            duration: 140,
+            ease: "Back.easeOut",
+            onComplete: onExitAnimDone
+          });
+        } else {
+          onExitAnimDone();
         }
       }
     });
@@ -3284,6 +3280,7 @@ class WorldCompleteScene extends Phaser.Scene {
   }
 
   init(data) {
+    this.currentWorld = (typeof data.world === "number") ? data.world : 0;
     this.totalDeaths = (typeof data.totalDeaths === "number") ? data.totalDeaths : SaveManager.getTotalDeaths();
   }
 
@@ -3297,7 +3294,7 @@ class WorldCompleteScene extends Phaser.Scene {
     AudioEngine.init();
     AudioEngine.sfxWin();
 
-    var theme = WORLD_1_THEME;
+    var theme = getTheme(this.currentWorld);
     syncBodyBackground(theme);
 
     // Background
@@ -3324,7 +3321,7 @@ class WorldCompleteScene extends Phaser.Scene {
     var cardGfx = this.add.graphics();
     cardGfx.fillStyle(0x12141e, 0.95);
     cardGfx.fillRoundedRect(-360, -210, 720, 420, 16);
-    cardGfx.lineStyle(3, 0xffd32a, 1);
+    cardGfx.lineStyle(3, (this.currentWorld === 1) ? 0x00d2d3 : 0xffd32a, 1);
     cardGfx.strokeRoundedRect(-360, -210, 720, 420, 16);
 
     // Animated Trophy Icon
@@ -3346,12 +3343,16 @@ class WorldCompleteScene extends Phaser.Scene {
     var title = this.add.text(0, -90, "CONGRATULATIONS!", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "19px",
-      color: "#ffd32a",
+      color: (this.currentWorld === 1) ? "#00d2d3" : "#ffd32a",
       stroke: "#000000",
       strokeThickness: 6
     }).setOrigin(0.5);
 
-    var subtitle = this.add.text(0, -60, "YOU CONQUERED ALL 30 LEVELS OF WORLD 1!", {
+    var subtitleText = (this.currentWorld === 1)
+      ? "YOU CONQUERED ALL 50 LEVELS OF WORLD 2: THE SHIFT!"
+      : "YOU CONQUERED ALL 30 LEVELS OF WORLD 1!";
+
+    var subtitle = this.add.text(0, -60, subtitleText, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9.5px",
       color: "#2ed573",
@@ -3366,7 +3367,8 @@ class WorldCompleteScene extends Phaser.Scene {
     statsGfx.lineStyle(1, 0x3d4460, 1);
     statsGfx.strokeRoundedRect(-310, -38, 620, 42, 8);
 
-    var statsText = this.add.text(0, -17, "💀 TOTAL DEATHS: " + this.totalDeaths + "   ⭐ 30/30 LEVELS CLEARED", {
+    var maxL = (this.currentWorld === 1) ? 50 : 30;
+    var statsText = this.add.text(0, -17, "💀 TOTAL DEATHS: " + this.totalDeaths + "   ⭐ " + maxL + "/" + maxL + " LEVELS CLEARED", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9px",
       color: "#ffffff"
@@ -3376,13 +3378,14 @@ class WorldCompleteScene extends Phaser.Scene {
     var teaserGfx = this.add.graphics();
     teaserGfx.fillStyle(0x241014, 0.9);
     teaserGfx.fillRoundedRect(-310, 20, 620, 95, 10);
-    teaserGfx.lineStyle(2, 0xff4757, 0.9);
+    teaserGfx.lineStyle(2, (this.currentWorld === 1) ? 0xa55eea : 0xff4757, 0.9);
     teaserGfx.strokeRoundedRect(-310, 20, 620, 95, 10);
 
-    var teaserHeader = this.add.text(0, 42, "🔥 NEXT WORLD COMING SOON! 🔥", {
+    var teaserHeaderTxt = (this.currentWorld === 1) ? "🔥 WORLD 3: THE QUANTUM VOID 🔥" : "🔥 NEXT WORLD: THE SHIFT IS LIVE! 🔥";
+    var teaserHeader = this.add.text(0, 42, teaserHeaderTxt, {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "11.5px",
-      color: "#ff4757",
+      fontSize: "11px",
+      color: (this.currentWorld === 1) ? "#a55eea" : "#ff4757",
       stroke: "#000000",
       strokeThickness: 4
     }).setOrigin(0.5);
@@ -3397,7 +3400,11 @@ class WorldCompleteScene extends Phaser.Scene {
       ease: "Sine.easeInOut"
     });
 
-    var teaserBody = this.add.text(0, 80, "World 2: Shadow Crypts is currently in development!\nGet ready for gravity inversion, glitch blocks & devilish new traps.", {
+    var teaserBodyTxt = (this.currentWorld === 1)
+      ? "World 3 is currently in development!\nPrepare for non-Euclidean wormholes, alien monoliths & dimensional tears."
+      : "World 2: The Shift is now available!\nExperience 50 handcrafted levels of mirror illusions, time distortion & echo ghosts.";
+
+    var teaserBody = this.add.text(0, 80, teaserBodyTxt, {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "7.5px",
       color: "#ffcccc",
@@ -3426,11 +3433,12 @@ class WorldCompleteScene extends Phaser.Scene {
 
     var btnReplay = this.add.container(130, 160);
     var b2Gfx = this.add.graphics();
-    b2Gfx.fillStyle(0xffd32a, 1);
+    var b2Fill = (this.currentWorld === 1) ? 0x00d2d3 : 0xffd32a;
+    b2Gfx.fillStyle(b2Fill, 1);
     b2Gfx.fillRoundedRect(-110, -18, 220, 36, 8);
     b2Gfx.lineStyle(2, 0x000000, 1);
     b2Gfx.strokeRoundedRect(-110, -18, 220, 36, 8);
-    var b2Txt = this.add.text(0, 0, "↺ REPLAY WORLD 1", {
+    var b2Txt = this.add.text(0, 0, (this.currentWorld === 1) ? "↺ REPLAY WORLD 2" : "↺ REPLAY WORLD 1", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9px",
       color: "#000000"
@@ -3438,7 +3446,7 @@ class WorldCompleteScene extends Phaser.Scene {
     var b2Zone = this.add.zone(0, 0, 220, 36).setInteractive({ cursor: "pointer" });
     b2Zone.on("pointerdown", function() {
       AudioEngine.sfxJump();
-      self.scene.start("GameScene", { world: 0, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
+      self.scene.start("GameScene", { world: self.currentWorld, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
     });
     btnReplay.add([b2Gfx, b2Txt, b2Zone]);
 
