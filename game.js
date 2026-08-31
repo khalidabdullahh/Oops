@@ -110,8 +110,7 @@ var SaveManager = {
   getInitialState: function() {
     return {
       worlds: {
-        0: { maxUnlocked: 0, cleared: [] },
-        1: { maxUnlocked: 0, cleared: [] }
+        0: { maxUnlocked: 0, cleared: [] }
       },
       deaths: 0,
       currentWorld: 0,
@@ -125,8 +124,6 @@ var SaveManager = {
       if (!raw) return this.getInitialState();
       var data = JSON.parse(raw);
       if (!data || !data.worlds) return this.getInitialState();
-      if (!data.worlds[0]) data.worlds[0] = { maxUnlocked: 0, cleared: [] };
-      if (!data.worlds[1]) data.worlds[1] = { maxUnlocked: 0, cleared: [] };
       return data;
     } catch(e) {
       return this.getInitialState();
@@ -143,17 +140,8 @@ var SaveManager = {
       if (!w.cleared.includes(levelIdx)) {
         w.cleared.push(levelIdx);
       }
-      var maxL = (worldIdx === 1) ? 49 : 29;
-      w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, maxL));
+      w.maxUnlocked = Math.max(w.maxUnlocked, Math.min(levelIdx + 1, 29));
       data.deaths = deaths;
-      data.currentWorld = worldIdx;
-      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    } catch(e) {}
-  },
-
-  saveCurrentWorld: function(worldIdx) {
-    try {
-      var data = this.load();
       data.currentWorld = worldIdx;
       SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
@@ -195,22 +183,8 @@ var SaveManager = {
       data.introSeen = true;
       SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
-  },
-
-  hasSeenWorld2Intro: function() {
-    var data = this.load();
-    return !!data.introSeenWorld2;
-  },
-
-  setWorld2IntroSeen: function() {
-    try {
-      var data = this.load();
-      data.introSeenWorld2 = true;
-      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    } catch(e) {}
   }
 };
-window.SaveManager = SaveManager;
 
 // ─── 2. Web Audio Synthesizer ────────────────────────────────
 var AudioEngine = {
@@ -297,16 +271,6 @@ var AudioEngine = {
   sfxSpring: function() {
     this.sfxBounce();
   },
-  sfxGlassShatter: function() {
-    this.playTone(880, "sawtooth", 0.05, 0.2);
-    this.playTone(1320, "square", 0.08, 0.18, 0.02);
-    this.playTone(440, "sawtooth", 0.12, 0.22, 0.05);
-    this.playTone(1760, "square", 0.06, 0.15, 0.08);
-  },
-  sfxBoom: function() {
-    this.playTone(110, "sawtooth", 0.35, 0.4);
-    this.playTone(55, "triangle", 0.5, 0.45, 0.05);
-  },
 
   startMusic: function() {
     var self = this;
@@ -334,19 +298,6 @@ var AudioEngine = {
     return this.muted;
   }
 };
-// Guard against any runtime missing sfx methods throwing exceptions
-if (typeof Proxy !== "undefined") {
-  AudioEngine = new Proxy(AudioEngine, {
-    get: function(target, prop) {
-      if (prop in target) return target[prop];
-      if (typeof prop === "string" && prop.startsWith("sfx")) {
-        return function() { /* soft fallback for missing sfx */ };
-      }
-      return undefined;
-    }
-  });
-}
-window.AudioEngine = AudioEngine;
 
 // ─── 3. Mobile Gamepad Controller Bridge ─────────────────────
 var MobileGamepad = {
@@ -364,7 +315,6 @@ var MobileGamepad = {
     var btnFlip = document.getElementById("btn-flip");
     var btnRestart = document.getElementById("btn-restart");
     var deckBtnRestart = document.getElementById("deck-btn-restart");
-    var deckBtnPause = document.getElementById("deck-btn-pause");
     var deckBtnMap = document.getElementById("deck-btn-map");
 
     var bindButton = function(el, onDown, onUp) {
@@ -399,17 +349,6 @@ var MobileGamepad = {
     bindButton(btnFlip, function(s) { s.touchFlip = true; }, function(s) { s.touchFlip = false; });
     bindButton(btnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
     bindButton(deckBtnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
-
-    if (deckBtnPause) {
-      var handlePauseToggle = function(e) {
-        if (e.cancelable) e.preventDefault();
-        if (self.activeScene && typeof self.activeScene.togglePause === "function") {
-          self.activeScene.togglePause();
-        }
-      };
-      deckBtnPause.addEventListener("click", handlePauseToggle);
-      deckBtnPause.addEventListener("touchstart", handlePauseToggle, { passive: false });
-    }
 
     if (deckBtnMap) {
       deckBtnMap.addEventListener("click", function(e) {
@@ -479,7 +418,7 @@ var MobileGamepad = {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo && scene) {
-      deckInfo.textContent = "WORLD " + (scene.currentWorld + 1) + " · LV " + (scene.currentLevel + 1) + "  💀 " + (scene.levelDeaths || 0);
+      deckInfo.textContent = "WORLD 1 · LV " + (scene.currentLevel + 1) + "  💀 " + (scene.levelDeaths || 0);
     }
 
     if (window.game && window.game.scale) {
@@ -986,9 +925,6 @@ var WORLD_1_THEME = {
 };
 
 function getTheme(wIdx) {
-  if (wIdx === 1 && typeof WORLD_2_THEME !== "undefined") {
-    return WORLD_2_THEME;
-  }
   return WORLD_1_THEME;
 }
 
@@ -1002,9 +938,6 @@ class BootScene extends Phaser.Scene {
     try {
       this.createCartoonHero();
       this.createWorldAssets();
-      if (typeof World2Assets !== "undefined") {
-        World2Assets.create(this);
-      }
       this.createAnimations();
     } catch(err) {
       console.warn("Texture creation notice:", err);
@@ -1729,7 +1662,7 @@ class IntroScene extends Phaser.Scene {
 class WorldSelectScene extends Phaser.Scene {
   constructor() {
     super("WorldSelectScene");
-    this.currentWorldIdx = (SaveManager.load && SaveManager.load().currentWorld) ? SaveManager.load().currentWorld : 0;
+    this.currentWorldIdx = 0;
     this.pageIdx = 0;
   }
 
@@ -1757,14 +1690,13 @@ class WorldSelectScene extends Phaser.Scene {
     var size = this.scale;
     var width = size.width;
     var height = size.height;
-    var theme = getTheme(this.currentWorldIdx);
+    var theme = WORLD_1_THEME;
 
     this.bgGfx.clear();
     this.bgGfx.fillStyle(theme.bg, 1);
     this.bgGfx.fillRect(0, 0, width, height);
 
     if (this.particles) this.particles.destroy();
-    var pColor = (this.currentWorldIdx === 1) ? 0x00d2d3 : 0xffa502;
     this.particles = this.add.particles(0, 0, "part_dot", {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
@@ -1772,7 +1704,7 @@ class WorldSelectScene extends Phaser.Scene {
       speedY: { min: -15, max: 15 },
       scale: { start: 0.6, end: 0 },
       alpha: { start: 0.25, end: 0 },
-      tint: pColor,
+      tint: 0xffa502,
       frequency: 200
     });
   }
@@ -1784,15 +1716,13 @@ class WorldSelectScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    var theme = getTheme(this.currentWorldIdx);
-    syncBodyBackground(theme);
-    var maxUnlocked = SaveManager.getWorldUnlocked(this.currentWorldIdx);
-    var maxLevelCount = (this.currentWorldIdx === 1) ? 50 : 30;
+    var theme = WORLD_1_THEME;
+    var maxUnlocked = SaveManager.getWorldUnlocked(0);
 
-    // ── CENTER TITLE: Clean & Spacious ──
-    var titleText = this.add.text(width / 2, 34, "Oops! - " + theme.badge + ": " + theme.name, {
+    // ── CENTER TITLE: Clean & Spacious (No Overlap) ──
+    var titleText = this.add.text(width / 2, 34, "Oops! - WORLD 1: DESERT RUINS", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "13px",
+      fontSize: "14px",
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 5
@@ -1800,6 +1730,7 @@ class WorldSelectScene extends Phaser.Scene {
     this.islandContainer.add(titleText);
 
     // ── LEFT-SIDE BUTTON CLUSTER: [ 🎬 INTRO ]  [ 💬 REPORT ] ──
+    // [ 🎬 INTRO ] Button (Compact, on Left)
     var introBtn = this.add.container(58, 34);
     var inGfx = this.add.graphics();
     inGfx.fillStyle(0x161822, 0.9);
@@ -1815,15 +1746,12 @@ class WorldSelectScene extends Phaser.Scene {
     inZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      if (self.currentWorldIdx === 1 && typeof World2IntroScene !== "undefined") {
-        self.scene.start("World2IntroScene");
-      } else {
-        self.scene.start("IntroScene");
-      }
+      self.scene.start("IntroScene");
     });
     introBtn.add([inGfx, inLabel, inZone]);
     this.islandContainer.add(introBtn);
 
+    // [ 💬 REPORT ] Button (Compact, on Left next to Intro)
     var fbBtn = this.add.container(146, 34);
     var fbGfx = this.add.graphics();
     fbGfx.fillStyle(0x161822, 0.9);
@@ -1875,92 +1803,25 @@ class WorldSelectScene extends Phaser.Scene {
     islGfx.strokeRoundedRect(islandX - islandW / 2, islandY - islandH / 2, islandW, islandH, 24);
     this.islandContainer.add(islGfx);
 
-    // ── WORLD SWITCHER CONTROLS ──
-    // [ ◀ WORLD 1 ] (When on World 2)
-    if (this.currentWorldIdx > 0) {
-      var prevWorldBtn = this.add.container(islandX - islandW / 2 + 82, islandY - islandH / 2 + 28);
-      var pwGfx = this.add.graphics();
-      pwGfx.fillStyle(0x161822, 0.92);
-      pwGfx.fillRoundedRect(-60, -13, 120, 26, 8);
-      pwGfx.lineStyle(1.5, 0xffd32a, 0.9);
-      pwGfx.strokeRoundedRect(-60, -13, 120, 26, 8);
-      var pwTxt = this.add.text(0, 0, "◀ WORLD 1", {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "7px",
-        color: "#ffd32a"
-      }).setOrigin(0.5);
-      var pwZone = this.add.zone(0, 0, 120, 26).setInteractive({ cursor: "pointer" });
-      pwZone.on("pointerdown", function() {
-        AudioEngine.init();
-        AudioEngine.sfxJump();
-        self.currentWorldIdx = 0;
-        self.pageIdx = 0;
-        SaveManager.saveCurrentWorld(0);
-        self.drawBackground();
-        self.renderWorldIsland();
-      });
-      prevWorldBtn.add([pwGfx, pwTxt, pwZone]);
-      this.islandContainer.add(prevWorldBtn);
-    }
-
-    // [ WORLD 2 ▶ ] or [ 🔒 WORLD 3 ]
-    var nextWorldBtn = this.add.container(islandX + islandW / 2 - 82, islandY - islandH / 2 + 28);
-    var nwGfx = this.add.graphics();
-    nwGfx.fillStyle(0x161822, 0.92);
-    nwGfx.fillRoundedRect(-60, -13, 120, 26, 8);
-    var nwBorderCol = (this.currentWorldIdx === 0) ? 0x00d2d3 : 0x555555;
-    nwGfx.lineStyle(1.5, nwBorderCol, 0.9);
-    nwGfx.strokeRoundedRect(-60, -13, 120, 26, 8);
-    var nwLabel = (this.currentWorldIdx === 0) ? "WORLD 2 ▶" : "🔒 WORLD 3";
-    var nwCol = (this.currentWorldIdx === 0) ? "#00d2d3" : "#888888";
-    var nwTxt = this.add.text(0, 0, nwLabel, {
+    var worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, "WORLD 1: DESERT RUINS (30 UNIQUE LEVELS)", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "7px",
-      color: nwCol
-    }).setOrigin(0.5);
-    var nwZone = this.add.zone(0, 0, 120, 26).setInteractive({ cursor: "pointer" });
-    nwZone.on("pointerdown", function() {
-      AudioEngine.init();
-      AudioEngine.sfxJump();
-      if (self.currentWorldIdx === 0) {
-        self.currentWorldIdx = 1;
-        self.pageIdx = 0;
-        SaveManager.saveCurrentWorld(1);
-        self.drawBackground();
-        self.renderWorldIsland();
-      } else {
-        self.showTrollToast("🔒 WORLD 3: COMING SOON!\nConquer all 50 levels of World 2 first!");
-      }
-    });
-    nextWorldBtn.add([nwGfx, nwTxt, nwZone]);
-    this.islandContainer.add(nextWorldBtn);
-
-    // World Badge Center
-    var worldBadge = this.add.text(islandX, islandY - islandH / 2 + 28, "WORLD " + (this.currentWorldIdx + 1) + ": " + theme.name + " (" + maxLevelCount + " UNIQUE LEVELS)", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "12px",
-      color: (this.currentWorldIdx === 1) ? "#00d2d3" : "#ffd32a",
+      fontSize: "13px",
+      color: "#ffd32a",
       stroke: "#000000",
       strokeThickness: 4
     }).setOrigin(0.5);
     this.islandContainer.add(worldBadge);
 
-    var subText = this.add.text(islandX, islandY - islandH / 2 + 48, (this.currentWorldIdx === 1) ? "✦ 50 HANDCRAFTED 2.5D LEVELS OF MIRRORS, TIME, ECHO & MAGNETISM ✦" : "✦ ALL 30 LEVELS ARE INDIVIDUALLY HANDCRAFTED (NO REPEATS) ✦", {
+    var subText = this.add.text(islandX, islandY - islandH / 2 + 48, "✦ ALL 30 LEVELS ARE INDIVIDUALLY HANDCRAFTED (NO REPEATS) ✦", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "7.5px",
+      fontSize: "8px",
       color: "#ffffff"
     }).setOrigin(0.5);
     this.islandContainer.add(subText);
 
-    // Dynamic Tab Pagination
-    var tabLabels = (this.currentWorldIdx === 1)
-      ? ["LV 1-10", "LV 11-20", "LV 21-30", "LV 31-40", "LV 41-50"]
-      : ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
-
-    var numTabs = tabLabels.length;
-    var tabW = (numTabs === 5) ? 126 : 160;
-    var tabGap = (numTabs === 5) ? 8 : 12;
-    var tabStartX = islandX - (numTabs * tabW + (numTabs - 1) * tabGap) / 2 + tabW / 2;
+    var tabLabels = ["LEVELS 1 - 10", "LEVELS 11 - 20", "LEVELS 21 - 30"];
+    var tabW = 160, tabGap = 12;
+    var tabStartX = islandX - (3 * tabW + 2 * tabGap) / 2 + tabW / 2;
     var tabY = islandY - islandH / 2 + 78;
 
     tabLabels.forEach(function(label, p) {
@@ -1968,15 +1829,14 @@ class WorldSelectScene extends Phaser.Scene {
       var isSelected = (self.pageIdx === p);
 
       var tabGfx = self.add.graphics();
-      var tabFill = isSelected ? ((self.currentWorldIdx === 1) ? 0x00d2d3 : 0xffd32a) : 0x111111;
-      tabGfx.fillStyle(tabFill, isSelected ? 1 : 0.65);
+      tabGfx.fillStyle(isSelected ? 0xffd32a : 0x111111, isSelected ? 1 : 0.6);
       tabGfx.fillRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
       tabGfx.lineStyle(2, isSelected ? 0xffffff : theme.islandBorder, 1);
       tabGfx.strokeRoundedRect(tx - tabW / 2, tabY - 14, tabW, 28, 6);
 
       var tText = self.add.text(tx, tabY, label, {
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: (numTabs === 5) ? "7px" : "8px",
+        fontSize: "8px",
         color: isSelected ? "#000000" : "#ffffff"
       }).setOrigin(0.5);
 
@@ -2006,14 +1866,14 @@ class WorldSelectScene extends Phaser.Scene {
           var nx = nodesStartX + col * (nodeSize + gapX);
           var ny = nodesStartY + row * (nodeSize + gapY);
 
-          var isCleared = SaveManager.isLevelCleared(self.currentWorldIdx, lvlIdx);
+          var isCleared = SaveManager.isLevelCleared(0, lvlIdx);
           var isCurrent = lvlIdx === maxUnlocked;
           var isLocked  = (lvlIdx > maxUnlocked) && (lvlIdx > 0);
 
           var nodeContainer = self.add.container(nx, ny);
 
           var nodeGfx = self.add.graphics();
-          var fillCol = isCleared ? 0x2ed573 : isCurrent ? ((self.currentWorldIdx === 1) ? 0x00d2d3 : 0xffd32a) : 0x222226;
+          var fillCol = isCleared ? 0x2ed573 : isCurrent ? 0xffd32a : 0x222226;
           var borderCol = isCleared ? 0x26af5f : isCurrent ? 0xffffff : 0x444444;
 
           nodeGfx.fillStyle(fillCol, isLocked ? 0.4 : 1);
@@ -2041,7 +1901,7 @@ class WorldSelectScene extends Phaser.Scene {
             var arrow = self.add.text(0, -nodeSize / 2 - 14, "▼", {
               fontFamily: "'Press Start 2P', monospace",
               fontSize: "14px",
-              color: (self.currentWorldIdx === 1) ? "#00d2d3" : "#ffd32a"
+              color: "#ffd32a"
             }).setOrigin(0.5);
             self.tweens.add({
               targets: arrow,
@@ -2065,11 +1925,7 @@ class WorldSelectScene extends Phaser.Scene {
             hitZone.on("pointerdown", function() {
               AudioEngine.init();
               AudioEngine.sfxJump();
-              if (self.currentWorldIdx === 1 && lvlIdx === 0 && !SaveManager.load().introSeenWorld2 && typeof World2IntroScene !== "undefined") {
-                self.scene.start("World2IntroScene");
-              } else {
-                self.scene.start("GameScene", { world: self.currentWorldIdx, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
-              }
+              self.scene.start("GameScene", { world: 0, level: lvlIdx, deaths: SaveManager.getTotalDeaths() });
             });
             nodeContainer.add(hitZone);
           }
@@ -2096,45 +1952,21 @@ class WorldSelectScene extends Phaser.Scene {
     plZone.on("pointerdown", function() {
       AudioEngine.init();
       AudioEngine.sfxJump();
-      if (self.currentWorldIdx === 1 && maxUnlocked === 0 && !SaveManager.load().introSeenWorld2 && typeof World2IntroScene !== "undefined") {
-        self.scene.start("World2IntroScene");
-      } else {
-        self.scene.start("GameScene", { world: self.currentWorldIdx, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
-      }
+      self.scene.start("GameScene", { world: 0, level: maxUnlocked, deaths: SaveManager.getTotalDeaths() });
     });
     playBtn.add([plGfx, plLabel, plZone]);
     this.islandContainer.add(playBtn);
   }
-
-  showTrollToast(msg) {
-    var size = this.scale;
-    var toast = this.add.text(size.width / 2, 70, msg, {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "10px",
-      color: "#ffd32a",
-      backgroundColor: "#111111ee",
-      padding: { x: 14, y: 8 },
-      align: "center"
-    }).setOrigin(0.5).setDepth(300);
-
-    this.tweens.add({
-      targets: toast,
-      alpha: 0,
-      y: 50,
-      delay: 1800,
-      duration: 500,
-      onComplete: function() { toast.destroy(); }
-    });
-  }
 }
 
+// ─── 9. GameScene: Core Platformer & 30 Unique Handcrafted Levels ──
 class GameScene extends Phaser.Scene {
   constructor() {
     super("GameScene");
   }
 
   init(data) {
-    this.currentWorld = (typeof data.world === "number") ? data.world : ((SaveManager.load && SaveManager.load().currentWorld) ? SaveManager.load().currentWorld : 0);
+    this.currentWorld = 0;
     this.currentLevel = (typeof data.level === "number") ? data.level : 0;
     this.deaths = (typeof data.deaths === "number") ? data.deaths : SaveManager.getTotalDeaths();
     this.levelDeaths = (typeof data.levelDeaths === "number") ? data.levelDeaths : 0;
@@ -2158,20 +1990,16 @@ class GameScene extends Phaser.Scene {
     var width = size.width;
     var height = size.height;
 
-    var theme = getTheme(this.currentWorld);
+    var theme = WORLD_1_THEME;
     syncBodyBackground(theme);
-
-    if (this.cameras && this.cameras.main) {
-      this.cameras.main.resetFX();
-      this.cameras.main.setZoom(1.0);
-      this.cameras.main.setScroll(0, 0);
-      this.cameras.main.fadeIn(300, 0, 0, 0);
-    }
 
     AudioEngine.init();
     AudioEngine.startMusic();
     MobileGamepad.show(this);
     MonetizationManager.setActiveScene(this);
+
+    // ── 🏜️ 2.5D MULTI-LAYER PARALLAX DESERT ATMOSPHERE ──
+    this.draw2DParallaxBackground();
 
     this.platforms = this.physics.add.staticGroup();
     this.spikes = this.physics.add.staticGroup();
@@ -2180,13 +2008,7 @@ class GameScene extends Phaser.Scene {
     this.fallingPlatforms = [];
     this.customTriggers = [];
 
-    if (this.currentWorld === 1 && typeof World2Engine !== "undefined") {
-      World2Engine.init(this, this.currentLevel);
-      World2Engine.buildLevel(this, this.currentLevel);
-    } else {
-      this.draw2DParallaxBackground();
-      this.buildWorld1Level(this.currentLevel);
-    }
+    this.buildWorld1Level(this.currentLevel);
 
     this.player = this.physics.add.sprite(this.spawnX, this.spawnY, "hero_idle_1");
     this.player.setCollideWorldBounds(false);
@@ -2211,11 +2033,6 @@ class GameScene extends Phaser.Scene {
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-    this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
-    this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-
-    this.isPaused = false;
-    this.pauseModal = null;
 
     this.createHUD();
     this.showLevelBanner();
@@ -2223,7 +2040,7 @@ class GameScene extends Phaser.Scene {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
   }
 
@@ -2291,11 +2108,10 @@ class GameScene extends Phaser.Scene {
 
   showLevelBanner() {
     var size = this.scale;
-    var wTitle = (this.currentWorld === 1) ? "WORLD 2 : THE SHIFT" : "WORLD 1 : DESERT RUINS";
-    var banner = this.add.text(size.width / 2, 60, wTitle + " · LEVEL " + (this.currentLevel + 1), {
+    var banner = this.add.text(size.width / 2, 60, "WORLD 1 : LEVEL " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "12px",
-      color: (this.currentWorld === 1) ? "#00d2d3" : "#ffd32a",
+      fontSize: "14px",
+      color: "#ffd32a",
       stroke: "#000000",
       strokeThickness: 5
     }).setOrigin(0.5).setDepth(200);
@@ -2315,7 +2131,7 @@ class GameScene extends Phaser.Scene {
     var size = this.scale;
     var width = size.width;
 
-    this.levelText = this.add.text(25, 20, "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1), {
+    this.levelText = this.add.text(25, 20, "WORLD 1 · LV " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "10px",
       color: "#ffffff"
@@ -2348,13 +2164,6 @@ class GameScene extends Phaser.Scene {
     this.hudSkipBtn.setDepth(200);
     this.hudSkipBtn.setVisible(this.skipOfferUnlocked && !this.skipOfferUsed);
 
-    var pauseBtn = this.add.text(width - 88, 20, "⏸️", {
-      fontSize: "16px"
-    }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
-    pauseBtn.on("pointerdown", function() {
-      self.togglePause();
-    });
-
     var fsBtn = this.add.text(width - 55, 20, "⛶", {
       fontSize: "17px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
@@ -2373,162 +2182,25 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  togglePause() {
-    if (this.isDead || this.isComplete) return;
-    if (this.isPaused) {
-      this.resumeGame();
-    } else {
-      this.pauseGame();
-    }
-  }
-
-  pauseGame() {
-    if (this.isPaused) return;
-    this.isPaused = true;
-    this.physics.pause();
-    this.tweens.pauseAll();
-
-    var size = this.scale;
-    var width = size.width;
-    var height = size.height;
-    var self = this;
-
-    this.pauseModal = this.add.container(0, 0).setDepth(1000);
-
-    // Dim backdrop
-    var backdrop = this.add.graphics();
-    backdrop.fillStyle(0x060814, 0.88);
-    backdrop.fillRect(0, 0, width, height);
-
-    // Card frame
-    var card = this.add.graphics();
-    card.fillStyle(0x131728, 0.96);
-    card.fillRoundedRect(width / 2 - 180, height / 2 - 140, 360, 280, 14);
-    card.lineStyle(2, 0x00d2d3, 0.85);
-    card.strokeRoundedRect(width / 2 - 180, height / 2 - 140, 360, 280, 14);
-
-    // Title
-    var title = this.add.text(width / 2, height / 2 - 100, "⏸️ GAME PAUSED", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "15px",
-      color: "#ffd32a"
-    }).setOrigin(0.5);
-
-    var wName = (this.currentWorld === 1) ? "WORLD 2 · THE SHIFT" : "WORLD 1 · DESERT RUINS";
-    var sub = this.add.text(width / 2, height / 2 - 75, wName + "  [LV " + (this.currentLevel + 1) + "]", {
-      fontFamily: "'Press Start 2P', monospace",
-      fontSize: "8.5px",
-      color: "#a4b0be"
-    }).setOrigin(0.5);
-
-    // Helper to build stylized pause button
-    var createMenuBtn = function(y, text, bgColor, textColor, callback) {
-      var btnCont = self.add.container(width / 2, y);
-      var bg = self.add.graphics();
-      bg.fillStyle(bgColor, 1);
-      bg.fillRoundedRect(-120, -18, 240, 36, 8);
-      bg.lineStyle(1.5, 0xffffff, 0.6);
-      bg.strokeRoundedRect(-120, -18, 240, 36, 8);
-
-      var label = self.add.text(0, 0, text, {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "9px",
-        color: textColor
-      }).setOrigin(0.5);
-
-      var zone = self.add.zone(0, 0, 240, 36).setInteractive({ cursor: "pointer" });
-      zone.on("pointerdown", function() {
-        AudioEngine.sfxJump();
-        callback();
-      });
-      zone.on("pointerover", function() { bg.lineStyle(2, 0xffd32a, 1); bg.strokeRoundedRect(-120, -18, 240, 36, 8); });
-      zone.on("pointerout", function() { bg.lineStyle(1.5, 0xffffff, 0.6); bg.strokeRoundedRect(-120, -18, 240, 36, 8); });
-
-      btnCont.add([bg, label, zone]);
-      return btnCont;
-    };
-
-    var btnResume = createMenuBtn(height / 2 - 30, "▶ RESUME", 0x2ed573, "#ffffff", function() {
-      self.resumeGame();
-    });
-
-    var btnRestart = createMenuBtn(height / 2 + 20, "↺ RESTART LEVEL", 0xff4757, "#ffffff", function() {
-      self.resumeGame();
-      self.restartLevel();
-    });
-
-    var btnMap = createMenuBtn(height / 2 + 70, "🗺️ WORLD MAP", 0x3742fa, "#ffffff", function() {
-      self.resumeGame();
-      AudioEngine.stopMusic();
-      MobileGamepad.hide();
-      self.scene.start("WorldSelectScene");
-    });
-
-    this.pauseModal.add([backdrop, card, title, sub, btnResume, btnRestart, btnMap]);
-  }
-
-  resumeGame() {
-    if (!this.isPaused) return;
-    this.isPaused = false;
-    if (this.pauseModal) {
-      this.pauseModal.destroy();
-      this.pauseModal = null;
-    }
-    this.physics.resume();
-    this.tweens.resumeAll();
-  }
-
   update(time, delta) {
-    // Check Pause and Restart triggers unconditionally even when paused or dead
-    if (this.keyEsc && Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
-      this.togglePause();
-    }
-    if (this.keyP && Phaser.Input.Keyboard.JustDown(this.keyP)) {
-      this.togglePause();
-    }
-    if ((this.keyR && Phaser.Input.Keyboard.JustDown(this.keyR)) || this.touchRestart) {
-      this.touchRestart = false;
-      if (this.isPaused) this.resumeGame();
-      this.restartLevel();
-      return;
-    }
-
-    if (this.isPaused || this.isDead || this.isComplete) return;
+    if (this.isDead || this.isComplete) return;
     var dt = delta / 1000;
     this.levelTime += dt;
     var size = this.scale;
     var width = size.width;
     var height = size.height;
 
-    if (this.currentWorld === 1 && typeof World2Engine !== "undefined") {
-      World2Engine.update(this, dt);
-    }
-
-    // ── 🏜️ 2.5D PARALLAX SCROLLING DEPTH (World 1) ──
-    if (this.currentWorld === 0 && this.farParallaxGfx && this.midParallaxGfx && this.player) {
+    // ── 🏜️ 2.5D PARALLAX SCROLLING DEPTH ──
+    if (this.farParallaxGfx && this.midParallaxGfx && this.player) {
       var pRatio = (this.player.x - width / 2) / width;
       this.drawFarDunes(this.farParallaxGfx, width, height, -pRatio * 20);
       this.drawMidRuins(this.midParallaxGfx, width, height, -pRatio * 50);
     }
 
-    // ── 🛡️ BOUNDARIES & VOID FAILSAFE ──
-    if (!this.player || isNaN(this.player.x) || isNaN(this.player.y)) {
-      this.onPlayerDie();
-      return;
-    }
-
-    // Robust 4-way out-of-bounds detection:
-    // 1. Pit fall below screen
-    // 2. High sky flyaway from magnetic / trampoline repulsion
-    // 3. Flung far off left or right edges
-    if (this.player.y > height + 45 || this.player.y < -160 || this.player.x < -100 || this.player.x > width + 80) {
-      this.onPlayerDie();
-      return;
-    }
-
+    // ── 🛡️ BOUNDARIES ──
     if (this.player.x < 18) {
       this.player.x = 18;
-      if (this.player.body && this.player.body.velocity.x < 0) this.player.setVelocityX(0);
+      if (this.player.body.velocity.x < 0) this.player.setVelocityX(0);
     }
 
     if (this.exitGate) {
@@ -2574,7 +2246,10 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-
+    if (this.player.y > height + 40 || this.player.x > width + 70) {
+      this.onPlayerDie();
+      return;
+    }
 
     var moveLeft = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
     var moveRight = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
@@ -2750,7 +2425,7 @@ class GameScene extends Phaser.Scene {
     }
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
+      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
 
     this.player.anims.stop();
@@ -2787,13 +2462,6 @@ class GameScene extends Phaser.Scene {
           MonetizationManager.onDeathThresholdReached(self);
         }
       }, 350);
-      // Failsafe watchdog timer: If user doesn't interact with ad modal within 12s, automatically recover
-      this.time.delayedCall(12000, function() {
-        if (self.isDead && !self.isComplete && typeof MonetizationManager !== "undefined" && !MonetizationManager.isAdPlaying) {
-          MonetizationManager.closeOfferModal();
-          self.restartLevel();
-        }
-      });
       return;
     }
 
@@ -2803,16 +2471,8 @@ class GameScene extends Phaser.Scene {
   }
 
   restartLevel() {
-    if (this.cameras && this.cameras.main) {
-      this.cameras.main.resetFX();
-      this.cameras.main.setZoom(1.0);
-      this.cameras.main.setScroll(0, 0);
-    }
-    if (this.isPaused) {
-      this.resumeGame();
-    }
     this.scene.restart({
-      world: this.currentWorld,
+      world: 0,
       level: this.currentLevel,
       deaths: this.deaths,
       levelDeaths: this.levelDeaths,
@@ -2834,7 +2494,7 @@ class GameScene extends Phaser.Scene {
       this.player.body.moves = false;
     }
 
-    SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
+    SaveManager.saveLevelClear(0, this.currentLevel, this.deaths);
     AudioEngine.sfxWin();
     AudioEngine.sfxPortal();
 
@@ -2850,13 +2510,12 @@ class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(700, function() {
       var nextLvl = self.currentLevel + 1;
-      var maxL = (self.currentWorld === 1) ? 50 : 30;
-      if (nextLvl >= maxL) {
+      if (nextLvl >= 30) {
         MobileGamepad.hide();
-        self.scene.start("WorldCompleteScene", { world: self.currentWorld, totalDeaths: self.deaths });
+        self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
       } else {
         self.scene.restart({
-          world: self.currentWorld,
+          world: 0,
           level: nextLvl,
           deaths: self.deaths,
           levelDeaths: 0,
@@ -2869,12 +2528,6 @@ class GameScene extends Phaser.Scene {
   onReachExit() {
     var self = this;
     if (this.isComplete || this.isDead) return;
-
-    if (this.exitGate && this.exitGate.isRevealEvent && typeof World2Engine !== "undefined") {
-      World2Engine.triggerLevel45Sequence(this);
-      return;
-    }
-
     this.isComplete = true;
 
     this.player.setVelocity(0, 0);
@@ -2883,12 +2536,12 @@ class GameScene extends Phaser.Scene {
       this.player.body.moves = false;
     }
 
-    SaveManager.saveLevelClear(this.currentWorld, this.currentLevel, this.deaths);
+    SaveManager.saveLevelClear(0, this.currentLevel, this.deaths);
 
     AudioEngine.playTone(380, "sine", 0.09, 0.16);
     AudioEngine.playTone(540, "triangle", 0.12, 0.22, 0.04);
 
-    if (this.exitGate && this.exitGate.doorPanel) {
+    if (this.exitGate.doorPanel) {
       this.tweens.add({
         targets: this.exitGate.doorPanel,
         scaleX: 0.06,
@@ -2903,8 +2556,8 @@ class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.player,
-      x: this.exitGate ? this.exitGate.x : (this.player.x + 20),
-      y: this.exitGate ? (this.exitGate.y + 4) : this.player.y,
+      x: this.exitGate.x,
+      y: this.exitGate.y + 4,
       scaleX: 0.85,
       scaleY: 0.85,
       duration: 320,
@@ -2912,29 +2565,51 @@ class GameScene extends Phaser.Scene {
       onComplete: function() {
         self.player.anims.play("hero_anim_idle", true);
 
-        var onExitAnimDone = function() {
-          AudioEngine.sfxLand();
+        if (self.exitGate.doorPanel) {
+          self.tweens.add({
+            targets: self.exitGate.doorPanel,
+            scaleX: 1,
+            duration: 140,
+            ease: "Back.easeOut",
+            onComplete: function() {
+              AudioEngine.sfxLand();
+              AudioEngine.sfxWin();
+
+              self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
+                speed: { min: 70, max: 220 },
+                scale: { start: 1.2, end: 0 },
+                lifespan: 550,
+                quantity: 26,
+                tint: [0xffd32a, 0x2ed573, 0xffffff]
+              });
+
+              self.time.delayedCall(450, function() {
+                var nextLvl = self.currentLevel + 1;
+                if (nextLvl >= 30) {
+                  MobileGamepad.hide();
+                  self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
+                } else {
+                  self.scene.restart({
+                    world: 0,
+                    level: nextLvl,
+                    deaths: self.deaths,
+                    levelDeaths: 0,
+                    skipOfferUnlocked: false
+                  });
+                }
+              });
+            }
+          });
+        } else {
           AudioEngine.sfxWin();
-
-          if (self.exitGate) {
-            self.add.particles(self.exitGate.x, self.exitGate.y, "part_dot", {
-              speed: { min: 70, max: 220 },
-              scale: { start: 1.2, end: 0 },
-              lifespan: 550,
-              quantity: 26,
-              tint: [0xffd32a, 0x2ed573, 0xffffff]
-            });
-          }
-
-          self.time.delayedCall(450, function() {
+          self.time.delayedCall(400, function() {
             var nextLvl = self.currentLevel + 1;
-            var maxL = (self.currentWorld === 1) ? 50 : 30;
-            if (nextLvl >= maxL) {
+            if (nextLvl >= 30) {
               MobileGamepad.hide();
-              self.scene.start("WorldCompleteScene", { world: self.currentWorld, totalDeaths: self.deaths });
+              self.scene.start("WorldCompleteScene", { world: 0, totalDeaths: self.deaths });
             } else {
               self.scene.restart({
-                world: self.currentWorld,
+                world: 0,
                 level: nextLvl,
                 deaths: self.deaths,
                 levelDeaths: 0,
@@ -2942,18 +2617,6 @@ class GameScene extends Phaser.Scene {
               });
             }
           });
-        };
-
-        if (self.exitGate && self.exitGate.doorPanel) {
-          self.tweens.add({
-            targets: self.exitGate.doorPanel,
-            scaleX: 1,
-            duration: 140,
-            ease: "Back.easeOut",
-            onComplete: onExitAnimDone
-          });
-        } else {
-          onExitAnimDone();
         }
       }
     });
@@ -3505,7 +3168,6 @@ class WorldCompleteScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.currentWorld = (typeof data.world === "number") ? data.world : 0;
     this.totalDeaths = (typeof data.totalDeaths === "number") ? data.totalDeaths : SaveManager.getTotalDeaths();
   }
 
@@ -3519,7 +3181,7 @@ class WorldCompleteScene extends Phaser.Scene {
     AudioEngine.init();
     AudioEngine.sfxWin();
 
-    var theme = getTheme(this.currentWorld);
+    var theme = WORLD_1_THEME;
     syncBodyBackground(theme);
 
     // Background
@@ -3546,7 +3208,7 @@ class WorldCompleteScene extends Phaser.Scene {
     var cardGfx = this.add.graphics();
     cardGfx.fillStyle(0x12141e, 0.95);
     cardGfx.fillRoundedRect(-360, -210, 720, 420, 16);
-    cardGfx.lineStyle(3, (this.currentWorld === 1) ? 0x00d2d3 : 0xffd32a, 1);
+    cardGfx.lineStyle(3, 0xffd32a, 1);
     cardGfx.strokeRoundedRect(-360, -210, 720, 420, 16);
 
     // Animated Trophy Icon
@@ -3568,16 +3230,12 @@ class WorldCompleteScene extends Phaser.Scene {
     var title = this.add.text(0, -90, "CONGRATULATIONS!", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "19px",
-      color: (this.currentWorld === 1) ? "#00d2d3" : "#ffd32a",
+      color: "#ffd32a",
       stroke: "#000000",
       strokeThickness: 6
     }).setOrigin(0.5);
 
-    var subtitleText = (this.currentWorld === 1)
-      ? "YOU CONQUERED ALL 50 LEVELS OF WORLD 2: THE SHIFT!"
-      : "YOU CONQUERED ALL 30 LEVELS OF WORLD 1!";
-
-    var subtitle = this.add.text(0, -60, subtitleText, {
+    var subtitle = this.add.text(0, -60, "YOU CONQUERED ALL 30 LEVELS OF WORLD 1!", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9.5px",
       color: "#2ed573",
@@ -3592,8 +3250,7 @@ class WorldCompleteScene extends Phaser.Scene {
     statsGfx.lineStyle(1, 0x3d4460, 1);
     statsGfx.strokeRoundedRect(-310, -38, 620, 42, 8);
 
-    var maxL = (this.currentWorld === 1) ? 50 : 30;
-    var statsText = this.add.text(0, -17, "💀 TOTAL DEATHS: " + this.totalDeaths + "   ⭐ " + maxL + "/" + maxL + " LEVELS CLEARED", {
+    var statsText = this.add.text(0, -17, "💀 TOTAL DEATHS: " + this.totalDeaths + "   ⭐ 30/30 LEVELS CLEARED", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9px",
       color: "#ffffff"
@@ -3603,14 +3260,13 @@ class WorldCompleteScene extends Phaser.Scene {
     var teaserGfx = this.add.graphics();
     teaserGfx.fillStyle(0x241014, 0.9);
     teaserGfx.fillRoundedRect(-310, 20, 620, 95, 10);
-    teaserGfx.lineStyle(2, (this.currentWorld === 1) ? 0xa55eea : 0xff4757, 0.9);
+    teaserGfx.lineStyle(2, 0xff4757, 0.9);
     teaserGfx.strokeRoundedRect(-310, 20, 620, 95, 10);
 
-    var teaserHeaderTxt = (this.currentWorld === 1) ? "🔥 WORLD 3: THE QUANTUM VOID 🔥" : "🔥 NEXT WORLD: THE SHIFT IS LIVE! 🔥";
-    var teaserHeader = this.add.text(0, 42, teaserHeaderTxt, {
+    var teaserHeader = this.add.text(0, 42, "🔥 NEXT WORLD COMING SOON! 🔥", {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "11px",
-      color: (this.currentWorld === 1) ? "#a55eea" : "#ff4757",
+      fontSize: "11.5px",
+      color: "#ff4757",
       stroke: "#000000",
       strokeThickness: 4
     }).setOrigin(0.5);
@@ -3625,11 +3281,7 @@ class WorldCompleteScene extends Phaser.Scene {
       ease: "Sine.easeInOut"
     });
 
-    var teaserBodyTxt = (this.currentWorld === 1)
-      ? "World 3 is currently in development!\nPrepare for non-Euclidean wormholes, alien monoliths & dimensional tears."
-      : "World 2: The Shift is now available!\nExperience 50 handcrafted levels of mirror illusions, time distortion & echo ghosts.";
-
-    var teaserBody = this.add.text(0, 80, teaserBodyTxt, {
+    var teaserBody = this.add.text(0, 80, "World 2: Shadow Crypts is currently in development!\nGet ready for gravity inversion, glitch blocks & devilish new traps.", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "7.5px",
       color: "#ffcccc",
@@ -3658,12 +3310,11 @@ class WorldCompleteScene extends Phaser.Scene {
 
     var btnReplay = this.add.container(130, 160);
     var b2Gfx = this.add.graphics();
-    var b2Fill = (this.currentWorld === 1) ? 0x00d2d3 : 0xffd32a;
-    b2Gfx.fillStyle(b2Fill, 1);
+    b2Gfx.fillStyle(0xffd32a, 1);
     b2Gfx.fillRoundedRect(-110, -18, 220, 36, 8);
     b2Gfx.lineStyle(2, 0x000000, 1);
     b2Gfx.strokeRoundedRect(-110, -18, 220, 36, 8);
-    var b2Txt = this.add.text(0, 0, (this.currentWorld === 1) ? "↺ REPLAY WORLD 2" : "↺ REPLAY WORLD 1", {
+    var b2Txt = this.add.text(0, 0, "↺ REPLAY WORLD 1", {
       fontFamily: "'Press Start 2P', monospace",
       fontSize: "9px",
       color: "#000000"
@@ -3671,63 +3322,16 @@ class WorldCompleteScene extends Phaser.Scene {
     var b2Zone = this.add.zone(0, 0, 220, 36).setInteractive({ cursor: "pointer" });
     b2Zone.on("pointerdown", function() {
       AudioEngine.sfxJump();
-      self.scene.start("GameScene", { world: self.currentWorld, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
+      self.scene.start("GameScene", { world: 0, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
     });
     btnReplay.add([b2Gfx, b2Txt, b2Zone]);
 
-    // Primary Next World action button if completing World 1
-    var btnEnterWorld2 = null;
-    if (this.currentWorld === 0) {
-      btnEnterWorld2 = this.add.container(0, 160);
-      var b3Gfx = this.add.graphics();
-      b3Gfx.fillStyle(0x00d2d3, 1);
-      b3Gfx.fillRoundedRect(-140, -20, 280, 40, 8);
-      b3Gfx.lineStyle(2.5, 0xffffff, 1);
-      b3Gfx.strokeRoundedRect(-140, -20, 280, 40, 8);
-      var b3Txt = this.add.text(0, 0, "🚀 ENTER WORLD 2 ▶", {
-        fontFamily: "'Press Start 2P', monospace",
-        fontSize: "10px",
-        color: "#0c0e18"
-      }).setOrigin(0.5);
-      var b3Zone = this.add.zone(0, 0, 280, 40).setInteractive({ cursor: "pointer" });
-      b3Zone.on("pointerdown", function() {
-        AudioEngine.sfxWin();
-        if (self.scene.get("World2IntroScene")) {
-          self.scene.start("World2IntroScene");
-        } else {
-          self.scene.start("GameScene", { world: 1, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
-        }
-      });
-      btnEnterWorld2.add([b3Gfx, b3Txt, b3Zone]);
-
-      // Reposition map and replay buttons around primary action
-      btnMap.setPosition(-200, 160);
-      b1Gfx.clear();
-      b1Gfx.fillStyle(0x2ed573, 1);
-      b1Gfx.fillRoundedRect(-70, -18, 140, 36, 8);
-      b1Gfx.lineStyle(1.5, 0xffffff, 1);
-      b1Gfx.strokeRoundedRect(-70, -18, 140, 36, 8);
-      b1Txt.setText("🗺️ MAP");
-      b1Zone.setSize(140, 36);
-
-      btnReplay.setPosition(200, 160);
-      b2Gfx.clear();
-      b2Gfx.fillStyle(0xffd32a, 1);
-      b2Gfx.fillRoundedRect(-70, -18, 140, 36, 8);
-      b2Gfx.lineStyle(1.5, 0x000000, 1);
-      b2Gfx.strokeRoundedRect(-70, -18, 140, 36, 8);
-      b2Txt.setText("↺ REPLAY");
-      b2Zone.setSize(140, 36);
-    }
-
-    var panelElements = [
+    panel.add([
       cardGfx, trophy, title, subtitle,
       statsGfx, statsText,
       teaserGfx, teaserHeader, teaserBody,
       btnMap, btnReplay
-    ];
-    if (btnEnterWorld2) panelElements.push(btnEnterWorld2);
-    panel.add(panelElements);
+    ]);
   }
 }
 
@@ -3757,9 +3361,7 @@ var config = {
       debug: false
     }
   },
-  scene: (typeof World2IntroScene !== "undefined")
-    ? [BootScene, IntroScene, World2IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
-    : [BootScene, IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
+  scene: [BootScene, IntroScene, WorldSelectScene, GameScene, WorldCompleteScene]
 };
 
 window.addEventListener("resize", function() {
