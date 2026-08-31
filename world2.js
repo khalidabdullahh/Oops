@@ -320,7 +320,7 @@ class World2IntroScene extends Phaser.Scene {
     this.cameras.main.pan(width / 2, height * 0.55, 3200, "Cubic.easeOut");
     this.cameras.main.zoomTo(1.0, 3200, "Cubic.easeOut");
 
-    // Skip Button
+    // Skip Button (Pointer & Touch)
     var skipBtn = this.add.container(width - 65, 30).setDepth(200);
     var sGfx = this.add.graphics();
     sGfx.fillStyle(0x161822, 0.85);
@@ -338,10 +338,24 @@ class World2IntroScene extends Phaser.Scene {
     });
     skipBtn.add([sGfx, sTxt, sZone]);
 
+    // Keyboard Skip (SPACE, ESC, ENTER)
+    this.input.keyboard.on("keydown-SPACE", function() { self.finishIntro(); });
+    this.input.keyboard.on("keydown-ESC", function() { self.finishIntro(); });
+    this.input.keyboard.on("keydown-ENTER", function() { self.finishIntro(); });
+
+    // Global Hard Watchdog Failsafe: Scene automatically transitions by 7.5 seconds no matter what
+    this.time.delayedCall(7500, function() {
+      self.finishIntro();
+    });
+
     // Phase 2: The Mirror Anomaly (At 3.2s)
     this.time.delayedCall(3200, function() {
-      AudioEngine.playTone(280, "sawtooth", 0.15, 0.25);
-      AudioEngine.playTone(140, "sawtooth", 0.25, 0.3, 0.08);
+      try {
+        if (typeof AudioEngine !== "undefined") {
+          AudioEngine.playTone(280, "sawtooth", 0.15, 0.25);
+          AudioEngine.playTone(140, "sawtooth", 0.25, 0.3, 0.08);
+        }
+      } catch(e) {}
 
       var ripple = self.add.graphics().setDepth(50);
       ripple.lineStyle(3, 0x00d2d3, 0.9);
@@ -349,7 +363,9 @@ class World2IntroScene extends Phaser.Scene {
       
       var reflectionGhost = self.add.sprite(width / 2, height * 0.65 + 32, "hero_idle_1").setDepth(24).setTint(0x00d2d3).setAlpha(0.6).setFlipY(true);
 
-      self.cameras.main.shake(350, 0.015);
+      try {
+        self.cameras.main.shake(350, 0.015);
+      } catch(e) {}
 
       self.tweens.add({
         targets: [ripple, reflectionGhost],
@@ -387,7 +403,11 @@ class World2IntroScene extends Phaser.Scene {
 
         titleGroup.add([tBadge, tTitle, tSub]);
 
-        AudioEngine.sfxBoom();
+        try {
+          if (typeof AudioEngine !== "undefined" && typeof AudioEngine.sfxBoom === "function") {
+            AudioEngine.sfxBoom();
+          }
+        } catch(e) {}
 
         self.tweens.add({
           targets: titleGroup,
@@ -398,8 +418,8 @@ class World2IntroScene extends Phaser.Scene {
           ease: "Back.easeOut"
         });
 
-        // Phase 4: Smooth Fade to Level 1 (At 7.0s)
-        self.time.delayedCall(2200, function() {
+        // Phase 4: Smooth Fade to Level 1 (At 6.5s)
+        self.time.delayedCall(2000, function() {
           self.finishIntro();
         });
       });
@@ -423,14 +443,26 @@ class World2IntroScene extends Phaser.Scene {
     this.finished = true;
 
     try {
-      var data = SaveManager.load();
-      data.introSeenWorld2 = true;
-      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      if (typeof SaveManager !== "undefined" && typeof SaveManager.setWorld2IntroSeen === "function") {
+        SaveManager.setWorld2IntroSeen();
+      } else if (typeof SaveManager !== "undefined" && typeof SaveManager.load === "function") {
+        var data = SaveManager.load();
+        data.introSeenWorld2 = true;
+        var saveKey = (typeof SAVE_KEY !== "undefined") ? SAVE_KEY : "oops_world1_master_v1";
+        if (typeof SafeStorage !== "undefined") SafeStorage.setItem(saveKey, JSON.stringify(data));
+      }
     } catch(e) {}
 
-    this.cameras.main.fade(450, 0, 0, 0);
-    this.time.delayedCall(450, function() {
-      self.scene.start("GameScene", { world: 1, level: 0 });
+    try {
+      this.cameras.main.fade(350, 0, 0, 0);
+    } catch(e) {}
+
+    this.time.delayedCall(350, function() {
+      try {
+        self.scene.start("GameScene", { world: 1, level: 0 });
+      } catch(e) {
+        console.error("Failed to start GameScene:", e);
+      }
     });
   }
 }
@@ -888,6 +920,10 @@ var MagnetEngine = {
 
         player.body.velocity.x += Math.cos(angle) * force;
         player.body.velocity.y += Math.sin(angle) * force * 0.72;
+
+        // Clamp maximum magnetic impulse to avoid irrecoverable velocities
+        player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -580, 580);
+        player.body.velocity.y = Phaser.Math.Clamp(player.body.velocity.y, -720, 720);
       }
 
       for (var c = 0; c < this.crates.length; c++) {
@@ -899,6 +935,8 @@ var MagnetEngine = {
           if (node.magnetType === "repel") cAngle += Math.PI;
           crate.body.velocity.x += Math.cos(cAngle) * cForce;
           crate.body.velocity.y += Math.sin(cAngle) * cForce * 0.72;
+          crate.body.velocity.x = Phaser.Math.Clamp(crate.body.velocity.x, -450, 450);
+          crate.body.velocity.y = Phaser.Math.Clamp(crate.body.velocity.y, -600, 600);
         }
       }
     }
@@ -1500,13 +1538,16 @@ var World2Engine = {
       addPlat(660, 460, 380, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
     }
-    else if (lvl === 23) { // Level 24: Echo Bait (Trigger Hazard Reset Window)
-      addPlat(-80, 460, width + 160, 80);
+    else if (lvl === 23) { // Level 24: Echo Cadence (Chrono Warp & Echo Gate Sequence)
+      addPlat(-80, 460, 260, 80);
       EchoEngine.init(scene);
-      var c24 = addCrusher(460, 60);
-      addSwitch(260, 452, "gate_24");
-      addEnergyGate(660, 410, "gate_24");
+      ChronoEngine.addZone(scene, 420, 390, 140, 140, "slow");
+      addPressurePlate(180, 452, "gate_24");
+      addPlat(360, 460, 160, 80);
+      addEnergyGate(540, 410, "gate_24");
+      addPlat(560, 460, 480, 80);
       scene.exitGate = scene.createExitDoor(900, 435);
+      scene.showTrollToast("Echo Cadence: The chrono field slows your ghost!\nStep on the plate to grant yourself time.");
     }
     else if (lvl === 24) { // Level 25: Ghost Leap (Pressure Bridge)
       addPlat(-80, 460, 260, 80);

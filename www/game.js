@@ -195,6 +195,19 @@ var SaveManager = {
       data.introSeen = true;
       SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch(e) {}
+  },
+
+  hasSeenWorld2Intro: function() {
+    var data = this.load();
+    return !!data.introSeenWorld2;
+  },
+
+  setWorld2IntroSeen: function() {
+    try {
+      var data = this.load();
+      data.introSeenWorld2 = true;
+      SafeStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch(e) {}
   }
 };
 window.SaveManager = SaveManager;
@@ -284,6 +297,16 @@ var AudioEngine = {
   sfxSpring: function() {
     this.sfxBounce();
   },
+  sfxGlassShatter: function() {
+    this.playTone(880, "sawtooth", 0.05, 0.2);
+    this.playTone(1320, "square", 0.08, 0.18, 0.02);
+    this.playTone(440, "sawtooth", 0.12, 0.22, 0.05);
+    this.playTone(1760, "square", 0.06, 0.15, 0.08);
+  },
+  sfxBoom: function() {
+    this.playTone(110, "sawtooth", 0.35, 0.4);
+    this.playTone(55, "triangle", 0.5, 0.45, 0.05);
+  },
 
   startMusic: function() {
     var self = this;
@@ -311,6 +334,19 @@ var AudioEngine = {
     return this.muted;
   }
 };
+// Guard against any runtime missing sfx methods throwing exceptions
+if (typeof Proxy !== "undefined") {
+  AudioEngine = new Proxy(AudioEngine, {
+    get: function(target, prop) {
+      if (prop in target) return target[prop];
+      if (typeof prop === "string" && prop.startsWith("sfx")) {
+        return function() { /* soft fallback for missing sfx */ };
+      }
+      return undefined;
+    }
+  });
+}
+window.AudioEngine = AudioEngine;
 
 // ─── 3. Mobile Gamepad Controller Bridge ─────────────────────
 var MobileGamepad = {
@@ -328,6 +364,7 @@ var MobileGamepad = {
     var btnFlip = document.getElementById("btn-flip");
     var btnRestart = document.getElementById("btn-restart");
     var deckBtnRestart = document.getElementById("deck-btn-restart");
+    var deckBtnPause = document.getElementById("deck-btn-pause");
     var deckBtnMap = document.getElementById("deck-btn-map");
 
     var bindButton = function(el, onDown, onUp) {
@@ -362,6 +399,17 @@ var MobileGamepad = {
     bindButton(btnFlip, function(s) { s.touchFlip = true; }, function(s) { s.touchFlip = false; });
     bindButton(btnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
     bindButton(deckBtnRestart, function(s) { s.touchRestart = true; }, function(s) { s.touchRestart = false; });
+
+    if (deckBtnPause) {
+      var handlePauseToggle = function(e) {
+        if (e.cancelable) e.preventDefault();
+        if (self.activeScene && typeof self.activeScene.togglePause === "function") {
+          self.activeScene.togglePause();
+        }
+      };
+      deckBtnPause.addEventListener("click", handlePauseToggle);
+      deckBtnPause.addEventListener("touchstart", handlePauseToggle, { passive: false });
+    }
 
     if (deckBtnMap) {
       deckBtnMap.addEventListener("click", function(e) {
@@ -431,7 +479,7 @@ var MobileGamepad = {
 
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo && scene) {
-      deckInfo.textContent = "WORLD 1 · LV " + (scene.currentLevel + 1) + "  💀 " + (scene.levelDeaths || 0);
+      deckInfo.textContent = "WORLD " + (scene.currentWorld + 1) + " · LV " + (scene.currentLevel + 1) + "  💀 " + (scene.levelDeaths || 0);
     }
 
     if (window.game && window.game.scale) {
@@ -2113,6 +2161,13 @@ class GameScene extends Phaser.Scene {
     var theme = getTheme(this.currentWorld);
     syncBodyBackground(theme);
 
+    if (this.cameras && this.cameras.main) {
+      this.cameras.main.resetFX();
+      this.cameras.main.setZoom(1.0);
+      this.cameras.main.setScroll(0, 0);
+      this.cameras.main.fadeIn(300, 0, 0, 0);
+    }
+
     AudioEngine.init();
     AudioEngine.startMusic();
     MobileGamepad.show(this);
@@ -2156,6 +2211,11 @@ class GameScene extends Phaser.Scene {
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+    this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+
+    this.isPaused = false;
+    this.pauseModal = null;
 
     this.createHUD();
     this.showLevelBanner();
@@ -2231,10 +2291,11 @@ class GameScene extends Phaser.Scene {
 
   showLevelBanner() {
     var size = this.scale;
-    var banner = this.add.text(size.width / 2, 60, "WORLD 1 : LEVEL " + (this.currentLevel + 1), {
+    var wTitle = (this.currentWorld === 1) ? "WORLD 2 : THE SHIFT" : "WORLD 1 : DESERT RUINS";
+    var banner = this.add.text(size.width / 2, 60, wTitle + " · LEVEL " + (this.currentLevel + 1), {
       fontFamily: "'Press Start 2P', monospace",
-      fontSize: "14px",
-      color: "#ffd32a",
+      fontSize: "12px",
+      color: (this.currentWorld === 1) ? "#00d2d3" : "#ffd32a",
       stroke: "#000000",
       strokeThickness: 5
     }).setOrigin(0.5).setDepth(200);
@@ -2287,6 +2348,13 @@ class GameScene extends Phaser.Scene {
     this.hudSkipBtn.setDepth(200);
     this.hudSkipBtn.setVisible(this.skipOfferUnlocked && !this.skipOfferUsed);
 
+    var pauseBtn = this.add.text(width - 88, 20, "⏸️", {
+      fontSize: "16px"
+    }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
+    pauseBtn.on("pointerdown", function() {
+      self.togglePause();
+    });
+
     var fsBtn = this.add.text(width - 55, 20, "⛶", {
       fontSize: "17px"
     }).setOrigin(0.5).setDepth(200).setInteractive({ cursor: "pointer" });
@@ -2305,8 +2373,127 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  update(time, delta) {
+  togglePause() {
     if (this.isDead || this.isComplete) return;
+    if (this.isPaused) {
+      this.resumeGame();
+    } else {
+      this.pauseGame();
+    }
+  }
+
+  pauseGame() {
+    if (this.isPaused) return;
+    this.isPaused = true;
+    this.physics.pause();
+    this.tweens.pauseAll();
+
+    var size = this.scale;
+    var width = size.width;
+    var height = size.height;
+    var self = this;
+
+    this.pauseModal = this.add.container(0, 0).setDepth(1000);
+
+    // Dim backdrop
+    var backdrop = this.add.graphics();
+    backdrop.fillStyle(0x060814, 0.88);
+    backdrop.fillRect(0, 0, width, height);
+
+    // Card frame
+    var card = this.add.graphics();
+    card.fillStyle(0x131728, 0.96);
+    card.fillRoundedRect(width / 2 - 180, height / 2 - 140, 360, 280, 14);
+    card.lineStyle(2, 0x00d2d3, 0.85);
+    card.strokeRoundedRect(width / 2 - 180, height / 2 - 140, 360, 280, 14);
+
+    // Title
+    var title = this.add.text(width / 2, height / 2 - 100, "⏸️ GAME PAUSED", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "15px",
+      color: "#ffd32a"
+    }).setOrigin(0.5);
+
+    var wName = (this.currentWorld === 1) ? "WORLD 2 · THE SHIFT" : "WORLD 1 · DESERT RUINS";
+    var sub = this.add.text(width / 2, height / 2 - 75, wName + "  [LV " + (this.currentLevel + 1) + "]", {
+      fontFamily: "'Press Start 2P', monospace",
+      fontSize: "8.5px",
+      color: "#a4b0be"
+    }).setOrigin(0.5);
+
+    // Helper to build stylized pause button
+    var createMenuBtn = function(y, text, bgColor, textColor, callback) {
+      var btnCont = self.add.container(width / 2, y);
+      var bg = self.add.graphics();
+      bg.fillStyle(bgColor, 1);
+      bg.fillRoundedRect(-120, -18, 240, 36, 8);
+      bg.lineStyle(1.5, 0xffffff, 0.6);
+      bg.strokeRoundedRect(-120, -18, 240, 36, 8);
+
+      var label = self.add.text(0, 0, text, {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "9px",
+        color: textColor
+      }).setOrigin(0.5);
+
+      var zone = self.add.zone(0, 0, 240, 36).setInteractive({ cursor: "pointer" });
+      zone.on("pointerdown", function() {
+        AudioEngine.sfxJump();
+        callback();
+      });
+      zone.on("pointerover", function() { bg.lineStyle(2, 0xffd32a, 1); bg.strokeRoundedRect(-120, -18, 240, 36, 8); });
+      zone.on("pointerout", function() { bg.lineStyle(1.5, 0xffffff, 0.6); bg.strokeRoundedRect(-120, -18, 240, 36, 8); });
+
+      btnCont.add([bg, label, zone]);
+      return btnCont;
+    };
+
+    var btnResume = createMenuBtn(height / 2 - 30, "▶ RESUME", 0x2ed573, "#ffffff", function() {
+      self.resumeGame();
+    });
+
+    var btnRestart = createMenuBtn(height / 2 + 20, "↺ RESTART LEVEL", 0xff4757, "#ffffff", function() {
+      self.resumeGame();
+      self.restartLevel();
+    });
+
+    var btnMap = createMenuBtn(height / 2 + 70, "🗺️ WORLD MAP", 0x3742fa, "#ffffff", function() {
+      self.resumeGame();
+      AudioEngine.stopMusic();
+      MobileGamepad.hide();
+      self.scene.start("WorldSelectScene");
+    });
+
+    this.pauseModal.add([backdrop, card, title, sub, btnResume, btnRestart, btnMap]);
+  }
+
+  resumeGame() {
+    if (!this.isPaused) return;
+    this.isPaused = false;
+    if (this.pauseModal) {
+      this.pauseModal.destroy();
+      this.pauseModal = null;
+    }
+    this.physics.resume();
+    this.tweens.resumeAll();
+  }
+
+  update(time, delta) {
+    // Check Pause and Restart triggers unconditionally even when paused or dead
+    if (this.keyEsc && Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
+      this.togglePause();
+    }
+    if (this.keyP && Phaser.Input.Keyboard.JustDown(this.keyP)) {
+      this.togglePause();
+    }
+    if ((this.keyR && Phaser.Input.Keyboard.JustDown(this.keyR)) || this.touchRestart) {
+      this.touchRestart = false;
+      if (this.isPaused) this.resumeGame();
+      this.restartLevel();
+      return;
+    }
+
+    if (this.isPaused || this.isDead || this.isComplete) return;
     var dt = delta / 1000;
     this.levelTime += dt;
     var size = this.scale;
@@ -2324,10 +2511,24 @@ class GameScene extends Phaser.Scene {
       this.drawMidRuins(this.midParallaxGfx, width, height, -pRatio * 50);
     }
 
-    // ── 🛡️ BOUNDARIES ──
+    // ── 🛡️ BOUNDARIES & VOID FAILSAFE ──
+    if (!this.player || isNaN(this.player.x) || isNaN(this.player.y)) {
+      this.onPlayerDie();
+      return;
+    }
+
+    // Robust 4-way out-of-bounds detection:
+    // 1. Pit fall below screen
+    // 2. High sky flyaway from magnetic / trampoline repulsion
+    // 3. Flung far off left or right edges
+    if (this.player.y > height + 45 || this.player.y < -160 || this.player.x < -100 || this.player.x > width + 80) {
+      this.onPlayerDie();
+      return;
+    }
+
     if (this.player.x < 18) {
       this.player.x = 18;
-      if (this.player.body.velocity.x < 0) this.player.setVelocityX(0);
+      if (this.player.body && this.player.body.velocity.x < 0) this.player.setVelocityX(0);
     }
 
     if (this.exitGate) {
@@ -2373,10 +2574,7 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    if (this.player.y > height + 40 || this.player.x > width + 70) {
-      this.onPlayerDie();
-      return;
-    }
+
 
     var moveLeft = this.cursors.left.isDown || this.keyA.isDown || this.touchLeft;
     var moveRight = this.cursors.right.isDown || this.keyD.isDown || this.touchRight;
@@ -2552,7 +2750,7 @@ class GameScene extends Phaser.Scene {
     }
     var deckInfo = document.getElementById("deck-level-info");
     if (deckInfo) {
-      deckInfo.textContent = "WORLD 1 · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
+      deckInfo.textContent = "WORLD " + (this.currentWorld + 1) + " · LV " + (this.currentLevel + 1) + "  💀 " + this.levelDeaths;
     }
 
     this.player.anims.stop();
@@ -2589,6 +2787,13 @@ class GameScene extends Phaser.Scene {
           MonetizationManager.onDeathThresholdReached(self);
         }
       }, 350);
+      // Failsafe watchdog timer: If user doesn't interact with ad modal within 12s, automatically recover
+      this.time.delayedCall(12000, function() {
+        if (self.isDead && !self.isComplete && typeof MonetizationManager !== "undefined" && !MonetizationManager.isAdPlaying) {
+          MonetizationManager.closeOfferModal();
+          self.restartLevel();
+        }
+      });
       return;
     }
 
@@ -2598,6 +2803,14 @@ class GameScene extends Phaser.Scene {
   }
 
   restartLevel() {
+    if (this.cameras && this.cameras.main) {
+      this.cameras.main.resetFX();
+      this.cameras.main.setZoom(1.0);
+      this.cameras.main.setScroll(0, 0);
+    }
+    if (this.isPaused) {
+      this.resumeGame();
+    }
     this.scene.restart({
       world: this.currentWorld,
       level: this.currentLevel,
@@ -3462,12 +3675,59 @@ class WorldCompleteScene extends Phaser.Scene {
     });
     btnReplay.add([b2Gfx, b2Txt, b2Zone]);
 
-    panel.add([
+    // Primary Next World action button if completing World 1
+    var btnEnterWorld2 = null;
+    if (this.currentWorld === 0) {
+      btnEnterWorld2 = this.add.container(0, 160);
+      var b3Gfx = this.add.graphics();
+      b3Gfx.fillStyle(0x00d2d3, 1);
+      b3Gfx.fillRoundedRect(-140, -20, 280, 40, 8);
+      b3Gfx.lineStyle(2.5, 0xffffff, 1);
+      b3Gfx.strokeRoundedRect(-140, -20, 280, 40, 8);
+      var b3Txt = this.add.text(0, 0, "🚀 ENTER WORLD 2 ▶", {
+        fontFamily: "'Press Start 2P', monospace",
+        fontSize: "10px",
+        color: "#0c0e18"
+      }).setOrigin(0.5);
+      var b3Zone = this.add.zone(0, 0, 280, 40).setInteractive({ cursor: "pointer" });
+      b3Zone.on("pointerdown", function() {
+        AudioEngine.sfxWin();
+        if (self.scene.get("World2IntroScene")) {
+          self.scene.start("World2IntroScene");
+        } else {
+          self.scene.start("GameScene", { world: 1, level: 0, deaths: self.totalDeaths, levelDeaths: 0 });
+        }
+      });
+      btnEnterWorld2.add([b3Gfx, b3Txt, b3Zone]);
+
+      // Reposition map and replay buttons around primary action
+      btnMap.setPosition(-200, 160);
+      b1Gfx.clear();
+      b1Gfx.fillStyle(0x2ed573, 1);
+      b1Gfx.fillRoundedRect(-70, -18, 140, 36, 8);
+      b1Gfx.lineStyle(1.5, 0xffffff, 1);
+      b1Gfx.strokeRoundedRect(-70, -18, 140, 36, 8);
+      b1Txt.setText("🗺️ MAP");
+      b1Zone.setSize(140, 36);
+
+      btnReplay.setPosition(200, 160);
+      b2Gfx.clear();
+      b2Gfx.fillStyle(0xffd32a, 1);
+      b2Gfx.fillRoundedRect(-70, -18, 140, 36, 8);
+      b2Gfx.lineStyle(1.5, 0x000000, 1);
+      b2Gfx.strokeRoundedRect(-70, -18, 140, 36, 8);
+      b2Txt.setText("↺ REPLAY");
+      b2Zone.setSize(140, 36);
+    }
+
+    var panelElements = [
       cardGfx, trophy, title, subtitle,
       statsGfx, statsText,
       teaserGfx, teaserHeader, teaserBody,
       btnMap, btnReplay
-    ]);
+    ];
+    if (btnEnterWorld2) panelElements.push(btnEnterWorld2);
+    panel.add(panelElements);
   }
 }
 
